@@ -1,0 +1,35 @@
+﻿<Window x:Class="WpfPathfinder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfPathfinder"
+        xmlns:userControls="clr-namespace:WpfPathfinder.View.UserControls"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+
+        <userControls:MenuBar/>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20*"/>
+                <ColumnDefinition Width="60*"/>
+                <ColumnDefinition Width="20*"/>
+            </Grid.ColumnDefinitions>
+
+            <Rectangle Grid.Column="1" Fill="red"></Rectangle>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Rectangle Fill="Purple"/>
+        </Grid>
+        
+        
+    </Grid>
+</Window>
