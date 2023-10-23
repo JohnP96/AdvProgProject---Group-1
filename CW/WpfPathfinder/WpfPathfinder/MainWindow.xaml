@@ -9,11 +9,10 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="70"/>
-            <RowDefinition/>
             <RowDefinition Height="30"/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
-
+        
         <userControls:MenuBar/>
 
         <Grid Grid.Row="1">
@@ -24,21 +23,27 @@
 
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="60*"/>
+                    <RowDefinition Height="55*"/>
+                    <RowDefinition Height="5*"/>
                     <RowDefinition Height="40*"/>
                 </Grid.RowDefinitions>
 
-                <Rectangle Fill="red"></Rectangle>
-                <Rectangle Grid.Row="1" Fill="Gray"></Rectangle>
+                <TextBox Name="cmdWindow"/>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80*"/>
+                        <ColumnDefinition Width="20*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Name="Input" AcceptsReturn="False"/>
+                    <Button Name="enterBtn" Grid.Column="1" IsDefault="True" >Enter</Button>
+                </Grid>
+
+                <Rectangle Grid.Row="2" Fill="Gray"></Rectangle>
             </Grid>
 
             <Rectangle Grid.Column="1" Fill="Lime"></Rectangle>
         </Grid>
 
-        <Grid Grid.Row="2">
-            <Rectangle Fill="Purple"/>
-        </Grid>
-        
-        
     </Grid>
 </Window>
