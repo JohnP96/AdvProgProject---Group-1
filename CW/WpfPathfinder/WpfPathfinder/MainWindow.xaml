@@ -1,4 +1,4 @@
-﻿<Window x:Class="WpfPathfinder.MainWindow"
+<Window x:Class="WpfPathfinder.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -18,12 +18,21 @@
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="20*"/>
+                <ColumnDefinition Width="40*"/>
                 <ColumnDefinition Width="60*"/>
-                <ColumnDefinition Width="20*"/>
             </Grid.ColumnDefinitions>
 
-            <Rectangle Grid.Column="1" Fill="red"></Rectangle>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60*"/>
+                    <RowDefinition Height="40*"/>
+                </Grid.RowDefinitions>
+
+                <Rectangle Fill="red"></Rectangle>
+                <Rectangle Grid.Row="1" Fill="Gray"></Rectangle>
+            </Grid>
+
+            <Rectangle Grid.Column="1" Fill="Lime"></Rectangle>
         </Grid>
 
         <Grid Grid.Row="2">
