@@ -1,13 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "tN6ylyrSLzhg9e676j8IfEzqkhtGCO2oD9/TXTMqdKM1Y671fe7xZPQF+cXqpR/h+CIM95VahfwXO+ckj28XVg==",
+  "dgSpecHash": "mCcfuXB7ayHIUC4HV+8wSqJzYtPilmmlbr8SkPnkTynxF56Zd1PmyWGjswgyPZRDBcWG3+ZSVZhIQ64q/Zi4CA==",
   "success": true,
-  "projectFilePath": "\\\\ueahome4\\stusci4\\ygb19mzu\\data\\Documents\\Advanced Computing\\CW\\WpfPathfinder\\WpfPathfinder\\WpfPathfinder.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\ygb19mzu\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\5.0.0\\microsoft.windowsdesktop.app.ref.5.0.0.nupkg.sha512",
-    "C:\\Users\\ygb19mzu\\.nuget\\packages\\microsoft.netcore.app.ref\\5.0.0\\microsoft.netcore.app.ref.5.0.0.nupkg.sha512",
-    "C:\\Users\\ygb19mzu\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\5.0.0\\microsoft.aspnetcore.app.ref.5.0.0.nupkg.sha512",
-    "C:\\Users\\ygb19mzu\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\5.0.17\\microsoft.netcore.app.host.win-x64.5.0.17.nupkg.sha512"
-  ],
+  "projectFilePath": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\WpfPathfinder\\WpfPathfinder\\WpfPathfinder.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }
