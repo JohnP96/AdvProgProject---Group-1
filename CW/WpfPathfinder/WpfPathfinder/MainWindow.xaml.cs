@@ -8,5 +8,11 @@ namespace WpfPathfinder
         {
             InitializeComponent();
         }
+
+        private void enterBtn_Click(object sender, RoutedEventArgs e)
+        {
+            cmdWindow.AppendText("> " + Input.Text + "\n");
+            Input.Clear();
+        }
     }
 }

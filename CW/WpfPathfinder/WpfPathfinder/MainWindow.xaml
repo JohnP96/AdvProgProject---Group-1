@@ -36,7 +36,7 @@
                         <ColumnDefinition Width="20*"/>
                     </Grid.ColumnDefinitions>
                     <TextBox Name="Input" AcceptsReturn="False"/>
-                    <Button Name="enterBtn" Grid.Column="1" IsDefault="True" >Enter</Button>
+                    <Button Click="enterBtn_Click" Name="enterBtn" Grid.Column="1" IsDefault="True" >Enter</Button>
                 </Grid>
 
                 <Rectangle Grid.Row="2" Fill="Gray"></Rectangle>
