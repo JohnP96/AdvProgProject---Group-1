@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "Hx9Qigyhwiq2WDEVMWyPwkYhlF4hj/fy1hNaqfJ2BC8L+zrYLP+wB1O0R05QvFq9tBXINM0WyFxBpRokqMDVaA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\JOHNP\\.nuget\\packages\\fsharp.core\\7.0.400\\fsharp.core.7.0.400.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,8 +1,20 @@
 {
   "version": 2,
-  "dgSpecHash": "mCcfuXB7ayHIUC4HV+8wSqJzYtPilmmlbr8SkPnkTynxF56Zd1PmyWGjswgyPZRDBcWG3+ZSVZhIQ64q/Zi4CA==",
-  "success": true,
+  "dgSpecHash": "aWBY5lSoR9mrJsfGY5Yv8R2+R6Moa/2UwT7Jlvexsz7N4ZKRUt3vsjCYMTxSI0KbpFAy4cHUFrH2E1+8K3/YZQ==",
+  "success": false,
   "projectFilePath": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\WpfPathfinder\\WpfPathfinder\\WpfPathfinder.csproj",
-  "expectedPackageFiles": [],
-  "logs": []
+  "expectedPackageFiles": [
+    "C:\\Users\\JOHNP\\.nuget\\packages\\fsharp.core\\7.0.400\\fsharp.core.7.0.400.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1105",
+      "level": "Error",
+      "message": "Unable to find project information for 'C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\WpfPathfinder\\WpfPathfinder\\FClassLibrary\\FClassLibrary.fsproj'. If you are using Visual Studio, this may be because the project is unloaded or not part of the current solution so run a restore from the command-line. Otherwise, the project file may be invalid or missing targets required for restore.",
+      "libraryId": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\WpfPathfinder\\WpfPathfinder\\FClassLibrary\\FClassLibrary.fsproj",
+      "targetGraphs": [
+        "net5.0-windows7.0"
+      ]
+    }
+  ]
 }

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34202.233
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FClassLibrary", "FClassLibrary.fsproj", "{DF5AEEA2-E815-487C-B0D1-18E93441A3C2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF5AEEA2-E815-487C-B0D1-18E93441A3C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF5AEEA2-E815-487C-B0D1-18E93441A3C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF5AEEA2-E815-487C-B0D1-18E93441A3C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF5AEEA2-E815-487C-B0D1-18E93441A3C2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {919B99D8-D5FB-43AB-BB0D-B0E8DB0FA8BB}
+	EndGlobalSection
+EndGlobal

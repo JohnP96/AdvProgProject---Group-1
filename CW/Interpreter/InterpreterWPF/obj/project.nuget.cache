@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "Ff++J9nlVMRUKa9pgTKrlVFrfOLvRARDOm7Ih7J6qYgC7x3sJ82kHVELpXpPbjaZ1fE2wp70/8smFbnRQ7wXwg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\JOHNP\\.nuget\\packages\\fsharp.core\\7.0.400\\fsharp.core.7.0.400.nupkg.sha512"
+  ],
+  "logs": []
+}

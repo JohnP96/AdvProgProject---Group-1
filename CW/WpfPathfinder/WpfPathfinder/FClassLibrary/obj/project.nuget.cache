@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "waaE4bbIbJFq6SHo9bJslxhXzpOx722kLa5a1mbcdzIpOcG23Sd4LybBYujQqDi7qyz13Z+/pHgL2zVWrxnGsQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\WpfPathfinder\\WpfPathfinder\\FClassLibrary\\FClassLibrary.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\JOHNP\\.nuget\\packages\\fsharp.core\\7.0.400\\fsharp.core.7.0.400.nupkg.sha512"
+  ],
+  "logs": []
+}
