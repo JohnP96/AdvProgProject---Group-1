@@ -32,9 +32,9 @@ namespace InterpreterWPF
             cmdWindow.AppendText("> " + Input.Text + "\n");
             string input = Input.Text;
             Microsoft.FSharp.Collections.FSharpList<LexerParser.terminal> lexed = LexerParser.lexer(input);
-            //cmdWindow.AppendText("> " + LexerParser.parser(lexed) + "\n");
+            cmdWindow.AppendText("> Tokens: " + string.Join(", ",lexed) + "\n");
             int answer = LexerParser.parseNeval(lexed).Item2;
-            cmdWindow.AppendText("> " + answer + "\n");
+            cmdWindow.AppendText("> Result: " + answer + "\n");
             Input.Clear();
         }
 

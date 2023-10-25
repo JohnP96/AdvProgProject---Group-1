@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\JOHNP\\source\\repos\\tester\\tester.fsproj": {}
+    "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\tester\\tester.fsproj": {}
   },
   "projects": {
-    "C:\\Users\\JOHNP\\source\\repos\\tester\\tester.fsproj": {
+    "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\tester\\tester.fsproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\JOHNP\\source\\repos\\tester\\tester.fsproj",
+        "projectUniqueName": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\tester\\tester.fsproj",
         "projectName": "tester",
-        "projectPath": "C:\\Users\\JOHNP\\source\\repos\\tester\\tester.fsproj",
+        "projectPath": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\tester\\tester.fsproj",
         "packagesPath": "C:\\Users\\JOHNP\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\JOHNP\\source\\repos\\tester\\obj\\",
+        "outputPath": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\tester\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\JOHNP\\AppData\\Roaming\\NuGet\\NuGet.Config",
