@@ -26,7 +26,8 @@
                     <RowDefinition Height="40*"/>
                 </Grid.RowDefinitions>
 
-                <TextBox Name="cmdWindow" TextWrapping="Wrap"/>
+                <TextBox Name="cmdWindow" TextWrapping="Wrap" 
+                         IsReadOnly="True" AcceptsReturn="True"/>
 
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
