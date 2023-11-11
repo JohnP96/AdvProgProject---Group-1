@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800"
+        Loaded="Window_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <!--RowDefinition Height="30"/-->
@@ -40,7 +41,11 @@
                 <Rectangle Grid.Row="2" Fill="Gray"></Rectangle>
             </Grid>
 
-            <Rectangle Grid.Column="1" Fill="Lime"></Rectangle>
+            <Grid Grid.Column="1" Background="LightGreen">
+                <Canvas Name="canGraph" Background="White"
+                  Width="400" Height="300"
+                  VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Grid>
         </Grid>
 
     </Grid>
