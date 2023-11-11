@@ -60,11 +60,15 @@ namespace InterpreterWPF
                     new Point(x, canGraph.Height / 2 + margin / 2)));
 
                 // Add labels to the X axis.
-                TextBlock label = new TextBlock();
-                label.Text = ((x - canGraph.Width / 2) / xStepSize).ToString();
-                Canvas.SetLeft(label, x - 10); // Adjust the label position.
-                Canvas.SetTop(label, canGraph.Height / 2 + margin);
-                canGraph.Children.Add(label);
+                double xLabelValue = (x - canGraph.Width / 2) / xStepSize;
+                if (!(xLabelValue >= -1 && xLabelValue <= 1))
+                {
+                    TextBlock label = new TextBlock();
+                    label.Text = xLabelValue.ToString();
+                    Canvas.SetLeft(label, x); // Adjust the label position.
+                    Canvas.SetTop(label, canGraph.Height / 2 + margin);
+                    canGraph.Children.Add(label);
+                }
             }
 
             Path xaxis_path = new Path();
@@ -85,15 +89,15 @@ namespace InterpreterWPF
                     new Point(canGraph.Width / 2 + margin / 2, y)));
 
                 // Add labels to the Y axis.
-                if (!(y >= -2 && y <= 2))
+                double yLabelValue = -((y - canGraph.Height / 2) / yStepSize);
+                if (!(yLabelValue >= -1 && yLabelValue <= 1))
                 {
                     TextBlock label = new TextBlock();
-                    label.Text = (-((y - canGraph.Height / 2) / yStepSize)).ToString();
+                    label.Text = yLabelValue.ToString();
                     Canvas.SetLeft(label, canGraph.Width / 2 - 20);
                     Canvas.SetTop(label, y - 10); // Adjust the label position.
                     canGraph.Children.Add(label);
                 }
-
             }
 
             Path yaxis_path = new Path();
@@ -104,16 +108,21 @@ namespace InterpreterWPF
             canGraph.Children.Add(yaxis_path);
         }
 
-        public static PointCollection GeneratePolynomialPoints(double[] coefficients, double step, double xmin, double xmax)
+        public static PointCollection GeneratePolynomialPoints(double[] coefficients, int numSteps, double xmin, double xmax)
         {
             PointCollection points = new PointCollection();
-            for (double x = xmin; x <= xmax; x += step)
+            double xStep = (xmax - xmin) / numSteps;
+
+            for (int i = 0; i <= numSteps; i++)
             {
+                double x = xmin + i * xStep;
                 double y = EvaluatePolynomial(coefficients, x);
                 points.Add(new Point(x, y));
             }
+
             return points;
         }
+
 
         // Get the y value for a given x.
         public static double EvaluatePolynomial(double[] coefficients, double x)
@@ -143,7 +152,7 @@ namespace InterpreterWPF
             // Draw X and Y axis with labeled steps.
             make_axis(numSteps);
 
-            /*
+            
             // Example usage:
             double[] coefficients = { 2, 3 }; // Represents 2x + 3
             double xmin = 0; // Adjust as needed
@@ -156,7 +165,6 @@ namespace InterpreterWPF
 
             // Draw data line
 
-            */
         }
 
 
