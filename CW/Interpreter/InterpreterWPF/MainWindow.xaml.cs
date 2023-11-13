@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,21 +33,38 @@ namespace InterpreterWPF
 
         private void enterBtn_Click(object sender, RoutedEventArgs e)
         {
-            
+            bool flag = true;
             cmdWindow.AppendText("> " + Input.Text + "\n");
             string input = Input.Text;
             FSharpList<LexerParser.terminal> lexed = LexerParser.lexer(input);
-            cmdWindow.AppendText("> Tokens: " + string.Join(", ",lexed) + "\n");
-            Tuple<string, LexerParser.Number> result = 
-                LexerParser.parseNeval(lexed, symList).Item2;
-            LexerParser.Number answer = result.Item2;
-            if (result.Item1 != "") 
-            {
-                symList = FSharpList<Tuple<string, LexerParser.Number>>.Cons(
-                    Tuple.Create(result.Item1, answer), symList);
+            for (int i = 0; i < lexed.Length; i++){
+                if (lexed[i] is LexerParser.terminal.Err)
+                {
+                    flag = false;
+                    cmdWindow.AppendText("> Error: " + lexed[i] + " is not a valid lexeme");
+                }
             }
-            cmdWindow.AppendText("> Result: " + answer + "\n");
-            cmdWindow.ScrollToEnd();
+            string  parseRes = LexerParser.parser(lexed).ToString();
+            
+            if (parseRes.StartsWith("F"))
+            {
+                flag = false;
+                cmdWindow.AppendText(parseRes);
+            }
+            if (flag)
+            {
+                cmdWindow.AppendText("> Tokens: " + string.Join(", ", lexed) + "\n");
+                Tuple<string, LexerParser.Number> result =
+                    LexerParser.parseNeval(lexed, symList).Item2;
+                LexerParser.Number answer = result.Item2;
+                if (result.Item1 != "")
+                {
+                    symList = FSharpList<Tuple<string, LexerParser.Number>>.Cons(
+                        Tuple.Create(result.Item1, answer), symList);
+                }
+                cmdWindow.AppendText("> Result: " + answer + "\n");
+                cmdWindow.ScrollToEnd();
+            }
             Input.Clear();
         }
 

@@ -7,7 +7,10 @@ module LexerParser =
         Int of int | Float of float
 
     type terminal = 
-        Add | Sub | Mul | Div | Rem | Pow | Lpar | Rpar | Equ | Vid of string | Num of Number| Neg | Plus
+        Add | Sub | Mul | Div | Rem | Pow | Lpar | Rpar | Equ | Vid of string | Num of Number | Neg | Plus | Err of char
+
+    type 'a result = 
+        Success of 'a | Failure of string
 
     let str2lst s = [for c in s -> c]
     let isblank c = System.Char.IsWhiteSpace c
@@ -17,7 +20,6 @@ module LexerParser =
     let intVal (c:char) = (int)((int)c - (int)'0')
     let floatVal (c:char) = (float)((int)c - (int)'0')
     let symError = System.Exception("No value associated to variable name")
-
     let parseError = System.Exception("Parser error")
 
 
@@ -48,12 +50,14 @@ module LexerParser =
 
     //============================= lexer ========================================
     let lexer input = 
-        let rec isBlankOrOpenParen prevChar =
+        let rec isUnary prevChar =
             match prevChar with
             | [] -> true  // Previous character is empty, indicating the start of the input.
             | '=':: _ -> true
             | '^':: _ -> true
             | '(' :: _ -> true  // Previous character is '(', indicating unary minus.
+            | '+' :: _ -> true
+            | '-' :: _ -> true
             | _ -> false
 
         let rec scan prevChar input =
@@ -61,12 +65,12 @@ module LexerParser =
             match input with
             | [] -> []
             | '+'::tail ->
-                if isBlankOrOpenParen prevChar then
+                if isUnary prevChar then
                     Plus :: scan ['+'] tail
                 else
                     Add :: scan ['+'] tail
             | '-'::tail ->
-                if isBlankOrOpenParen prevChar then
+                if isUnary prevChar then
                     Neg :: scan ['-'] tail
                 else
                     Sub :: scan ['-'] tail
@@ -83,7 +87,7 @@ module LexerParser =
                 Num iVal :: scan [c] iStr
             | c :: tail when ischar c -> let (iStr, vName) = scChar(tail, c.ToString())
                                          Vid vName :: scan [c] iStr
-            | _ -> raise lexError
+            | c :: tail -> Err c :: scan [c] tail
             
         
         scan [] (str2lst input)
@@ -108,33 +112,60 @@ module LexerParser =
     //<varID> ::= [a-z,A-Z]+
 
     ////============================= Parser ======================================
-    //let parser tList = 
-    //    let rec E tList = (T >> Eopt) tList     // NOTE: >> is (forward) function composition
-    //    and Eopt tList =                        // 'and' allows for mutual recursion
-    //        match tList with
-    //        | Add :: tail -> (T >> Eopt) tail
-    //        | Sub :: tail -> (T >> Eopt) tail
-    //        | _ -> tList
-    //    and T tList = (P >> Topt) tList
-    //    and Topt tList =
-    //        match tList with
-    //        | Mul :: tail -> (P >> Topt) tail
-    //        | Div :: tail -> (P >> Topt) tail
-    //        | Rem :: tail -> (P >> Topt) tail
-    //        | _ -> tList
-    //    and P tList = (NR >> Popt) tList
-    //    and Popt tList =
-    //        match tList with
-    //        | Pow :: tail -> (NR >> Popt) tail
-    //        | _ -> tList
-    //    and NR tList =
-    //        match tList with 
-    //        | Num value :: tail -> tail
-    //        | Lpar :: tail -> match E tail with 
-    //                          | Rpar :: tail -> tail
-    //                          | _ -> raise parseError
-    //        | _ -> raise parseError
-    //    E tList
+    let parser tList = 
+        let rec E (tList: result<terminal list>) = 
+            match (T >> Eopt) tList with
+            | Success res -> Success res
+            | Failure error -> Failure (error)
+        and Eopt (tList: result<terminal list>) =             
+            match tList with
+            | Success (Add :: tail) -> (T >> Eopt) (Success tail)
+            | Success (Sub :: tail) -> (T >> Eopt) (Success tail)
+            | Failure error -> Failure error
+            | _ -> tList
+        and T (tList: result<terminal list>) = 
+            match (P >> Topt) tList with
+            | Success res -> Success res
+            | Failure error -> Failure (error)
+        and Topt (tList: result<terminal list>) =
+            match tList with
+            | Success (Mul :: tail) -> (P >> Topt) (Success tail)
+            | Success (Div :: tail) -> (P >> Topt) (Success tail)
+            | Success (Rem :: tail) -> (P >> Topt) (Success tail)
+            | Failure error -> Failure error
+            | _ -> tList
+        and P (tList: result<terminal list>) =   
+            match (NR >> Popt) tList with
+            | Success res -> Success res
+            | Failure error -> Failure (error)
+        and Popt (tList: result<terminal list>) =
+            match tList with
+            | Success (Pow :: tail) -> (NR >> Popt) (Success tail)
+            | Failure error -> Failure error
+            | _ -> tList
+        and NR (tList: result<terminal list>) =
+            match tList with 
+            | Success (Neg :: Num value :: tail) -> Success tail
+            | Success (Neg :: Lpar :: tail) -> match E (Success tail) with
+                                               | Success (Rpar :: tail) -> Success tail
+                                               | Success _ -> Failure "Missing right parenthesis"
+                                               | Failure error -> Failure error
+            | Success (Plus :: Num value :: tail) -> Success tail
+            | Success (Num value :: tail) -> Success tail
+            | Success (Vid vName :: tail) -> Success tail
+            | Success (Lpar :: tail) -> match E (Success tail) with 
+                                        | Success (Rpar :: tail) -> Success tail
+                                        | Success _ -> Failure "Missing right parenthesis"
+                                        | Failure error -> Failure error
+            | Failure error -> Failure error
+            | c -> Failure ("Unexpected token \"" + c.ToString() + "\"")
+        let VA tList =  
+            match tList with
+            | Vid vName :: tail -> match tail with
+                                   | Equ :: tail -> E (Success tail)
+                                   | _ -> Failure "Missing equal sign after variable name"
+            | _ -> E (Success tList)
+        VA tList 
 
     let rec searchVName vName (symList:List<string*Number>) =
         match symList with
@@ -232,6 +263,15 @@ module LexerParser =
                     match value with
                     | Int a -> Int (-a)
                     | Float a -> Float (-a)))
+            |Neg :: Lpar :: tail ->
+                let (tLst, (vID, tval)) = E tail
+                match tLst with 
+                | Rpar :: tail ->
+                    (tail, ("",
+                        match tval with
+                        | Int a -> Int (-a)
+                        | Float a -> Float (-a)))
+                | _ -> raise parseError
             | Plus :: Num value :: tail -> (tail, ("", value))
             | Vid vName :: tail -> let res = searchVName vName symList
                                    if (fst res) then (tail, ("", (snd res)))
