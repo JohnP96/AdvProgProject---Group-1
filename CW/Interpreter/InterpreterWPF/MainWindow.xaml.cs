@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using InterpreterFSharp;
+using System.Diagnostics;
+
 
 namespace InterpreterWPF
 {
@@ -38,43 +40,26 @@ namespace InterpreterWPF
             Input.Clear();
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        // Graph 
         private void DrawGraph(object sender, RoutedEventArgs e)
         {
-            // Draw grid lines and axes
+            // Draw grid lines, axes and Indents
             DrawGridLines();
             DrawAxis();
             DrawIndents();
 
             // Generate Polynomial data
-            List<double> coefficients = new List<double> {1, 0, -400, 24000 }; // Represents x^2 - 3x + 2
-            double minX = -graphCanvas.Width/2;
-            double maxX = graphCanvas.Width/2;
-            double step = 10;
+            List<double> coefficients = new List<double> {1,0,0 }; // Represents x^2 - 3x + 2
+            //double minX = -graphCanvas.Width/2;
+            //double maxX = graphCanvas.Width/2;
+            double minX = -20;
+            double maxX = 20;
+            double step = 0.5;
+            double scaleFactor = 10;
 
             List<Point> points  = GeneratePoly(coefficients, minX, maxX, step);
+
+            //points = MapPointsToCanvas(points, scaleFactor)
 
             DrawPoints(points);
 
@@ -165,6 +150,7 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(yAxis);
             }
         }
+
         private List<Point> GeneratePoly(List<double> coefficients, double minX, double maxX, double step)
         {
             List<Point> points = new List<Point>();
@@ -172,10 +158,35 @@ namespace InterpreterWPF
             for (double x = minX; x <= maxX; x += step)
             {
                 double y = EvaluatePolynomial(coefficients, x);
-                points.Add(new Point(x, y));
+
+                points.Add(new Point(x,y);
             }
 
             return points;
+        }
+
+        private List<Point> MapPointsToCanvas(List<Point> points, double canvasUnit)
+        {
+            foreach (var point in points)
+            {
+                double canvasX = MapXToCanvas(point.X, canvasUnit);
+                double canvasY = MapYToCanvas(point.Y, canvasUnit);
+
+                point.X = canvasX;
+                point.Y = canvasY;
+
+            }
+            return points;
+        }
+
+        private double MapXToCanvas(double x, double ratio)
+        {
+            return x * ratio;
+        }
+
+        private double MapYToCanvas(double y, double ratio)
+        {
+            return y * ratio; 
         }
 
         private double EvaluatePolynomial(List<double> coefficients, double x)

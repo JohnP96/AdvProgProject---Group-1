@@ -41,11 +41,16 @@
                 <Rectangle Grid.Row="2" Fill="Gray"></Rectangle>
             </Grid>
 
-            <Grid Grid.Column="1" Background="LightGreen">
-                <Canvas Name="graphCanvas" Background="White"
-                  Width="400" Height="500"
-                  VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            </Grid>
+          <Grid Grid.Column="1" Background="LightGreen">
+            <Canvas Name="graphCanvas" Background="White" Width="400" Height="500"
+                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                    MouseWheel="graphCanvas_MouseWheel">
+              <Canvas.RenderTransform>
+                <MatrixTransform x:Name="canvasTransform"/>
+              </Canvas.RenderTransform>
+            </Canvas>
+          </Grid>
+
         </Grid>
 
     </Grid>
