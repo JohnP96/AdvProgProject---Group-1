@@ -41,6 +41,8 @@ namespace InterpreterWPF
         }
 
         // Graph 
+        private double zoomLevel = 1.0;
+
         private void DrawGraph(object sender, RoutedEventArgs e)
         {
             // Draw grid lines, axes and Indents
@@ -59,10 +61,9 @@ namespace InterpreterWPF
 
             List<Point> points  = GeneratePoly(coefficients, minX, maxX, step);
 
-            points = MapPointsToCanvas(points, scaleFactor)
+            points = MapPointsToCanvas(points, scaleFactor);
 
             DrawPoints(points);
-
         }
 
         private void DrawGridLines()
@@ -150,7 +151,7 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(yAxis);
             }
         }
-
+ 
         private List<Point> GeneratePoly(List<double> coefficients, double minX, double maxX, double step)
         {
             List<Point> points = new List<Point>();
@@ -159,34 +160,10 @@ namespace InterpreterWPF
             {
                 double y = EvaluatePolynomial(coefficients, x);
 
-                points.Add(new Point(x,y);
+                points.Add(new Point(x,y));
             }
 
             return points;
-        }
-
-        private List<Point> MapPointsToCanvas(List<Point> points, double canvasUnit)
-        {
-            foreach (var point in points)
-            {
-                double canvasX = MapXToCanvas(point.X, canvasUnit);
-                double canvasY = MapYToCanvas(point.Y, canvasUnit);
-
-                point.X = canvasX;
-                point.Y = canvasY;
-
-            }
-            return points;
-        }
-
-        private double MapXToCanvas(double x, double ratio)
-        {
-            return x * ratio;
-        }
-
-        private double MapYToCanvas(double y, double ratio)
-        {
-            return y * ratio; 
         }
 
         private double EvaluatePolynomial(List<double> coefficients, double x)
@@ -197,6 +174,31 @@ namespace InterpreterWPF
                 result += coefficients[i] * Math.Pow(x, coefficients.Count - 1 - i);
             }
             return result;
+        }
+
+        private List<Point> MapPointsToCanvas(List<Point> points, double canvasUnit)
+        {
+            List<Point> mappedPoints = new List<Point>();
+
+            foreach (Point point in points)
+            {
+                double canvasX = MapXToCanvas(point.X, canvasUnit);
+                double canvasY = MapYToCanvas(point.Y, canvasUnit);
+
+                mappedPoints.Add(new Point(canvasX, canvasY));
+            }
+
+            return mappedPoints;
+        }
+
+        private double MapXToCanvas(double x, double ratio)
+        {
+            return x * ratio;
+        }
+
+        private double MapYToCanvas(double y, double ratio)
+        {
+            return y * ratio; 
         }
 
         private void DrawPoints(List<Point> points)
@@ -215,8 +217,17 @@ namespace InterpreterWPF
             graphCanvas.Children.Add(polyline);
         }
 
+        private void graphCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            // Adjust zoom level based on mouse wheel delta
+            if (e.Delta > 0)
+                zoomLevel *= 1.1; // Zoom in
+            else
+                zoomLevel /= 1.1; // Zoom out
 
-
+            // Apply the zoom level to the canvas transform
+            canvasTransform.Matrix = new Matrix(zoomLevel, 0, 0, -zoomLevel, 0, 0);
+        }
         /*
         private void make_axis(int numSteps)
         {
