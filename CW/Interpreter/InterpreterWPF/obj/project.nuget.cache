@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "MGzMaAA9nm0BXWjC9G8sn064cBi6RCTvOOGMW7idBUt5229DCLdP1S2fwDPxtGjrZO/qda9dpu+d6URWhOreTQ==",
+  "dgSpecHash": "EVsgXMurjiPh9AywUVgAtOCsTKbRAyTxJiq5RzByr7xjkhEVD/00apIVt6XHDyYTMBoY+6dpgPKF6zZljRF5Uw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\ygb19mzu.UEA.000\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj",
+  "projectFilePath": "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\ygb19mzu.UEA.000\\.nuget\\packages\\fsharp.core\\7.0.200\\fsharp.core.7.0.200.nupkg.sha512"
+    "C:\\Users\\ygb19mzu.UEA\\.nuget\\packages\\fsharp.core\\7.0.200\\fsharp.core.7.0.200.nupkg.sha512"
   ],
   "logs": []
 }

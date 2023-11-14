@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ygb19mzu.UEA.000\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj": {}
+    "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ygb19mzu.UEA.000\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj": {
+    "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ygb19mzu.UEA.000\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj",
+        "projectUniqueName": "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj",
         "projectName": "InterpreterFSharp",
-        "projectPath": "C:\\Users\\ygb19mzu.UEA.000\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj",
-        "packagesPath": "C:\\Users\\ygb19mzu.UEA.000\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ygb19mzu.UEA.000\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\obj\\",
+        "projectPath": "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj",
+        "packagesPath": "C:\\Users\\ygb19mzu.UEA\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\ygb19mzu.UEA.000\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ygb19mzu.UEA\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -67,20 +67,20 @@
         }
       }
     },
-    "C:\\Users\\ygb19mzu.UEA.000\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj": {
+    "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ygb19mzu.UEA.000\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj",
+        "projectUniqueName": "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj",
         "projectName": "InterpreterWPF",
-        "projectPath": "C:\\Users\\ygb19mzu.UEA.000\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj",
-        "packagesPath": "C:\\Users\\ygb19mzu.UEA.000\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ygb19mzu.UEA.000\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\obj\\",
+        "projectPath": "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj",
+        "packagesPath": "C:\\Users\\ygb19mzu.UEA\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\ygb19mzu.UEA.000\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ygb19mzu.UEA\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -95,8 +95,8 @@
           "net6.0-windows7.0": {
             "targetAlias": "net6.0-windows",
             "projectReferences": {
-              "C:\\Users\\ygb19mzu.UEA.000\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj": {
-                "projectPath": "C:\\Users\\ygb19mzu.UEA.000\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj"
+              "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj": {
+                "projectPath": "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj"
               }
             }
           }

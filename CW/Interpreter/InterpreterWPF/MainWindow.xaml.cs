@@ -37,6 +37,174 @@ namespace InterpreterWPF
             cmdWindow.AppendText("> Result: " + answer + "\n");
             Input.Clear();
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        private void DrawGraph(object sender, RoutedEventArgs e)
+        {
+            // Draw grid lines and axes
+            DrawGridLines();
+            DrawAxis();
+            DrawIndents();
+
+            // Generate Polynomial data
+            List<double> coefficients = new List<double> { -1, 0, -400 }; // Represents x^2 - 3x + 2
+            double minX = -graphCanvas.Width/2;
+            double maxX = graphCanvas.Width/2;
+            double step = 10;
+
+            List<Point> points  = GeneratePoly(coefficients, minX, maxX, step);
+
+            DrawPoints(points);
+
+        }
+
+        private void DrawGridLines()
+        {
+            for (double x = 0; x <= graphCanvas.Width; x += 10)
+            {
+                Line line = new Line
+                {
+                    X1 = x,
+                    Y1 = 0,
+                    X2 = x,
+                    Y2 = graphCanvas.Height,
+                    Stroke = Brushes.LightGray
+                };
+                graphCanvas.Children.Add(line);
+            }
+
+            for (double y = 0; y <= graphCanvas.Height; y += 10)
+            {
+                Line line = new Line
+                {
+                    X1 = 0,
+                    Y1 = y,
+                    X2 = graphCanvas.Width,
+                    Y2 = y,
+                    Stroke = Brushes.LightGray
+                };
+                graphCanvas.Children.Add(line);
+            }
+        }
+
+        private void DrawAxis()
+        {
+            Line xAxis = new Line
+            {
+                X1 = 0,
+                Y1 = graphCanvas.Height / 2,
+                X2 = graphCanvas.Width,
+                Y2 = graphCanvas.Height / 2,
+                Stroke = Brushes.Black,
+                StrokeThickness = 2
+            };
+            graphCanvas.Children.Add(xAxis);
+
+            Line yAxis = new Line
+            {
+                X1 = graphCanvas.Width / 2,
+                Y1 = 0,
+                X2 = graphCanvas.Width / 2,
+                Y2 = graphCanvas.Height,
+                Stroke = Brushes.Black,
+                StrokeThickness = 2
+            };
+            graphCanvas.Children.Add(yAxis);
+        }
+
+        private void DrawIndents()
+        {
+            // X-Axis
+            for (double i = 0; i <= graphCanvas.Width; i += 10)
+            {
+                Line xAxis = new Line
+                {
+                    X1 = i,
+                    Y1 = (graphCanvas.Height / 2) - 5,
+                    X2 = i,
+                    Y2 = (graphCanvas.Height / 2) + 5,
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 2
+                };
+                graphCanvas.Children.Add(xAxis);
+            }
+            // Y-Axis
+            for (double i = 0; i <= graphCanvas.Height; i += 10)
+            {
+                Line yAxis = new Line
+                {
+                    X1 = (graphCanvas.Width / 2) - 5,
+                    Y1 = i,
+                    X2 = (graphCanvas.Width / 2) + 5,
+                    Y2 = i,
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 2
+                };
+                graphCanvas.Children.Add(yAxis);
+            }
+        }
+        private List<Point> GeneratePoly(List<double> coefficients, double minX, double maxX, double step)
+        {
+            List<Point> points = new List<Point>();
+
+            for (double x = minX; x <= maxX; x += step)
+            {
+                double y = EvaluatePolynomial(coefficients, x);
+                points.Add(new Point(x, y));
+            }
+
+            return points;
+        }
+
+        private double EvaluatePolynomial(List<double> coefficients, double x)
+        {
+            double result = 0;
+            for (int i = 0; i < coefficients.Count; i++)
+            {
+                result += coefficients[i] * Math.Pow(x, coefficients.Count-1 - i);
+            }
+            return result;
+        }
+        private void DrawPoints(List<Point> points)
+        {
+            Polyline polyline = new Polyline
+            {
+                Stroke = Brushes.Blue,
+                StrokeThickness = 2
+            };
+
+            foreach (Point point in points)
+            {
+                polyline.Points.Add(new Point(point.X + graphCanvas.Width / 2, graphCanvas.Height / 2 - point.Y));
+            }
+
+            graphCanvas.Children.Add(polyline);
+        }
+
+
+        /*
         private void make_axis(int numSteps)
         {
             const double margin = 10;
@@ -166,7 +334,7 @@ namespace InterpreterWPF
             // Draw data line
 
         }
-
+        */
 
 
     }

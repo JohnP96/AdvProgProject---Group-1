@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "7lhOScrRf88AEZPUpewtVwu+HnyrR+lRmbYj/8jwjwz/2WG6wcue7Glo2uq+P6CwdbRVkZRVc0y2eoV/tHFI6A==",
+  "dgSpecHash": "HVeAR0z/rMB5XAEEJYy6vlE7qhRn1o7Zv3lElFURlnludu6SncsoidH9VN8Yr/alRNeoqXrXs1HJu31NBc6leQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\ygb19mzu.UEA.000\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj",
+  "projectFilePath": "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj",
   "expectedPackageFiles": [
-    "C:\\Users\\ygb19mzu.UEA.000\\.nuget\\packages\\fsharp.core\\7.0.200\\fsharp.core.7.0.200.nupkg.sha512"
+    "C:\\Users\\ygb19mzu.UEA\\.nuget\\packages\\fsharp.core\\7.0.200\\fsharp.core.7.0.200.nupkg.sha512"
   ],
   "logs": []
 }

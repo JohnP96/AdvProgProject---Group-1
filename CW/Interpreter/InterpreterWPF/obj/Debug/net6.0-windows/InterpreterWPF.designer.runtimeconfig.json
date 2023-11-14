@@ -12,8 +12,8 @@
       }
     ],
     "additionalProbingPaths": [
-      "C:\\Users\\ygb19mzu.UEA.000\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\ygb19mzu.UEA.000\\.nuget\\packages",
+      "C:\\Users\\ygb19mzu.UEA\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\ygb19mzu.UEA\\.nuget\\packages",
       "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
     ],
     "configProperties": {
