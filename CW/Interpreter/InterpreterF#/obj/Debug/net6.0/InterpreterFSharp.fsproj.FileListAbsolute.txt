@@ -9,3 +9,14 @@ C:\Users\JOHNP\Documents\AdvProgProject\CW\Interpreter\InterpreterF#\obj\Debug\n
 C:\Users\JOHNP\Documents\AdvProgProject\CW\Interpreter\InterpreterF#\obj\Debug\net6.0\InterpreterFSharp.dll
 C:\Users\JOHNP\Documents\AdvProgProject\CW\Interpreter\InterpreterF#\obj\Debug\net6.0\InterpreterFSharp.xml
 C:\Users\JOHNP\Documents\AdvProgProject\CW\Interpreter\InterpreterF#\obj\Debug\net6.0\InterpreterFSharp.pdb
+C:\Users\ygb19mzu.UEA.000\Source\Repos\JohnP96\AdvProgProject\CW\Interpreter\InterpreterF#\bin\Debug\net6.0\InterpreterFSharp.deps.json
+C:\Users\ygb19mzu.UEA.000\Source\Repos\JohnP96\AdvProgProject\CW\Interpreter\InterpreterF#\bin\Debug\net6.0\InterpreterFSharp.dll
+C:\Users\ygb19mzu.UEA.000\Source\Repos\JohnP96\AdvProgProject\CW\Interpreter\InterpreterF#\bin\Debug\net6.0\InterpreterFSharp.pdb
+C:\Users\ygb19mzu.UEA.000\Source\Repos\JohnP96\AdvProgProject\CW\Interpreter\InterpreterF#\bin\Debug\net6.0\InterpreterFSharp.xml
+C:\Users\ygb19mzu.UEA.000\Source\Repos\JohnP96\AdvProgProject\CW\Interpreter\InterpreterF#\obj\Debug\net6.0\InterpreterFSharp.fsproj.AssemblyReference.cache
+C:\Users\ygb19mzu.UEA.000\Source\Repos\JohnP96\AdvProgProject\CW\Interpreter\InterpreterF#\obj\Debug\net6.0\InterpreterFSharp.AssemblyInfoInputs.cache
+C:\Users\ygb19mzu.UEA.000\Source\Repos\JohnP96\AdvProgProject\CW\Interpreter\InterpreterF#\obj\Debug\net6.0\InterpreterFSharp.AssemblyInfo.fs
+C:\Users\ygb19mzu.UEA.000\Source\Repos\JohnP96\AdvProgProject\CW\Interpreter\InterpreterF#\obj\Debug\net6.0\InterpreterFSharp.fsproj.CoreCompileInputs.cache
+C:\Users\ygb19mzu.UEA.000\Source\Repos\JohnP96\AdvProgProject\CW\Interpreter\InterpreterF#\obj\Debug\net6.0\InterpreterFSharp.dll
+C:\Users\ygb19mzu.UEA.000\Source\Repos\JohnP96\AdvProgProject\CW\Interpreter\InterpreterF#\obj\Debug\net6.0\InterpreterFSharp.xml
+C:\Users\ygb19mzu.UEA.000\Source\Repos\JohnP96\AdvProgProject\CW\Interpreter\InterpreterF#\obj\Debug\net6.0\InterpreterFSharp.pdb
