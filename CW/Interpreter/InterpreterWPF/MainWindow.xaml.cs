@@ -69,7 +69,7 @@ namespace InterpreterWPF
             DrawIndents();
 
             // Generate Polynomial data
-            List<double> coefficients = new List<double> { -1, 0, -400 }; // Represents x^2 - 3x + 2
+            List<double> coefficients = new List<double> {1, 0, -400, 24000 }; // Represents x^2 - 3x + 2
             double minX = -graphCanvas.Width/2;
             double maxX = graphCanvas.Width/2;
             double step = 10;
@@ -183,10 +183,11 @@ namespace InterpreterWPF
             double result = 0;
             for (int i = 0; i < coefficients.Count; i++)
             {
-                result += coefficients[i] * Math.Pow(x, coefficients.Count-1 - i);
+                result += coefficients[i] * Math.Pow(x, coefficients.Count - 1 - i);
             }
             return result;
         }
+
         private void DrawPoints(List<Point> points)
         {
             Polyline polyline = new Polyline
@@ -202,6 +203,7 @@ namespace InterpreterWPF
 
             graphCanvas.Children.Add(polyline);
         }
+
 
 
         /*
@@ -335,7 +337,6 @@ namespace InterpreterWPF
 
         }
         */
-
-
     }
+
 }
