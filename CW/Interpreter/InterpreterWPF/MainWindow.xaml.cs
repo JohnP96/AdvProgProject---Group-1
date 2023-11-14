@@ -59,7 +59,7 @@ namespace InterpreterWPF
 
             List<Point> points  = GeneratePoly(coefficients, minX, maxX, step);
 
-            //points = MapPointsToCanvas(points, scaleFactor)
+            points = MapPointsToCanvas(points, scaleFactor)
 
             DrawPoints(points);
 
