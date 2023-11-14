@@ -70,12 +70,16 @@ namespace InterpreterWPF
             Input.Clear();
         }
 
-        // Graph 
+         // Graph 
+        private double zoomLevel = 1.0;
+
         private void DrawGraph(object sender, RoutedEventArgs e)
         {
+            // Clear the Grid lines 
+            graphCanvas.Children.Clear();
             // Draw grid lines, axes and Indents
             DrawGridLines();
-            DrawAxis();
+            DrawAxis(zoomLevel);
             DrawIndents();
 
             // Generate Polynomial data
@@ -85,53 +89,135 @@ namespace InterpreterWPF
             double minX = -20;
             double maxX = 20;
             double step = 0.5;
-            double scaleFactor = 10;
+            double scaleFactor = 10 * zoomLevel;
 
             List<Point> points  = GeneratePoly(coefficients, minX, maxX, step);
 
-            points = MapPointsToCanvas(points, scaleFactor)
+            points = MapPointsToCanvas(points, scaleFactor);
 
             DrawPoints(points);
-
         }
 
         private void DrawGridLines()
         {
-            for (double x = 0; x <= graphCanvas.Width; x += 10)
+            double halfWidth = graphCanvas.ActualWidth / 2;
+            double halfHeight = graphCanvas.ActualHeight / 2;
+
+            // Draw light gray grid lines
+            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += 10)
             {
                 Line line = new Line
                 {
                     X1 = x,
                     Y1 = 0,
                     X2 = x,
-                    Y2 = graphCanvas.Height,
+                    Y2 = graphCanvas.ActualHeight,
                     Stroke = Brushes.LightGray
                 };
                 graphCanvas.Children.Add(line);
             }
 
-            for (double y = 0; y <= graphCanvas.Height; y += 10)
+            for (double x = halfWidth - 10; x >= 0; x -= 10)
+            {
+                Line line = new Line
+                {
+                    X1 = x,
+                    Y1 = 0,
+                    X2 = x,
+                    Y2 = graphCanvas.ActualHeight,
+                    Stroke = Brushes.LightGray
+                };
+                graphCanvas.Children.Add(line);
+            }
+
+            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += 10)
             {
                 Line line = new Line
                 {
                     X1 = 0,
                     Y1 = y,
-                    X2 = graphCanvas.Width,
+                    X2 = graphCanvas.ActualWidth,
                     Y2 = y,
                     Stroke = Brushes.LightGray
                 };
                 graphCanvas.Children.Add(line);
             }
+
+            for (double y = halfHeight - 10; y >= 0; y -= 10)
+            {
+                Line line = new Line
+                {
+                    X1 = 0,
+                    Y1 = y,
+                    X2 = graphCanvas.ActualWidth,
+                    Y2 = y,
+                    Stroke = Brushes.LightGray
+                };
+                graphCanvas.Children.Add(line);
+            }
+
+            // Draw dark gray grid lines with a larger interval
+            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += 50)
+            {
+                Line line = new Line
+                {
+                    X1 = x,
+                    Y1 = 0,
+                    X2 = x,
+                    Y2 = graphCanvas.ActualHeight,
+                    Stroke = Brushes.DarkGray
+                };
+                graphCanvas.Children.Add(line);
+            }
+
+            for (double x = halfWidth - 50; x >= 0; x -= 50)
+            {
+                Line line = new Line
+                {
+                    X1 = x,
+                    Y1 = 0,
+                    X2 = x,
+                    Y2 = graphCanvas.ActualHeight,
+                    Stroke = Brushes.DarkGray
+                };
+                graphCanvas.Children.Add(line);
+            }
+
+            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += 50)
+            {
+                Line line = new Line
+                {
+                    X1 = 0,
+                    Y1 = y,
+                    X2 = graphCanvas.ActualWidth,
+                    Y2 = y,
+                    Stroke = Brushes.DarkGray
+                };
+                graphCanvas.Children.Add(line);
+            }
+
+            for (double y = halfHeight - 50; y >= 0; y -= 50)
+            {
+                Line line = new Line
+                {
+                    X1 = 0,
+                    Y1 = y,
+                    X2 = graphCanvas.ActualWidth,
+                    Y2 = y,
+                    Stroke = Brushes.DarkGray
+                };
+                graphCanvas.Children.Add(line);
+            }
         }
 
-        private void DrawAxis()
+        private void DrawAxis(double zoomLevel)
         {
             Line xAxis = new Line
             {
                 X1 = 0,
-                Y1 = graphCanvas.Height / 2,
-                X2 = graphCanvas.Width,
-                Y2 = graphCanvas.Height / 2,
+                Y1 = graphCanvas.ActualHeight / 2 * zoomLevel,
+                X2 = graphCanvas.ActualWidth,
+                Y2 = graphCanvas.ActualHeight / 2 * zoomLevel,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2
             };
@@ -139,10 +225,10 @@ namespace InterpreterWPF
 
             Line yAxis = new Line
             {
-                X1 = graphCanvas.Width / 2,
+                X1 = graphCanvas.ActualWidth / 2 * zoomLevel,
                 Y1 = 0,
-                X2 = graphCanvas.Width / 2,
-                Y2 = graphCanvas.Height,
+                X2 = graphCanvas.ActualWidth / 2 * zoomLevel,
+                Y2 = graphCanvas.ActualHeight,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2
             };
@@ -180,7 +266,7 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(yAxis);
             }
         }
-
+ 
         private List<Point> GeneratePoly(List<double> coefficients, double minX, double maxX, double step)
         {
             List<Point> points = new List<Point>();
@@ -189,34 +275,10 @@ namespace InterpreterWPF
             {
                 double y = EvaluatePolynomial(coefficients, x);
 
-                points.Add(new Point(x,y);
+                points.Add(new Point(x,y));
             }
 
             return points;
-        }
-
-        private List<Point> MapPointsToCanvas(List<Point> points, double canvasUnit)
-        {
-            foreach (var point in points)
-            {
-                double canvasX = MapXToCanvas(point.X, canvasUnit);
-                double canvasY = MapYToCanvas(point.Y, canvasUnit);
-
-                point.X = canvasX;
-                point.Y = canvasY;
-
-            }
-            return points;
-        }
-
-        private double MapXToCanvas(double x, double ratio)
-        {
-            return x * ratio;
-        }
-
-        private double MapYToCanvas(double y, double ratio)
-        {
-            return y * ratio; 
         }
 
         private double EvaluatePolynomial(List<double> coefficients, double x)
@@ -227,6 +289,31 @@ namespace InterpreterWPF
                 result += coefficients[i] * Math.Pow(x, coefficients.Count - 1 - i);
             }
             return result;
+        }
+
+        private List<Point> MapPointsToCanvas(List<Point> points, double canvasUnit)
+        {
+            List<Point> mappedPoints = new List<Point>();
+
+            foreach (Point point in points)
+            {
+                double canvasX = MapXToCanvas(point.X, canvasUnit);
+                double canvasY = MapYToCanvas(point.Y, canvasUnit);
+
+                mappedPoints.Add(new Point(canvasX, canvasY));
+            }
+
+            return mappedPoints;
+        }
+
+        private double MapXToCanvas(double x, double ratio)
+        {
+            return x * ratio;
+        }
+
+        private double MapYToCanvas(double y, double ratio)
+        {
+            return y * ratio; 
         }
 
         private void DrawPoints(List<Point> points)
@@ -245,139 +332,19 @@ namespace InterpreterWPF
             graphCanvas.Children.Add(polyline);
         }
 
-
-
-        /*
-        private void make_axis(int numSteps)
+        private void graphCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            const double margin = 10;
-            double xmin = -canGraph.Width / 2 + margin;
-            double xmax = canGraph.Width / 2 - margin;
-            double ymin = -canGraph.Height / 2 + margin;
-            double ymax = canGraph.Height / 2 - margin;
+            // Adjust zoom level based on mouse wheel delta
+            if (e.Delta > 0)
+                zoomLevel *= 1.1; // Zoom in
+            else
+                zoomLevel /= 1.1; // Zoom out
 
-            // Calculate the step size based on the canvas size and number of steps.
-            double xStepSize = canGraph.Width / numSteps;
-            double yStepSize = canGraph.Height / numSteps;
-
-            // Make the X axis.
-            GeometryGroup xaxis_geom = new GeometryGroup();
-            xaxis_geom.Children.Add(new LineGeometry(
-                new Point(0, canGraph.Height / 2), new Point(canGraph.Width, canGraph.Height / 2)));
-            for (double x = 0; x <= canGraph.Width; x += xStepSize)
-            {
-                xaxis_geom.Children.Add(new LineGeometry(
-                    new Point(x, canGraph.Height / 2 - margin / 2),
-                    new Point(x, canGraph.Height / 2 + margin / 2)));
-
-                // Add labels to the X axis.
-                double xLabelValue = (x - canGraph.Width / 2) / xStepSize;
-                if (!(xLabelValue >= -1 && xLabelValue <= 1))
-                {
-                    TextBlock label = new TextBlock();
-                    label.Text = xLabelValue.ToString();
-                    Canvas.SetLeft(label, x); // Adjust the label position.
-                    Canvas.SetTop(label, canGraph.Height / 2 + margin);
-                    canGraph.Children.Add(label);
-                }
-            }
-
-            Path xaxis_path = new Path();
-            xaxis_path.StrokeThickness = 1;
-            xaxis_path.Stroke = Brushes.Black;
-            xaxis_path.Data = xaxis_geom;
-
-            canGraph.Children.Add(xaxis_path);
-
-            // Make the Y axis.
-            GeometryGroup yaxis_geom = new GeometryGroup();
-            yaxis_geom.Children.Add(new LineGeometry(
-                new Point(canGraph.Width / 2, 0), new Point(canGraph.Width / 2, canGraph.Height)));
-            for (double y = 0; y <= canGraph.Height; y += yStepSize)
-            {
-                yaxis_geom.Children.Add(new LineGeometry(
-                    new Point(canGraph.Width / 2 - margin / 2, y),
-                    new Point(canGraph.Width / 2 + margin / 2, y)));
-
-                // Add labels to the Y axis.
-                double yLabelValue = -((y - canGraph.Height / 2) / yStepSize);
-                if (!(yLabelValue >= -1 && yLabelValue <= 1))
-                {
-                    TextBlock label = new TextBlock();
-                    label.Text = yLabelValue.ToString();
-                    Canvas.SetLeft(label, canGraph.Width / 2 - 20);
-                    Canvas.SetTop(label, y - 10); // Adjust the label position.
-                    canGraph.Children.Add(label);
-                }
-            }
-
-            Path yaxis_path = new Path();
-            yaxis_path.StrokeThickness = 1;
-            yaxis_path.Stroke = Brushes.Black;
-            yaxis_path.Data = yaxis_geom;
-
-            canGraph.Children.Add(yaxis_path);
+            // Apply the zoom level to the canvas transform
+            //canvasTransform.Matrix = new Matrix(zoomLevel, 0, 0, -zoomLevel, 0, 0);
+            DrawGraph(sender, e);
         }
-
-        public static PointCollection GeneratePolynomialPoints(double[] coefficients, int numSteps, double xmin, double xmax)
-        {
-            PointCollection points = new PointCollection();
-            double xStep = (xmax - xmin) / numSteps;
-
-            for (int i = 0; i <= numSteps; i++)
-            {
-                double x = xmin + i * xStep;
-                double y = EvaluatePolynomial(coefficients, x);
-                points.Add(new Point(x, y));
-            }
-
-            return points;
-        }
-
-
-        // Get the y value for a given x.
-        public static double EvaluatePolynomial(double[] coefficients, double x)
-        {
-            double result = 0;
-            for (int i = 0; i < coefficients.Length; i++)
-            {
-                result += coefficients[i] * Math.Pow(x, i);
-            }
-            return result;
-        }
-
-        private void draw_data(Canvas canvas, PointCollection points, Brush brush, double thickness)
-        {
-            Polyline polyline = new Polyline
-            {
-                Stroke = brush,
-                StrokeThickness = thickness,
-                Points = points
-            };
-            canvas.Children.Add(polyline);
-        }
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            int numSteps = 20; // Number of steps for both X and Y axes.
-
-            // Draw X and Y axis with labeled steps.
-            make_axis(numSteps);
-
-            
-            // Example usage:
-            double[] coefficients = { 2, 3 }; // Represents 2x + 3
-            double xmin = 0; // Adjust as needed
-            double xmax = numSteps; // Adjust as needed
-
-            // Generate points using the number of steps.
-            PointCollection points = GeneratePolynomialPoints(coefficients, numSteps, xmin, xmax);
-
-            draw_data(canGraph, points, Brushes.Blue, 2);
-
-            // Draw data line
-
-        }
-        */
+        
     }
 
 }
