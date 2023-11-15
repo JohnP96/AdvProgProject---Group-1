@@ -79,8 +79,8 @@ namespace InterpreterWPF
             graphCanvas.Children.Clear();
             // Draw grid lines, axes and Indents
             DrawGridLines();
-            DrawAxis(zoomLevel);
-            DrawIndents();
+            DrawAxis();
+            DrawLabels();
 
             // Generate Polynomial data
             List<double> coefficients = new List<double> {1,0,0 }; // Represents x^2 - 3x + 2
@@ -96,6 +96,79 @@ namespace InterpreterWPF
             points = MapPointsToCanvas(points, scaleFactor);
 
             DrawPoints(points);
+        }
+        private void DrawLabels()
+        {
+            double halfWidth = graphCanvas.ActualWidth / 2;
+            double halfHeight = graphCanvas.ActualHeight / 2;
+            double val = 0;
+
+            // Label the +ve X-axis
+            for (double i = halfWidth; i < graphCanvas.ActualWidth; i += 50)
+            {
+                TextBlock label = new TextBlock
+                {
+                    Text = (val).ToString(),
+                    Foreground = Brushes.Black
+                };
+
+                Canvas.SetLeft(label, i);
+                Canvas.SetTop(label, halfHeight + 5); // Adjust the vertical position as needed
+
+                graphCanvas.Children.Add(label);
+                val++;
+            }
+
+            // Label the -ve X-axis
+            val = 0;
+            for (double i = halfWidth; i >= 0; i -= 50)
+            {
+                TextBlock label = new TextBlock
+                {
+                    Text = (val).ToString(),
+                    Foreground = Brushes.Black
+                };
+
+                Canvas.SetLeft(label, i);
+                Canvas.SetTop(label, halfHeight + 5); // Adjust the vertical position as needed
+
+                graphCanvas.Children.Add(label);
+                val--;
+            }
+
+            // Label the +ve Y-axis
+            val = 1;
+            for (double i = halfHeight + 50; i < graphCanvas.ActualHeight; i += 50)
+            {
+                TextBlock label = new TextBlock
+                {
+                    Text = (val).ToString(),
+                    Foreground = Brushes.Black
+                };
+
+                Canvas.SetLeft(label, halfWidth + 5); // Adjust the horizontal position as needed
+                Canvas.SetTop(label, i);
+
+                graphCanvas.Children.Add(label);
+                val++;
+            }
+
+            // Label the -ve Y-axis
+            val = -1;
+            for (double i = halfHeight - 50; i >= 0; i -= 50)
+            {
+                TextBlock label = new TextBlock
+                {
+                    Text = (val).ToString(),
+                    Foreground = Brushes.Black
+                };
+
+                Canvas.SetLeft(label, halfWidth + 5); // Adjust the horizontal position as needed
+                Canvas.SetTop(label, i);
+
+                graphCanvas.Children.Add(label);
+                val--;
+            }
         }
 
         private void DrawGridLines()
@@ -210,14 +283,14 @@ namespace InterpreterWPF
             }
         }
 
-        private void DrawAxis(double zoomLevel)
+        private void DrawAxis()
         {
             Line xAxis = new Line
             {
                 X1 = 0,
-                Y1 = graphCanvas.ActualHeight / 2 * zoomLevel,
+                Y1 = graphCanvas.ActualHeight / 2,
                 X2 = graphCanvas.ActualWidth,
-                Y2 = graphCanvas.ActualHeight / 2 * zoomLevel,
+                Y2 = graphCanvas.ActualHeight / 2,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2
             };
@@ -225,9 +298,9 @@ namespace InterpreterWPF
 
             Line yAxis = new Line
             {
-                X1 = graphCanvas.ActualWidth / 2 * zoomLevel,
+                X1 = graphCanvas.ActualWidth / 2,
                 Y1 = 0,
-                X2 = graphCanvas.ActualWidth / 2 * zoomLevel,
+                X2 = graphCanvas.ActualWidth / 2,
                 Y2 = graphCanvas.ActualHeight,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2
@@ -235,38 +308,6 @@ namespace InterpreterWPF
             graphCanvas.Children.Add(yAxis);
         }
 
-        private void DrawIndents()
-        {
-            // X-Axis
-            for (double i = 0; i <= graphCanvas.Width; i += 10)
-            {
-                Line xAxis = new Line
-                {
-                    X1 = i,
-                    Y1 = (graphCanvas.Height / 2) - 5,
-                    X2 = i,
-                    Y2 = (graphCanvas.Height / 2) + 5,
-                    Stroke = Brushes.Black,
-                    StrokeThickness = 2
-                };
-                graphCanvas.Children.Add(xAxis);
-            }
-            // Y-Axis
-            for (double i = 0; i <= graphCanvas.Height; i += 10)
-            {
-                Line yAxis = new Line
-                {
-                    X1 = (graphCanvas.Width / 2) - 5,
-                    Y1 = i,
-                    X2 = (graphCanvas.Width / 2) + 5,
-                    Y2 = i,
-                    Stroke = Brushes.Black,
-                    StrokeThickness = 2
-                };
-                graphCanvas.Children.Add(yAxis);
-            }
-        }
- 
         private List<Point> GeneratePoly(List<double> coefficients, double minX, double maxX, double step)
         {
             List<Point> points = new List<Point>();
@@ -344,7 +385,7 @@ namespace InterpreterWPF
             //canvasTransform.Matrix = new Matrix(zoomLevel, 0, 0, -zoomLevel, 0, 0);
             DrawGraph(sender, e);
         }
-        
+
     }
 
 }
