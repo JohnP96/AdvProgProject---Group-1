@@ -47,7 +47,9 @@
           <Grid Grid.Column="1" Background="LightGreen">
                 <Canvas Name="graphCanvas" Background="White"
                         VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                        MouseWheel="graphCanvas_MouseWheel">
+                        MouseWheel="zoom"
+						MouseDown="mouseDown"
+                        MouseMove="graphCanvas_MouseMove">
                     <Canvas.RenderTransform>
                         <MatrixTransform x:Name="canvasTransform"/>
                     </Canvas.RenderTransform>
