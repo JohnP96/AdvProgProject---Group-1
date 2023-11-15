@@ -373,7 +373,7 @@ namespace InterpreterWPF
             graphCanvas.Children.Add(polyline);
         }
 
-        private void graphCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
+        private void zoom(object sender, MouseWheelEventArgs e)
         {
             // Adjust zoom level based on mouse wheel delta
             if (e.Delta > 0)
@@ -385,6 +385,38 @@ namespace InterpreterWPF
             //canvasTransform.Matrix = new Matrix(zoomLevel, 0, 0, -zoomLevel, 0, 0);
             DrawGraph(sender, e);
         }
+
+        // Panning
+        private Point panStartPoint;
+
+        private void mouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                panStartPoint = e.GetPosition(graphCanvas);
+            }
+        }
+
+        private void graphCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                Point currentMousePosition = e.GetPosition(graphCanvas);
+
+                double deltaX = currentMousePosition.X - panStartPoint.X;
+                double deltaY = currentMousePosition.Y - panStartPoint.Y;
+
+                // Adjust the canvas transformation matrix to pan the graph
+                canvasTransform.Matrix.Translate(deltaX, deltaY);
+
+                // Redraw the graph with the new pan offset
+                DrawGraph(sender, e);
+
+                // Update the start point for the next movement
+                panStartPoint = currentMousePosition;
+            }
+        }
+
 
     }
 
