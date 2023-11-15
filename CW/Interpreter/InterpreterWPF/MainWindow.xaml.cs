@@ -72,6 +72,8 @@ namespace InterpreterWPF
 
          // Graph 
         private double zoomLevel = 1.0;
+        private double x_Offset = 0;
+        private double y_Offset = 0;
 
         private void DrawGraph(object sender, RoutedEventArgs e)
         {
@@ -79,8 +81,8 @@ namespace InterpreterWPF
             graphCanvas.Children.Clear();
             // Draw grid lines, axes and Indents
             DrawGridLines();
-            DrawAxis();
-            DrawLabels();
+            DrawAxis(x_Offset, y_Offset);
+            DrawLabels(x_Offset, y_Offset);
 
             // Generate Polynomial data
             List<double> coefficients = new List<double> {1,0,0 }; // Represents x^2 - 3x + 2
@@ -97,14 +99,15 @@ namespace InterpreterWPF
 
             DrawPoints(points);
         }
-        private void DrawLabels()
+        
+        private void DrawLabels(double xOffset, double yOffest)
         {
-            double halfWidth = graphCanvas.ActualWidth / 2;
-            double halfHeight = graphCanvas.ActualHeight / 2;
+            double halfWidth = graphCanvas.ActualWidth / 2 + xOffset;
+            double halfHeight = graphCanvas.ActualHeight / 2 + yOffest;
             double val = 0;
 
             // Label the +ve X-axis
-            for (double i = halfWidth; i < graphCanvas.ActualWidth; i += 50)
+            for (double i = halfWidth ; i < graphCanvas.ActualWidth; i += 50)
             {
                 TextBlock label = new TextBlock
                 {
@@ -118,7 +121,7 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(label);
                 val++;
             }
-
+            
             // Label the -ve X-axis
             val = 0;
             for (double i = halfWidth; i >= 0; i -= 50)
@@ -135,10 +138,10 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(label);
                 val--;
             }
-
+            
             // Label the +ve Y-axis
             val = 1;
-            for (double i = halfHeight + 50; i < graphCanvas.ActualHeight; i += 50)
+            for (double i = halfHeight - 50; i > 0 ; i -= 50)
             {
                 TextBlock label = new TextBlock
                 {
@@ -155,7 +158,7 @@ namespace InterpreterWPF
 
             // Label the -ve Y-axis
             val = -1;
-            for (double i = halfHeight - 50; i >= 0; i -= 50)
+            for (double i = halfHeight + 50; i < graphCanvas.ActualHeight; i += 50)
             {
                 TextBlock label = new TextBlock
                 {
@@ -173,8 +176,8 @@ namespace InterpreterWPF
 
         private void DrawGridLines()
         {
-            double halfWidth = graphCanvas.ActualWidth / 2;
-            double halfHeight = graphCanvas.ActualHeight / 2;
+            double halfWidth = (graphCanvas.ActualWidth / 2) + x_Offset;
+            double halfHeight = ( graphCanvas.ActualHeight / 2) + y_Offset;
 
             // Draw light gray grid lines
             for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += 10)
@@ -283,14 +286,14 @@ namespace InterpreterWPF
             }
         }
 
-        private void DrawAxis()
+        private void DrawAxis(double xOffset, double yOffset)
         {
             Line xAxis = new Line
             {
                 X1 = 0,
-                Y1 = graphCanvas.ActualHeight / 2,
+                Y1 = (graphCanvas.ActualHeight / 2) + yOffset,
                 X2 = graphCanvas.ActualWidth,
-                Y2 = graphCanvas.ActualHeight / 2,
+                Y2 = (graphCanvas.ActualHeight / 2) + yOffset,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2
             };
@@ -298,9 +301,9 @@ namespace InterpreterWPF
 
             Line yAxis = new Line
             {
-                X1 = graphCanvas.ActualWidth / 2,
+                X1 = (graphCanvas.ActualWidth / 2) + xOffset,
                 Y1 = 0,
-                X2 = graphCanvas.ActualWidth / 2,
+                X2 = (graphCanvas.ActualWidth / 2) + xOffset,
                 Y2 = graphCanvas.ActualHeight,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2
@@ -373,19 +376,6 @@ namespace InterpreterWPF
             graphCanvas.Children.Add(polyline);
         }
 
-        private void zoom(object sender, MouseWheelEventArgs e)
-        {
-            // Adjust zoom level based on mouse wheel delta
-            if (e.Delta > 0)
-                zoomLevel *= 1.1; // Zoom in
-            else
-                zoomLevel /= 1.1; // Zoom out
-
-            // Apply the zoom level to the canvas transform
-            //canvasTransform.Matrix = new Matrix(zoomLevel, 0, 0, -zoomLevel, 0, 0);
-            DrawGraph(sender, e);
-        }
-
         // Panning
         private Point panStartPoint;
 
@@ -407,7 +397,8 @@ namespace InterpreterWPF
                 double deltaY = currentMousePosition.Y - panStartPoint.Y;
 
                 // Adjust the canvas transformation matrix to pan the graph
-                canvasTransform.Matrix.Translate(deltaX, deltaY);
+                x_Offset += deltaX;
+                y_Offset += deltaY;
 
                 // Redraw the graph with the new pan offset
                 DrawGraph(sender, e);
@@ -417,6 +408,19 @@ namespace InterpreterWPF
             }
         }
 
+        // Zooming
+        private void zoom(object sender, MouseWheelEventArgs e)
+        {
+            // Adjust zoom level based on mouse wheel delta
+            if (e.Delta > 0)
+                zoomLevel *= 1.1; // Zoom in
+            else
+                zoomLevel /= 1.1; // Zoom out
+
+            // Apply the zoom level to the canvas transform
+            //canvasTransform.Matrix = new Matrix(zoomLevel, 0, 0, -zoomLevel, 0, 0);
+            DrawGraph(sender, e);
+        }
 
     }
 
