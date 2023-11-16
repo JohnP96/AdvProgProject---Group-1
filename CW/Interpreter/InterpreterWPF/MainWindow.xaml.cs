@@ -180,7 +180,24 @@ namespace InterpreterWPF
             double halfHeight = ( graphCanvas.ActualHeight / 2) + y_Offset;
 
             // Draw light gray grid lines
-            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += 10)
+
+            // Define a scaling factor for the grid lines
+            double gridScaleFactor = 1.0;
+            double cumulativeScaledDistance = 0.0;
+
+            double baseInterval = 10; // Initial interval between grid lines
+            double maxInterval = 50;  // Maximum interval between grid lines
+            double interval = baseInterval * zoomLevel;
+
+            // Reset interval when it exceeds the maximum
+            if (interval > maxInterval)
+            {
+                zoomLevel = 1.0;  // Reset zoom level
+                interval = baseInterval;  // Reset interval
+            }
+
+            // Draw light gray grid lines
+            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += interval)
             {
                 Line line = new Line
                 {
@@ -193,7 +210,7 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(line);
             }
 
-            for (double x = halfWidth - 10; x >= 0; x -= 10)
+            for (double x = halfWidth; x >= 0; x -= interval)
             {
                 Line line = new Line
                 {
@@ -206,7 +223,7 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(line);
             }
 
-            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += 10)
+            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += interval)
             {
                 Line line = new Line
                 {
@@ -219,7 +236,7 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(line);
             }
 
-            for (double y = halfHeight - 10; y >= 0; y -= 10)
+            for (double y = halfHeight; y >= 0; y -= interval)
             {
                 Line line = new Line
                 {
@@ -233,7 +250,7 @@ namespace InterpreterWPF
             }
 
             // Draw dark gray grid lines with a larger interval
-            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += 50)
+            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += maxInterval)
             {
                 Line line = new Line
                 {
@@ -241,7 +258,7 @@ namespace InterpreterWPF
                     Y1 = 0,
                     X2 = x,
                     Y2 = graphCanvas.ActualHeight,
-                    Stroke = Brushes.DarkGray
+                    Stroke = Brushes.Black
                 };
                 graphCanvas.Children.Add(line);
             }
@@ -254,7 +271,7 @@ namespace InterpreterWPF
                     Y1 = 0,
                     X2 = x,
                     Y2 = graphCanvas.ActualHeight,
-                    Stroke = Brushes.DarkGray
+                    Stroke = Brushes.Black
                 };
                 graphCanvas.Children.Add(line);
             }
@@ -267,7 +284,7 @@ namespace InterpreterWPF
                     Y1 = y,
                     X2 = graphCanvas.ActualWidth,
                     Y2 = y,
-                    Stroke = Brushes.DarkGray
+                    Stroke = Brushes.Black
                 };
                 graphCanvas.Children.Add(line);
             }
@@ -280,7 +297,7 @@ namespace InterpreterWPF
                     Y1 = y,
                     X2 = graphCanvas.ActualWidth,
                     Y2 = y,
-                    Stroke = Brushes.DarkGray
+                    Stroke = Brushes.Black
                 };
                 graphCanvas.Children.Add(line);
             }
@@ -378,12 +395,15 @@ namespace InterpreterWPF
 
         // Panning
         private Point panStartPoint;
+        private Point panLastPoint;
 
+  
         private void mouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
             {
                 panStartPoint = e.GetPosition(graphCanvas);
+                panLastPoint = panStartPoint;
             }
         }
 
@@ -393,8 +413,8 @@ namespace InterpreterWPF
             {
                 Point currentMousePosition = e.GetPosition(graphCanvas);
 
-                double deltaX = currentMousePosition.X - panStartPoint.X;
-                double deltaY = currentMousePosition.Y - panStartPoint.Y;
+                double deltaX = currentMousePosition.X - panLastPoint.X;
+                double deltaY = currentMousePosition.Y - panLastPoint.Y;
 
                 // Adjust the canvas transformation matrix to pan the graph
                 x_Offset += deltaX;
@@ -403,24 +423,32 @@ namespace InterpreterWPF
                 // Redraw the graph with the new pan offset
                 DrawGraph(sender, e);
 
-                // Update the start point for the next movement
-                panStartPoint = currentMousePosition;
+                // Update the last point for the next movement
+                panLastPoint = currentMousePosition;
             }
         }
 
         // Zooming
         private void zoom(object sender, MouseWheelEventArgs e)
         {
+            // Get the position of the cursor relative to the canvas
+            Point cursorPosition = e.GetPosition(graphCanvas);
+
             // Adjust zoom level based on mouse wheel delta
             if (e.Delta > 0)
-                zoomLevel *= 1.1; // Zoom in
+                zoomLevel *= 1.01; // Zoom in
             else
-                zoomLevel /= 1.1; // Zoom out
+                zoomLevel /= 1.01; // Zoom out
 
-            // Apply the zoom level to the canvas transform
-            //canvasTransform.Matrix = new Matrix(zoomLevel, 0, 0, -zoomLevel, 0, 0);
+            // Calculate the new pan offsets to keep the cursor at the same position after zooming
+            //x_Offset = cursorPosition.X - (cursorPosition.X - x_Offset) * (zoomLevel);
+            //y_Offset = cursorPosition.Y - (cursorPosition.Y - y_Offset) * (zoomLevel);
+
+            // Redraw the graph with the new zoom level and pan offsets
             DrawGraph(sender, e);
         }
+
+
 
     }
 
