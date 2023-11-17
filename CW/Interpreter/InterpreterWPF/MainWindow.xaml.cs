@@ -107,7 +107,7 @@ namespace InterpreterWPF
             double val = 0;
 
             // Label the +ve X-axis
-            for (double i = halfWidth ; i < graphCanvas.ActualWidth; i += 50)
+            for (double i = halfWidth ; i < graphCanvas.ActualWidth; i += 50 * zoomLevel)
             {
                 TextBlock label = new TextBlock
                 {
@@ -124,7 +124,7 @@ namespace InterpreterWPF
             
             // Label the -ve X-axis
             val = 0;
-            for (double i = halfWidth; i >= 0; i -= 50)
+            for (double i = halfWidth; i >= 0; i -= 50 * zoomLevel)
             {
                 TextBlock label = new TextBlock
                 {
@@ -141,7 +141,7 @@ namespace InterpreterWPF
             
             // Label the +ve Y-axis
             val = 1;
-            for (double i = halfHeight - 50; i > 0 ; i -= 50)
+            for (double i = halfHeight - 50 * zoomLevel; i > 0 ; i -= 50 * zoomLevel)
             {
                 TextBlock label = new TextBlock
                 {
@@ -158,7 +158,7 @@ namespace InterpreterWPF
 
             // Label the -ve Y-axis
             val = -1;
-            for (double i = halfHeight + 50; i < graphCanvas.ActualHeight; i += 50)
+            for (double i = halfHeight + 50 * zoomLevel; i < graphCanvas.ActualHeight; i += 50 * zoomLevel)
             {
                 TextBlock label = new TextBlock
                 {
@@ -180,13 +180,8 @@ namespace InterpreterWPF
             double halfHeight = ( graphCanvas.ActualHeight / 2) + y_Offset;
 
             // Draw light gray grid lines
-
-            // Define a scaling factor for the grid lines
-            double gridScaleFactor = 1.0;
-            double cumulativeScaledDistance = 0.0;
-
             double baseInterval = 10; // Initial interval between grid lines
-            double maxInterval = 50;  // Maximum interval between grid lines
+            double maxInterval = 20;  // Maximum interval between grid lines
             double interval = baseInterval * zoomLevel;
 
             // Reset interval when it exceeds the maximum
@@ -250,7 +245,7 @@ namespace InterpreterWPF
             }
 
             // Draw dark gray grid lines with a larger interval
-            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += maxInterval)
+            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += 50*zoomLevel)
             {
                 Line line = new Line
                 {
@@ -263,7 +258,7 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(line);
             }
 
-            for (double x = halfWidth - 50; x >= 0; x -= 50)
+            for (double x = halfWidth; x >= 0; x -= 50*zoomLevel)
             {
                 Line line = new Line
                 {
@@ -276,7 +271,7 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(line);
             }
 
-            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += 50)
+            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += 50*zoomLevel)
             {
                 Line line = new Line
                 {
@@ -289,7 +284,7 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(line);
             }
 
-            for (double y = halfHeight - 50; y >= 0; y -= 50)
+            for (double y = halfHeight; y >= 0; y -= 50 * zoomLevel)
             {
                 Line line = new Line
                 {
