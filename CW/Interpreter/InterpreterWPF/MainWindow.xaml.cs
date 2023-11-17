@@ -78,25 +78,31 @@ namespace InterpreterWPF
         private double baseInterval = 10; // Initial interval between grey grid lines
         private double baseDarkInterval = 50; // Initial interval between dark grid lines
 
+        private double zoomNum = 5;
+
 
         private void DrawGraph(object sender, RoutedEventArgs e)
         {
             // Clear the Grid lines 
             graphCanvas.Children.Clear();
-            // Draw grid lines, axes and Indents
+            // Draw grid lines
             double darkInterval = baseDarkInterval * zoomLevel;
             double interval = baseInterval * zoomLevel;
             DrawGridLines(interval, darkInterval);
+
+            // Draw axes
             DrawAxis();
-            DrawLabels(x_Offset, y_Offset);
+
+            // Draw Labels
+            DrawLabels();
 
             // Generate Polynomial data
-            List<double> coefficients = new List<double> {1,0,0 }; // Represents x^2 - 3x + 2
+            List<double> coefficients = new List<double> {1, 1}; // Represents x^2 - 3x + 2
             //double minX = -graphCanvas.Width/2;
             //double maxX = graphCanvas.Width/2;
-            double minX = -20;
-            double maxX = 20;
-            double step = 0.5;
+            double minX = -100;
+            double maxX = 100;
+            double step = 1;
             double scaleFactor = 10 * zoomLevel;
 
             List<Point> points  = GeneratePoly(coefficients, minX, maxX, step);
@@ -106,11 +112,14 @@ namespace InterpreterWPF
             DrawPoints(points);
         }
         
-        private void DrawLabels(double xOffset, double yOffest)
+        private void DrawLabels()
         {
-            double halfWidth = graphCanvas.ActualWidth / 2 + xOffset;
-            double halfHeight = graphCanvas.ActualHeight / 2 + yOffest;
+            double halfWidth = graphCanvas.ActualWidth / 2 + x_Offset;
+            double halfHeight = graphCanvas.ActualHeight / 2 + y_Offset;
             double val = 0;
+            double increment = 0.5 * Math.Pow(2, zoomNum - 1);
+
+
 
             // Label the +ve X-axis
             for (double i = halfWidth ; i < graphCanvas.ActualWidth; i += 50 * zoomLevel)
@@ -125,7 +134,7 @@ namespace InterpreterWPF
                 Canvas.SetTop(label, halfHeight + 5); // Adjust the vertical position as needed
 
                 graphCanvas.Children.Add(label);
-                val++;
+                val += increment;
             }
             
             // Label the -ve X-axis
@@ -142,41 +151,66 @@ namespace InterpreterWPF
                 Canvas.SetTop(label, halfHeight + 5); // Adjust the vertical position as needed
 
                 graphCanvas.Children.Add(label);
-                val--;
+                val -= increment;
             }
             
             // Label the +ve Y-axis
-            val = 1;
-            for (double i = halfHeight - 50 * zoomLevel; i > 0 ; i -= 50 * zoomLevel)
+            val = 0;
+            for (double i = halfHeight; i > 0 ; i -= 50 * zoomLevel)
             {
-                TextBlock label = new TextBlock
-                {
-                    Text = (val).ToString(),
-                    Foreground = Brushes.Black
-                };
+                if (val != 0){
+                    TextBlock label = new TextBlock
+                    {
+                        Text = (val).ToString(),
+                        Foreground = Brushes.Black
+                    };
 
-                Canvas.SetLeft(label, halfWidth + 5); // Adjust the horizontal position as needed
-                Canvas.SetTop(label, i);
+                    Canvas.SetLeft(label, halfWidth + 5); // Adjust the horizontal position as needed
+                    Canvas.SetTop(label, i);
 
-                graphCanvas.Children.Add(label);
-                val++;
+                    graphCanvas.Children.Add(label);
+                }
+                val += increment;
+
             }
 
             // Label the -ve Y-axis
-            val = -1;
-            for (double i = halfHeight + 50 * zoomLevel; i < graphCanvas.ActualHeight; i += 50 * zoomLevel)
+            val = 0;
+            for (double i = halfHeight; i < graphCanvas.ActualHeight; i += 50 * zoomLevel)
             {
-                TextBlock label = new TextBlock
+                if (val != 0)
                 {
-                    Text = (val).ToString(),
-                    Foreground = Brushes.Black
-                };
 
-                Canvas.SetLeft(label, halfWidth + 5); // Adjust the horizontal position as needed
-                Canvas.SetTop(label, i);
+                    TextBlock label = new TextBlock
+                    {
+                        Text = (val).ToString(),
+                        Foreground = Brushes.Black
+                    };
 
-                graphCanvas.Children.Add(label);
-                val--;
+                    Canvas.SetLeft(label, halfWidth + 5); // Adjust the horizontal position as needed
+                    Canvas.SetTop(label, i);
+
+                    graphCanvas.Children.Add(label);
+                }
+                val -= increment;
+
+            }
+        }
+
+        private void CheckZoomReset(double interval)
+        {
+            // Reset interval when it exceeds the maximum
+            if (interval > baseInterval * 2)
+            {
+                zoomLevel = 1.0;  // Reset zoom level
+                interval = baseInterval;  // Reset interval
+                zoomNum -= 1;
+            }
+            else if (interval < baseInterval / 2)
+            {
+                zoomLevel = 1.0;  // Reset zoom level
+                interval = baseInterval;  // Reset interval
+                zoomNum += 1;
             }
         }
 
@@ -188,12 +222,8 @@ namespace InterpreterWPF
             // Draw light gray grid lines
 
 
-            // Reset interval when it exceeds the maximum
-            if (interval > baseInterval*2 || interval < baseInterval/2)
-            {
-                zoomLevel = 1.0;  // Reset zoom level
-                interval = baseInterval;  // Reset interval
-            }
+            // Check if the Grid needs to be reset
+            CheckZoomReset(interval);
 
             // Draw light gray grid lines
             for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += interval)
