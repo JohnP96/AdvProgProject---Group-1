@@ -70,18 +70,24 @@ namespace InterpreterWPF
             Input.Clear();
         }
 
-         // Graph 
+         // Graph Variables
         private double zoomLevel = 1.0;
         private double x_Offset = 0;
         private double y_Offset = 0;
+
+        private double baseInterval = 10; // Initial interval between grey grid lines
+        private double baseDarkInterval = 50; // Initial interval between dark grid lines
+
 
         private void DrawGraph(object sender, RoutedEventArgs e)
         {
             // Clear the Grid lines 
             graphCanvas.Children.Clear();
             // Draw grid lines, axes and Indents
-            DrawGridLines();
-            DrawAxis(x_Offset, y_Offset);
+            double darkInterval = baseDarkInterval * zoomLevel;
+            double interval = baseInterval * zoomLevel;
+            DrawGridLines(interval, darkInterval);
+            DrawAxis();
             DrawLabels(x_Offset, y_Offset);
 
             // Generate Polynomial data
@@ -174,18 +180,16 @@ namespace InterpreterWPF
             }
         }
 
-        private void DrawGridLines()
+        private void DrawGridLines(double interval, double darkInterval)
         {
             double halfWidth = (graphCanvas.ActualWidth / 2) + x_Offset;
             double halfHeight = ( graphCanvas.ActualHeight / 2) + y_Offset;
 
             // Draw light gray grid lines
-            double baseInterval = 10; // Initial interval between grid lines
-            double maxInterval = 20;  // Maximum interval between grid lines
-            double interval = baseInterval * zoomLevel;
+
 
             // Reset interval when it exceeds the maximum
-            if (interval > maxInterval)
+            if (interval > baseInterval*2 || interval < baseInterval/2)
             {
                 zoomLevel = 1.0;  // Reset zoom level
                 interval = baseInterval;  // Reset interval
@@ -245,7 +249,7 @@ namespace InterpreterWPF
             }
 
             // Draw dark gray grid lines with a larger interval
-            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += 50*zoomLevel)
+            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += darkInterval)
             {
                 Line line = new Line
                 {
@@ -258,7 +262,7 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(line);
             }
 
-            for (double x = halfWidth; x >= 0; x -= 50*zoomLevel)
+            for (double x = halfWidth; x >= 0; x -= darkInterval)
             {
                 Line line = new Line
                 {
@@ -271,7 +275,7 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(line);
             }
 
-            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += 50*zoomLevel)
+            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += darkInterval)
             {
                 Line line = new Line
                 {
@@ -284,7 +288,7 @@ namespace InterpreterWPF
                 graphCanvas.Children.Add(line);
             }
 
-            for (double y = halfHeight; y >= 0; y -= 50 * zoomLevel)
+            for (double y = halfHeight; y >= 0; y -= darkInterval)
             {
                 Line line = new Line
                 {
@@ -298,14 +302,14 @@ namespace InterpreterWPF
             }
         }
 
-        private void DrawAxis(double xOffset, double yOffset)
+        private void DrawAxis()
         {
             Line xAxis = new Line
             {
                 X1 = 0,
-                Y1 = (graphCanvas.ActualHeight / 2) + yOffset,
+                Y1 = (graphCanvas.ActualHeight / 2) + y_Offset,
                 X2 = graphCanvas.ActualWidth,
-                Y2 = (graphCanvas.ActualHeight / 2) + yOffset,
+                Y2 = (graphCanvas.ActualHeight / 2) + y_Offset,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2
             };
@@ -313,9 +317,9 @@ namespace InterpreterWPF
 
             Line yAxis = new Line
             {
-                X1 = (graphCanvas.ActualWidth / 2) + xOffset,
+                X1 = (graphCanvas.ActualWidth / 2) + x_Offset,
                 Y1 = 0,
-                X2 = (graphCanvas.ActualWidth / 2) + xOffset,
+                X2 = (graphCanvas.ActualWidth / 2) + x_Offset,
                 Y2 = graphCanvas.ActualHeight,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2
