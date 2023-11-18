@@ -337,9 +337,9 @@ namespace InterpreterWPF
             Line xAxis = new Line
             {
                 X1 = 0,
-                Y1 = (graphCanvas.ActualHeight / 2) + y_Offset,
+                Y1 = ((graphCanvas.ActualHeight / 2) + y_Offset)*zoomLevel,
                 X2 = graphCanvas.ActualWidth,
-                Y2 = (graphCanvas.ActualHeight / 2) + y_Offset,
+                Y2 = ((graphCanvas.ActualHeight / 2) + y_Offset)*zoomLevel,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2
             };
@@ -347,9 +347,9 @@ namespace InterpreterWPF
 
             Line yAxis = new Line
             {
-                X1 = (graphCanvas.ActualWidth / 2) + x_Offset,
+                X1 = ((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel,
                 Y1 = 0,
-                X2 = (graphCanvas.ActualWidth / 2) + x_Offset,
+                X2 = ((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel,
                 Y2 = graphCanvas.ActualHeight,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2
@@ -403,7 +403,7 @@ namespace InterpreterWPF
             d += graphCanvas.ActualWidth / 2;
             d += x_Offset;
 
-            return d;
+            return d*zoomLevel;
         }
 
         private double MapYToCanvas(double y, double ratio)
@@ -411,19 +411,8 @@ namespace InterpreterWPF
             double d = (baseInterval * y) / (0.5 * Math.Pow(2, zoomNum - 1) / 5);
             double res =  graphCanvas.ActualHeight / 2 - d;
             res += y_Offset;
-            return  res; 
+            return  res*zoomLevel; 
         }
-        /*
-        private double MapXToCanvas(double x, double ratio)
-        {
-            return x * ratio + graphCanvas.ActualWidth / 2 + x_Offset;
-        }
-
-        private double MapYToCanvas(double y, double ratio)
-        {
-            return -y * ratio + graphCanvas.ActualHeight / 2 + y_Offset;
-        }
-        */
         
         private void DrawPoints(List<Point> points)
         {
