@@ -71,7 +71,7 @@ namespace InterpreterWPF
         }
 
          // Graph Variables
-        private double zoomLevel = 1.0;
+        private double zoomLevel = 1;
         private double x_Offset = 0;
         private double y_Offset = 0;
 
@@ -100,10 +100,10 @@ namespace InterpreterWPF
             List<double> coefficients = new List<double> {1, 1}; // Represents x^2 - 3x + 2
             //double minX = -graphCanvas.Width/2;
             //double maxX = graphCanvas.Width/2;
-            double minX = -100;
-            double maxX = 100;
+            double minX = -10;
+            double maxX = 10;
             double step = 1;
-            double scaleFactor = 10 * zoomLevel;
+            double scaleFactor = Math.Abs(baseInterval * zoomLevel);
 
             List<Point> points  = GeneratePoly(coefficients, minX, maxX, step);
 
@@ -396,16 +396,35 @@ namespace InterpreterWPF
             return mappedPoints;
         }
 
+        
         private double MapXToCanvas(double x, double ratio)
         {
-            return x * ratio;
+            x += graphCanvas.ActualWidth / 2;
+            x += x_Offset;
+            //x *= zoomLevel;
+
+            return x;
         }
 
         private double MapYToCanvas(double y, double ratio)
         {
-            return y * ratio; 
+            y = graphCanvas.ActualHeight / 2 - y;
+            y += y_Offset;
+           // y *= zoomLevel;
+            return  y; 
+        }
+        /*
+        private double MapXToCanvas(double x, double ratio)
+        {
+            return x * ratio + graphCanvas.ActualWidth / 2 + x_Offset;
         }
 
+        private double MapYToCanvas(double y, double ratio)
+        {
+            return -y * ratio + graphCanvas.ActualHeight / 2 + y_Offset;
+        }
+        */
+        
         private void DrawPoints(List<Point> points)
         {
             Polyline polyline = new Polyline
@@ -416,7 +435,7 @@ namespace InterpreterWPF
 
             foreach (Point point in points)
             {
-                polyline.Points.Add(new Point(point.X + graphCanvas.Width / 2, graphCanvas.Height / 2 - point.Y));
+                polyline.Points.Add(new Point(point.X , point.Y));
             }
 
             graphCanvas.Children.Add(polyline);
