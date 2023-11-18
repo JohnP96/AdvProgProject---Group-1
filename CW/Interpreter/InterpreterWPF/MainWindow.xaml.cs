@@ -114,8 +114,8 @@ namespace InterpreterWPF
         
         private void DrawLabels()
         {
-            double halfWidth = graphCanvas.ActualWidth / 2 + x_Offset;
-            double halfHeight = graphCanvas.ActualHeight / 2 + y_Offset;
+            double halfWidth = (graphCanvas.ActualWidth / 2 + x_Offset)* zoomLevel;
+            double halfHeight = (graphCanvas.ActualHeight / 2 + y_Offset)*zoomLevel;
             double val = 0;
             double increment = 0.5 * Math.Pow(2, zoomNum - 1);
 
