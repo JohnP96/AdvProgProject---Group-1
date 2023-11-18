@@ -39,7 +39,9 @@
                     <Button Click="enterBtn_Click" Name="enterBtn" Grid.Column="1" IsDefault="True" >Enter</Button>
                 </Grid>
 
-                <Rectangle Grid.Row="2" Fill="Gray"></Rectangle>
+                <TextBox Grid.Row="2" TextWrapping="Wrap" AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto" IsReadOnly="True"
+                         Name ="VariableTracker">Variables:</TextBox>
             </Grid>
 
           <Grid Grid.Column="1" Background="LightGreen">

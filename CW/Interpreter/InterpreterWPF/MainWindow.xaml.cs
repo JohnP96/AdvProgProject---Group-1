@@ -20,9 +20,7 @@ using System.Diagnostics;
 
 namespace InterpreterWPF
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+    
     public partial class MainWindow : Window
     {
         FSharpList<Tuple<string, LexerParser.Number>> symList;
@@ -31,6 +29,11 @@ namespace InterpreterWPF
         {
             InitializeComponent();
             symList = FSharpList<Tuple<string, LexerParser.Number>>.Empty;
+        }
+
+        private void RemoveFromSymList(string variableName)
+        {
+            symList = ListModule.Filter((item) => item.Item1 != variableName, symList);
         }
 
         private void enterBtn_Click(object sender, RoutedEventArgs e)
@@ -51,7 +54,7 @@ namespace InterpreterWPF
             if (parseRes.StartsWith("F"))
             {
                 flag = false;
-                cmdWindow.AppendText(parseRes);
+                cmdWindow.AppendText(string.Concat("> ", parseRes.AsSpan(8)));
             }
             if (flag)
             {
@@ -67,6 +70,12 @@ namespace InterpreterWPF
                 cmdWindow.AppendText("> Result: " + answer + "\n");
                 cmdWindow.ScrollToEnd();
             }
+            string vars = "\n";
+            foreach (Tuple<string, LexerParser.Number> var in symList)
+            {
+                vars = vars + var.Item1 + " = " + var.Item2 + "\n";
+            }
+            VariableTracker.Text = "Variables:" + vars;
             Input.Clear();
         }
 

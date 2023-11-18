@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     "net6.0-windows7.0": {
-      "FSharp.Core/7.0.200": {
+      "FSharp.Core/7.0.400": {
         "type": "package",
         "compile": {
           "lib/netstandard2.1/FSharp.Core.dll": {
@@ -60,7 +60,7 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
         "dependencies": {
-          "FSharp.Core": "7.0.200"
+          "FSharp.Core": "7.0.400"
         },
         "compile": {
           "bin/placeholder/InterpreterFSharp.dll": {}
@@ -72,15 +72,15 @@
     }
   },
   "libraries": {
-    "FSharp.Core/7.0.200": {
-      "sha512": "NmgUnpNH6Zu9B0SPIhojyo38gnPdkdYFYQfbd6zosEH32kbGY/g/Klk7PfOWe1NAe/O1YOMmK9KhwQ2OWsWEbg==",
+    "FSharp.Core/7.0.400": {
+      "sha512": "SZR1jcjcrdhjRObN/U16nI+RyvKBgg0zq8Pt2KAorDkvW0cXSjX4qKDNX+LpZaKZRA5QR9StHZ2mhT5VI/QSxw==",
       "type": "package",
-      "path": "fsharp.core/7.0.200",
+      "path": "fsharp.core/7.0.400",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "Icon.png",
-        "fsharp.core.7.0.200.nupkg.sha512",
+        "fsharp.core.7.0.400.nupkg.sha512",
         "fsharp.core.nuspec",
         "lib/netstandard2.0/FSharp.Core.dll",
         "lib/netstandard2.0/FSharp.Core.xml",
@@ -126,24 +126,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ygb19mzu.UEA\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\JOHNP\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj",
+      "projectUniqueName": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj",
       "projectName": "InterpreterWPF",
-      "projectPath": "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj",
-      "packagesPath": "C:\\Users\\ygb19mzu.UEA\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\obj\\",
+      "projectPath": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\InterpreterWPF.csproj",
+      "packagesPath": "C:\\Users\\JOHNP\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\Interpreter\\InterpreterWPF\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\ygb19mzu.UEA\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\JOHNP\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -157,8 +152,8 @@
         "net6.0-windows7.0": {
           "targetAlias": "net6.0-windows",
           "projectReferences": {
-            "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj": {
-              "projectPath": "C:\\Users\\ygb19mzu.UEA\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj"
+            "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj": {
+              "projectPath": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj"
             }
           }
         }
@@ -191,7 +186,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.202\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.402\\RuntimeIdentifierGraph.json"
       }
     }
   }
