@@ -78,7 +78,7 @@ namespace InterpreterWPF
         private double baseInterval = 10; // Initial interval between grey grid lines
         private double baseDarkInterval = 50; // Initial interval between dark grid lines
 
-        private double zoomNum = 5;
+        private double zoomNum = 1;
 
 
         private void DrawGraph(object sender, RoutedEventArgs e)
@@ -97,11 +97,11 @@ namespace InterpreterWPF
             DrawLabels();
 
             // Generate Polynomial data
-            List<double> coefficients = new List<double> {1, 1}; // Represents x^2 - 3x + 2
+            List<double> coefficients = new List<double> {1, 0}; // Represents x^2 - 3x + 2
             //double minX = -graphCanvas.Width/2;
             //double maxX = graphCanvas.Width/2;
-            double minX = -10;
-            double maxX = 10;
+            double minX = -50;
+            double maxX = 50;
             double step = 1;
             double scaleFactor = Math.Abs(baseInterval * zoomLevel);
 
@@ -399,19 +399,19 @@ namespace InterpreterWPF
         
         private double MapXToCanvas(double x, double ratio)
         {
-            x += graphCanvas.ActualWidth / 2;
-            x += x_Offset;
-            //x *= zoomLevel;
+            double d = (baseInterval * x) / (0.5 * Math.Pow(2, zoomNum - 1) / 5);
+            d += graphCanvas.ActualWidth / 2;
+            d += x_Offset;
 
-            return x;
+            return d;
         }
 
         private double MapYToCanvas(double y, double ratio)
         {
-            y = graphCanvas.ActualHeight / 2 - y;
-            y += y_Offset;
-           // y *= zoomLevel;
-            return  y; 
+            double d = (baseInterval * y) / (0.5 * Math.Pow(2, zoomNum - 1) / 5);
+            double res =  graphCanvas.ActualHeight / 2 - d;
+            res += y_Offset;
+            return  res; 
         }
         /*
         private double MapXToCanvas(double x, double ratio)
