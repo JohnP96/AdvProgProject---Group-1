@@ -216,8 +216,8 @@ namespace InterpreterWPF
 
         private void DrawGridLines(double interval, double darkInterval)
         {
-            double halfWidth = (graphCanvas.ActualWidth / 2) + x_Offset;
-            double halfHeight = ( graphCanvas.ActualHeight / 2) + y_Offset;
+            double halfWidth = ((graphCanvas.ActualWidth / 2) + x_Offset)*zoomLevel;
+            double halfHeight = (( graphCanvas.ActualHeight / 2) + y_Offset)*zoomLevel;
 
             // Draw light gray grid lines
 
