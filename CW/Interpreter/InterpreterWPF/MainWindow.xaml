@@ -44,7 +44,7 @@
                 <Rectangle Grid.Row="2" Fill="Gray"></Rectangle>
             </Grid>
 
-          <Grid Grid.Column="1" Background="LightGreen">
+          <Grid Grid.Column="1" >
                 <Canvas Name="graphCanvas" Background="White"
                         VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                         MouseWheel="zoom"
