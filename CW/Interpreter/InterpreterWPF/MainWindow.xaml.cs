@@ -78,30 +78,33 @@ namespace InterpreterWPF
         private double baseInterval = 10; // Initial interval between grey grid lines
         private double baseDarkInterval = 50; // Initial interval between dark grid lines
 
-        private double zoomNum = 1;
+        private double zoomNum = 2;
 
 
         private void DrawGraph(object sender, RoutedEventArgs e)
         {
             // Clear the Grid lines 
             graphCanvas.Children.Clear();
+
             // Draw grid lines
             double darkInterval = baseDarkInterval * zoomLevel;
             double interval = baseInterval * zoomLevel;
-            DrawGridLines(interval, darkInterval);
-
+            List<double> remainder = DrawGridLines(interval, darkInterval); //  Draws the grid and Calculates how many grey lines after the last black line
+            
             // Draw axes
             DrawAxis();
 
             // Draw Labels
-            DrawLabels();
+            (double increment, List<double> minLabels) = DrawLabels(); // Draws the labels and returns the value of each black line and the last label
 
             // Generate Polynomial data
-            List<double> coefficients = new List<double> {1, 0}; // Represents x^2 - 3x + 2
-            //double minX = -graphCanvas.Width/2;
-            //double maxX = graphCanvas.Width/2;
-            double minX = -50;
-            double maxX = 50;
+            List<double> coefficients = new List<double> {1, 1}; // Represents x^2 - 3x + 2
+
+
+            // calculate minX and maxX
+            List<double> resi = CalculateMinAndMax(remainder, increment, minLabels);
+            double minX = resi[1];
+            double maxX = resi[0];
             double step = 1;
             double scaleFactor = Math.Abs(baseInterval * zoomLevel);
 
@@ -111,13 +114,180 @@ namespace InterpreterWPF
 
             DrawPoints(points);
         }
-        
-        private void DrawLabels()
+
+        /*  
+            Func:-      DrawGridLines()
+
+            Params:-    interval(double): pixel value between each grey line
+                        darkinterval(double): pixel value between each black line
+
+            Return:-    x(list):    List to keep track of how many grey lines have been made after a black line;
+                                    this is to find the minimum and maximum number the grid displays. If there
+                                    is 2 grey lines after the last black line, find the value of 1 grey line and multiply
+                                    it by x(2) + black line label to find the min/max number displayed.
+                                    [+x, -x, +y,-y]
+         */
+
+        private List<double> DrawGridLines(double interval, double darkInterval)
+        {
+            List<double> greyLines = new List<double> { 0, 0, 0, 0 }; // Keep track of how many grey lines after a black line
+            List<double> blackLines = new List<double> { 0, 0, 0, 0 }; // Keep track of the number of black lines
+
+            double halfWidth = ((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel;
+            double halfHeight = ((graphCanvas.ActualHeight / 2) + y_Offset) * zoomLevel;
+
+            // Check if the Grid needs to be reset
+            CheckZoomReset(interval);
+
+            // Draw light gray grid lines
+            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += interval) // +ve X-axis
+            {
+                Line line = new Line
+                {
+                    X1 = x,
+                    Y1 = 0,
+                    X2 = x,
+                    Y2 = graphCanvas.ActualHeight,
+                    Stroke = Brushes.LightGray
+                };
+                graphCanvas.Children.Add(line);
+                greyLines[0]++;
+            }
+
+            for (double x = halfWidth; x >= 0; x -= interval)
+            {
+                Line line = new Line
+                {
+                    X1 = x,
+                    Y1 = 0,
+                    X2 = x,
+                    Y2 = graphCanvas.ActualHeight,
+                    Stroke = Brushes.LightGray
+                };
+                graphCanvas.Children.Add(line);
+                greyLines[1]++;
+            }
+
+            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += interval)
+            {
+                Line line = new Line
+                {
+                    X1 = 0,
+                    Y1 = y,
+                    X2 = graphCanvas.ActualWidth,
+                    Y2 = y,
+                    Stroke = Brushes.LightGray
+                };
+                graphCanvas.Children.Add(line);
+                greyLines[2]++;
+            }
+
+            for (double y = halfHeight; y >= 0; y -= interval)
+            {
+                Line line = new Line
+                {
+                    X1 = 0,
+                    Y1 = y,
+                    X2 = graphCanvas.ActualWidth,
+                    Y2 = y,
+                    Stroke = Brushes.LightGray
+                };
+                graphCanvas.Children.Add(line);
+                greyLines[3]++;
+            }
+
+            // Draw dark gray grid lines with a larger interval
+            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += darkInterval)
+            {
+                Line line = new Line
+                {
+                    X1 = x,
+                    Y1 = 0,
+                    X2 = x,
+                    Y2 = graphCanvas.ActualHeight,
+                    Stroke = Brushes.Black
+                };
+                graphCanvas.Children.Add(line);
+                blackLines[0]++;
+            }
+
+            for (double x = halfWidth; x >= 0; x -= darkInterval)
+            {
+                Line line = new Line
+                {
+                    X1 = x,
+                    Y1 = 0,
+                    X2 = x,
+                    Y2 = graphCanvas.ActualHeight,
+                    Stroke = Brushes.Black
+                };
+                graphCanvas.Children.Add(line);
+                blackLines[1]++;
+            }
+
+            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += darkInterval)
+            {
+                Line line = new Line
+                {
+                    X1 = 0,
+                    Y1 = y,
+                    X2 = graphCanvas.ActualWidth,
+                    Y2 = y,
+                    Stroke = Brushes.Black
+                };
+                graphCanvas.Children.Add(line);
+                blackLines[2]++;
+            }
+
+            for (double y = halfHeight; y >= 0; y -= darkInterval)
+            {
+                Line line = new Line
+                {
+                    X1 = 0,
+                    Y1 = y,
+                    X2 = graphCanvas.ActualWidth,
+                    Y2 = y,
+                    Stroke = Brushes.Black
+                };
+                graphCanvas.Children.Add(line);
+                blackLines[3]++;
+            }
+
+            // Return the result
+            List<double> result = new List<double> {
+                greyLines[0] % blackLines[0],
+                greyLines[1] % blackLines[1],
+                greyLines[2] % blackLines[2],
+                greyLines[3] % blackLines[3]
+            };
+
+            return result;
+        }
+
+        private List<double> CalculateMinAndMax(List<double> remainder, double increment, List<double> minLabels)
+        {
+            for (int i = 0; i < minLabels.Count; i++)
+            {
+                minLabels[i] += (increment/(baseDarkInterval/baseInterval)) * remainder[i];
+            }
+
+            return minLabels;
+        }
+
+
+        /*
+            Func:-      DrawLabels()
+
+            Return:-    result(Tuple):  [0] - The value of each black line
+                                        [1] - List of The last label drawn in each sector [+x,-x,+y,-y]
+         */
+        private (double, List<double>) DrawLabels()
         {
             double halfWidth = (graphCanvas.ActualWidth / 2 + x_Offset)* zoomLevel;
             double halfHeight = (graphCanvas.ActualHeight / 2 + y_Offset)*zoomLevel;
             double val = 0;
             double increment = 0.5 * Math.Pow(2, zoomNum - 1);
+            var result = (increment, new List<double> { 0, 0, 0, 0 });
 
 
 
@@ -135,6 +305,7 @@ namespace InterpreterWPF
 
                 graphCanvas.Children.Add(label);
                 val += increment;
+                result.Item2[0] = val;
             }
             
             // Label the -ve X-axis
@@ -152,8 +323,9 @@ namespace InterpreterWPF
 
                 graphCanvas.Children.Add(label);
                 val -= increment;
+                result.Item2[1] = val;
             }
-            
+
             // Label the +ve Y-axis
             val = 0;
             for (double i = halfHeight; i > 0 ; i -= 50 * zoomLevel)
@@ -171,7 +343,7 @@ namespace InterpreterWPF
                     graphCanvas.Children.Add(label);
                 }
                 val += increment;
-
+                result.Item2[2] = val;
             }
 
             // Label the -ve Y-axis
@@ -193,8 +365,10 @@ namespace InterpreterWPF
                     graphCanvas.Children.Add(label);
                 }
                 val -= increment;
-
+                result.Item2[3] = val;
             }
+
+            return result;
         }
 
         private void CheckZoomReset(double interval)
@@ -211,124 +385,6 @@ namespace InterpreterWPF
                 zoomLevel = 1.0;  // Reset zoom level
                 interval = baseInterval;  // Reset interval
                 zoomNum += 1;
-            }
-        }
-
-        private void DrawGridLines(double interval, double darkInterval)
-        {
-            double halfWidth = ((graphCanvas.ActualWidth / 2) + x_Offset)*zoomLevel;
-            double halfHeight = (( graphCanvas.ActualHeight / 2) + y_Offset)*zoomLevel;
-
-            // Draw light gray grid lines
-
-
-            // Check if the Grid needs to be reset
-            CheckZoomReset(interval);
-
-            // Draw light gray grid lines
-            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += interval)
-            {
-                Line line = new Line
-                {
-                    X1 = x,
-                    Y1 = 0,
-                    X2 = x,
-                    Y2 = graphCanvas.ActualHeight,
-                    Stroke = Brushes.LightGray
-                };
-                graphCanvas.Children.Add(line);
-            }
-
-            for (double x = halfWidth; x >= 0; x -= interval)
-            {
-                Line line = new Line
-                {
-                    X1 = x,
-                    Y1 = 0,
-                    X2 = x,
-                    Y2 = graphCanvas.ActualHeight,
-                    Stroke = Brushes.LightGray
-                };
-                graphCanvas.Children.Add(line);
-            }
-
-            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += interval)
-            {
-                Line line = new Line
-                {
-                    X1 = 0,
-                    Y1 = y,
-                    X2 = graphCanvas.ActualWidth,
-                    Y2 = y,
-                    Stroke = Brushes.LightGray
-                };
-                graphCanvas.Children.Add(line);
-            }
-
-            for (double y = halfHeight; y >= 0; y -= interval)
-            {
-                Line line = new Line
-                {
-                    X1 = 0,
-                    Y1 = y,
-                    X2 = graphCanvas.ActualWidth,
-                    Y2 = y,
-                    Stroke = Brushes.LightGray
-                };
-                graphCanvas.Children.Add(line);
-            }
-
-            // Draw dark gray grid lines with a larger interval
-            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += darkInterval)
-            {
-                Line line = new Line
-                {
-                    X1 = x,
-                    Y1 = 0,
-                    X2 = x,
-                    Y2 = graphCanvas.ActualHeight,
-                    Stroke = Brushes.Black
-                };
-                graphCanvas.Children.Add(line);
-            }
-
-            for (double x = halfWidth; x >= 0; x -= darkInterval)
-            {
-                Line line = new Line
-                {
-                    X1 = x,
-                    Y1 = 0,
-                    X2 = x,
-                    Y2 = graphCanvas.ActualHeight,
-                    Stroke = Brushes.Black
-                };
-                graphCanvas.Children.Add(line);
-            }
-
-            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += darkInterval)
-            {
-                Line line = new Line
-                {
-                    X1 = 0,
-                    Y1 = y,
-                    X2 = graphCanvas.ActualWidth,
-                    Y2 = y,
-                    Stroke = Brushes.Black
-                };
-                graphCanvas.Children.Add(line);
-            }
-
-            for (double y = halfHeight; y >= 0; y -= darkInterval)
-            {
-                Line line = new Line
-                {
-                    X1 = 0,
-                    Y1 = y,
-                    X2 = graphCanvas.ActualWidth,
-                    Y2 = y,
-                    Stroke = Brushes.Black
-                };
-                graphCanvas.Children.Add(line);
             }
         }
 
@@ -484,9 +540,6 @@ namespace InterpreterWPF
             // Redraw the graph with the new zoom level and pan offsets
             DrawGraph(sender, e);
         }
-
-
-
     }
 
 }
