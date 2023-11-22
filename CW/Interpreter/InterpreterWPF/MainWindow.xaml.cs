@@ -16,62 +16,60 @@ using System.Windows.Shapes;
 using InterpreterFSharp;
 using Microsoft.FSharp.Collections;
 using System.Diagnostics;
-
+using stringValPair = System.Tuple<string, InterpreterFSharp.LexerParser.Number>;
+using terminalList = Microsoft.FSharp.Collections.FSharpList<InterpreterFSharp.LexerParser.terminal>;
 
 namespace InterpreterWPF
 {
     
     public partial class MainWindow : Window
     {
-        FSharpList<Tuple<string, LexerParser.Number>> symList;
+        FSharpList<stringValPair> symList;
 
         public MainWindow()
         {
             InitializeComponent();
-            symList = FSharpList<Tuple<string, LexerParser.Number>>.Empty;
-        }
-
-        private void RemoveFromSymList(string variableName)
-        {
-            symList = ListModule.Filter((item) => item.Item1 != variableName, symList);
+            symList = FSharpList<stringValPair>.Empty;
         }
 
         private void enterBtn_Click(object sender, RoutedEventArgs e)
         {
-            bool flag = true;
+            bool success = true;
             cmdWindow.AppendText("> " + Input.Text + "\n");
             string input = Input.Text;
-            FSharpList<LexerParser.terminal> lexed = LexerParser.lexer(input);
+            terminalList lexed = LexerParser.lexer(input);
             for (int i = 0; i < lexed.Length; i++){
                 if (lexed[i] is LexerParser.terminal.Err)
                 {
-                    flag = false;
+                    success = false;
                     cmdWindow.AppendText("> Error: " + lexed[i] + " is not a valid lexeme");
                 }
             }
             string  parseRes = LexerParser.parser(lexed).ToString();
-            
+            //cmdWindow.AppendText("> Parser result: " + parseRes + "\n // Testing
             if (parseRes.StartsWith("F"))
             {
-                flag = false;
+                success = false;
                 cmdWindow.AppendText(string.Concat("> ", parseRes.AsSpan(8)));
             }
-            if (flag)
+            else if (parseRes.Substring(9) != "]")
+            {
+                success = false;
+                cmdWindow.AppendText("> Invalid expression.\n");
+            }
+            if (success)
             {
                 cmdWindow.AppendText("> Tokens: " + string.Join(", ", lexed) + "\n");
-                Tuple<string, LexerParser.Number> result =
-                    LexerParser.parseNeval(lexed, symList).Item2;
-                LexerParser.Number answer = result.Item2;
-                if (result.Item1 != "")
-                {
-                    symList = FSharpList<Tuple<string, LexerParser.Number>>.Cons(
-                        Tuple.Create(result.Item1, answer), symList);
-                }
+                Tuple<Tuple<terminalList, stringValPair>, FSharpList<stringValPair>> result =
+                    LexerParser.parseNevalNsym(lexed, symList);
+                LexerParser.Number answer = result.Item1.Item2.Item2;
+                symList = result.Item2;
                 cmdWindow.AppendText("> Result: " + answer + "\n");
+                cmdWindow.AppendText("> Sym: " + symList + "\n");
                 cmdWindow.ScrollToEnd();
             }
             string vars = "\n";
-            foreach (Tuple<string, LexerParser.Number> var in symList)
+            foreach (stringValPair var in symList)
             {
                 vars = vars + var.Item1 + " = " + var.Item2 + "\n";
             }

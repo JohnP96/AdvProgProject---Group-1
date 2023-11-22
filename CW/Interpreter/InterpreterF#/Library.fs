@@ -47,6 +47,12 @@ module LexerParser =
         | Number.Int n -> n < 0
         | Number.Float f -> f < 0.0
 
+    let rec check4vid sList vName value =  // added to update symbol table list if already existing vName is overwritten
+        match sList with
+        | head :: tail -> if (fst head) = vName then [(vName,value)]@(check4vid tail vName value) // replace original value
+                          else [head]@(check4vid tail vName value) // copy original value
+        | _ -> []
+
 
     //============================= lexer ========================================
     let lexer input = 
@@ -292,6 +298,16 @@ module LexerParser =
             | _ -> E tList
         VA tList
 
+    let parseNevalNsym tList (symList:List<string*Number>) =
+        let pNe = parseNeval tList symList
+        match fst (snd pNe) with
+          | "" -> (pNe, symList) // if there is no vID just return the symList
+          | _ -> match symList with
+                 | [] -> (pNe, symList @ [(fst (snd pNe)), (snd (snd pNe))])
+                 | _ -> let res = check4vid symList (fst (snd pNe)) (snd (snd pNe)) // if the vID is already in symbol table replace its value
+                        (pNe, res)
+                 
+
     ////============================= Parser ======================================
 
     let rec printTList (lst:list<terminal>) : list<string> = 
@@ -301,12 +317,6 @@ module LexerParser =
                   
         | [] -> Console.Write("EOL\n")
                 []
-
-    let rec check4vid sList vName value =  // added to update symbol table list if already existing vName is overwritten
-        match sList with
-        | head :: tail -> if (fst head) = vName then [(vName,value)]@(check4vid tail vName value) // replace original value
-                          else [head]@(check4vid tail vName value) // copy original value
-        | _ -> []
 
     let rec printSymTList (sList:List<string*Number>)  =
         match sList with
@@ -341,6 +351,7 @@ module LexerParser =
                     else inpLoop res   // if false pass updated res list with updated tuple
             else inpLoop symTList 
         else symTList
+
 
     [<EntryPoint>]
     let main argv  =
