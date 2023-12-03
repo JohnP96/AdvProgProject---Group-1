@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterpreterWPF", "InterpreterWPF\InterpreterWPF.csproj", "{1BE71191-E775-46B3-8997-4872571E2FC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InterpreterWPF", "InterpreterWPF\InterpreterWPF.csproj", "{1BE71191-E775-46B3-8997-4872571E2FC6}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "InterpreterFSharp", "InterpreterF#\InterpreterFSharp.fsproj", "{23E9FC3C-2F7C-4736-B924-2B09CA2674F1}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "InterpreterFSharp", "InterpreterF#\InterpreterFSharp.fsproj", "{23E9FC3C-2F7C-4736-B924-2B09CA2674F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

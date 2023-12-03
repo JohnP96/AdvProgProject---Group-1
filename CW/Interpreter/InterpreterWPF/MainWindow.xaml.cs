@@ -18,6 +18,7 @@ using Microsoft.FSharp.Collections;
 using System.Diagnostics;
 using stringValPair = System.Tuple<string, InterpreterFSharp.LexerParser.Number>;
 using terminalList = Microsoft.FSharp.Collections.FSharpList<InterpreterFSharp.LexerParser.terminal>;
+using pNeReturnVal = System.Tuple<InterpreterFSharp.LexerParser.terminal, System.Tuple<Microsoft.FSharp.Collections.FSharpList<InterpreterFSharp.LexerParser.terminal>, System.Tuple<string, InterpreterFSharp.LexerParser.Number>>>;
 
 namespace InterpreterWPF
 {
@@ -42,7 +43,7 @@ namespace InterpreterWPF
                 if (lexed[i] is LexerParser.terminal.Err)
                 {
                     success = false;
-                    cmdWindow.AppendText("> Error: " + lexed[i] + " is not a valid lexeme");
+                    cmdWindow.AppendText("> Error: " + lexed[i] + " is not a valid lexeme\n");
                 }
             }
             string  parseRes = LexerParser.parser(lexed).ToString();
@@ -50,7 +51,7 @@ namespace InterpreterWPF
             if (parseRes.StartsWith("F"))
             {
                 success = false;
-                cmdWindow.AppendText(string.Concat("> ", parseRes.AsSpan(8)));
+                cmdWindow.AppendText(string.Concat("> ", parseRes.AsSpan(8), "\n"));
             }
             else if (parseRes.Substring(9) != "]")
             {
@@ -60,7 +61,7 @@ namespace InterpreterWPF
             if (success)
             {
                 cmdWindow.AppendText("> Tokens: " + string.Join(", ", lexed) + "\n");
-                Tuple<Tuple<terminalList, stringValPair>, FSharpList<stringValPair>> result =
+                Tuple<pNeReturnVal, FSharpList<stringValPair>> result =
                     LexerParser.parseNevalNsym(lexed, symList);
                 LexerParser.Number answer = result.Item1.Item2.Item2;
                 symList = result.Item2;

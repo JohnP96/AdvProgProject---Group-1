@@ -7,7 +7,7 @@ module LexerParser =
         Int of int | Float of float
 
     type terminal = 
-        Add | Sub | Mul | Div | Rem | Pow | Lpar | Rpar | Equ | Vid of string | Num of Number | Neg | Plus | Err of char
+        Add | Sub | Mul | Div | Rem | Pow | Lpar | Rpar | Equ | Plt | Vid of string | Num of Number | Neg | Plus | Err of char
 
     type 'a result = 
         Success of 'a | Failure of string
@@ -92,7 +92,9 @@ module LexerParser =
                 let (iStr, iVal) = scInt(tail, intVal c) 
                 Num iVal :: scan [c] iStr
             | c :: tail when ischar c -> let (iStr, vName) = scChar(tail, c.ToString())
-                                         Vid vName :: scan [c] iStr
+                                         match vName with
+                                         | "plot" -> Plt :: scan [c] iStr
+                                         | _ -> Vid vName :: scan [c] iStr
             | c :: tail -> Err c :: scan [c] tail
             
         
@@ -107,6 +109,7 @@ module LexerParser =
         Console.ReadLine()
     
     // Grammar in (E)BNF:
+    //<Plot> ::= <Plt> "(" <VA> ")"
     //<VA> ::= <varID> "=" <E>
     //<E> ::= <T> <Eopt>
     //<Eopt> ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
@@ -114,8 +117,10 @@ module LexerParser =
     //<Topt> ::= "*" <P> <Topt> | "/" <P> <Topt> | "%" <P> <Topt> | <empty>
     //<P> ::= <NR> <Popt>
     //<Popt> ::= "^" <NR> <Popt> | <empty>
-    //<NR> ::= ["Num" | "varVal" ] <value> | "(" <E> ")" | "-" <NR> | "+" <NR>
+    //<NR> ::= <Num> | "varVal" value | "(" <E> ")" | "-" <NR> | "+" <NR>
+    //<Num> ::= ["int" | "float"] value
     //<varID> ::= [a-z,A-Z]+
+    //<Plt> ::= "plot"
 
     ////============================= Parser ======================================
     let parser tList = 
@@ -165,13 +170,23 @@ module LexerParser =
                                         | Failure error -> Failure error
             | Failure error -> Failure error
             | c -> Failure ("Unexpected token \"" + c.ToString() + "\"")
-        let VA tList =  
+        let VA (tList: result<terminal list>) =  
             match tList with
-            | Vid vName :: tail -> match tail with
-                                   | Equ :: tail -> E (Success tail)
-                                   | _ -> Failure "Missing equal sign after variable name"
-            | _ -> E (Success tList)
-        VA tList 
+            | Success (Vid vName :: tail) -> match tail with
+                                             | Equ :: tail -> E (Success tail)
+                                             | _ -> Failure "Missing equal sign after variable name"
+            | _ -> E tList
+        let Plot tList = 
+            match tList with 
+            | Plt :: tail -> match tail with
+                             | Lpar :: tail -> match VA (Success tail) with
+                                               | Success (Rpar :: tail) -> Success tail
+                                               | Success _ -> Failure "Missing right parenthesis"
+                                               | Failure error -> Failure error
+                             | _ -> Failure "Missing brackets on function call"
+            | _ -> VA (Success tList)
+
+        Plot tList 
 
     let rec searchVName vName (symList:List<string*Number>) =
         match symList with
@@ -296,15 +311,26 @@ module LexerParser =
                                                     (tLst, (vName, tval))
                                    | _ -> E tList
             | _ -> E tList
-        VA tList
+        let Plot tList =
+            match tList with
+                | Plt :: tail -> match tail with 
+                                 | Lpar :: tail -> let (tLst, (vID, tval)) = VA tail
+                                                   match tLst with
+                                                   | Rpar :: tail -> (true, (tail, ("", tval)))
+                                                   | _ -> raise parseError
+                                 | _ -> raise parseError
+                | _ -> (false, VA tList)
+        Plot tList
 
     let parseNevalNsym tList (symList:List<string*Number>) =
         let pNe = parseNeval tList symList
-        match fst (snd pNe) with
+        let vID = fst (snd (snd pNe))
+        let tval = snd (snd (snd pNe))
+        match vID with
           | "" -> (pNe, symList) // if there is no vID just return the symList
           | _ -> match symList with
-                 | [] -> (pNe, symList @ [(fst (snd pNe)), (snd (snd pNe))])
-                 | _ -> let res = check4vid symList (fst (snd pNe)) (snd (snd pNe)) // if the vID is already in symbol table replace its value
+                 | [] -> (pNe, symList @ [vID, tval])
+                 | _ -> let res = check4vid symList vID tval // if the vID is already in symbol table replace its value
                         (pNe, res)
                  
 
