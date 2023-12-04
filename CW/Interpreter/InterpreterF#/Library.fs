@@ -174,7 +174,8 @@ module LexerParser =
             match tList with
             | Success (Vid vName :: tail) -> match tail with
                                              | Equ :: tail -> E (Success tail)
-                                             | _ -> Failure "Missing equal sign after variable name"
+                                             | Num value :: tail -> Failure "Missing equal sign after variable name"
+                                             | _ -> E tList
             | _ -> E tList
         let Plot tList = 
             match tList with 
@@ -260,16 +261,8 @@ module LexerParser =
                             Number.Float (float a ** float b)
                         else
                             Number.Float (pown a (int b))
-                    | Number.Float a, Number.Int b ->
-                        if isNeg tval then
-                            Number.Float (float a ** float b)
-                        else
-                            Number.Float (float(pown (int a) b))
-                    | Number.Int a, Number.Float b ->
-                        if isNeg tval then
-                            Number.Float (float a ** float b)
-                        else
-                            Number.Int (pown a (int b))
+                    | Number.Float a, Number.Int b -> Number.Float (float a ** float b)
+                    | Number.Int a, Number.Float b -> Number.Float (float a ** float b)
                 ))
             | _ -> (tList, ("", value))
         and NR tList =
@@ -343,7 +336,8 @@ module LexerParser =
         | [] -> Console.WriteLine("]")
 
 
-    let rec evalPoly (tlist:list<terminal>) (x:double) =
+    // Evaluates the equation given in the form of a token list using the value of x given
+    let rec evalPoly (tlist:list<terminal>) (x:double) = 
         let rec E tList = (T >> Eopt) tList
         and Eopt (tList, (vID, value)) =
             match tList with
@@ -414,16 +408,8 @@ module LexerParser =
                             Number.Float (float a ** float b)
                         else
                             Number.Float (pown a (int b))
-                    | Number.Float a, Number.Int b ->
-                        if isNeg tval then
-                            Number.Float (float a ** float b)
-                        else
-                            Number.Float (float(pown (int a) b))
-                    | Number.Int a, Number.Float b ->
-                        if isNeg tval then
-                            Number.Float (float a ** float b)
-                        else
-                            Number.Float (pown a (int b))
+                    | Number.Float a, Number.Int b -> Number.Float (float a ** float b)
+                    | Number.Int a, Number.Float b -> Number.Float (float a ** float b)
                 ))
             | _ -> (tList, ("", value))
         and NR tList =

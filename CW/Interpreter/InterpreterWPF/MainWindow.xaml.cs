@@ -71,7 +71,7 @@ namespace InterpreterWPF
                 if (result.Item1.Item1)
                 {
                     plotTokens = result.Item1.Item2.Item1;
-
+                    DrawGraph(sender, e);
                 }
                 else
                 {
@@ -117,17 +117,17 @@ namespace InterpreterWPF
             (double increment, List<double> minLabels) = DrawLabels(); // Draws the labels and returns the value of each black line and the last label
 
             // Generate Polynomial data
-            List<double> coefficients = new List<double> { 1, 1}; // Represents x^2 + x
+            //List<double> coefficients = new List<double> { 1, 1}; // Represents x^2 + x
 
 
             // calculate minX and maxX
             List<double> resi = CalculateMinAndMax(remainder, increment, minLabels);
-            double minX = resi[1];
-            double maxX = resi[0];
+            //double minX = resi[1];
+            //int maxX = resi[0]+1;
             double step = 1;
             double scaleFactor = Math.Abs(baseInterval * zoomLevel);
 
-            List<Point> points  = GeneratePoly(minX, maxX, step);
+            List<Point> points  = GeneratePoly(resi[1], resi[0], step);
 
 
             points = MapPointsToCanvas(points, scaleFactor);
@@ -441,7 +441,7 @@ namespace InterpreterWPF
             {
                 String res = LexerParser.evalPoly(plotTokens, x).ToString();
                 res = res.Substring(6);
-                cmdWindow.AppendText(res.ToString());
+                //cmdWindow.AppendText(res.ToString());// Testing
 
                 double y = Convert.ToDouble(res);
                 //double y = x + 1;
@@ -538,8 +538,11 @@ namespace InterpreterWPF
                 x_Offset += deltaX;
                 y_Offset += deltaY;
 
-                // Redraw the graph with the new pan offset
-                DrawGraph(sender, e);
+                if (plotTokens != null)
+                {
+                    // Redraw the graph with the new pan offset
+                    DrawGraph(sender, e);
+                }
 
                 // Update the last point for the next movement
                 panLastPoint = currentMousePosition;
@@ -562,8 +565,11 @@ namespace InterpreterWPF
             //x_Offset = cursorPosition.X - (cursorPosition.X - x_Offset) * (zoomLevel);
             //y_Offset = cursorPosition.Y - (cursorPosition.Y - y_Offset) * (zoomLevel);
 
-            // Redraw the graph with the new zoom level and pan offsets
-            DrawGraph(sender, e);
+            if (plotTokens != null)
+            {
+                // Redraw the graph with the new zoom level and pan offsets
+                DrawGraph(sender, e);
+            }
         }
     }
 

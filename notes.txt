@@ -1,0 +1,6 @@
+Bugs to fix:
+X+1 (plus after variable)
+powers over floats
+
+Report:
+background: Maple, matlab
