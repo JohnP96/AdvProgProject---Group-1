@@ -178,12 +178,7 @@ module LexerParser =
             | _ -> E tList
         let Plot tList = 
             match tList with 
-            | Plt :: tail -> match tail with
-                             | Lpar :: tail -> match VA (Success tail) with
-                                               | Success (Rpar :: tail) -> Success tail
-                                               | Success _ -> Failure "Missing right parenthesis"
-                                               | Failure error -> Failure error
-                             | _ -> Failure "Missing brackets on function call"
+            | Plt :: tail -> E (Success tail)
             | _ -> VA (Success tList)
 
         Plot tList 
@@ -194,7 +189,7 @@ module LexerParser =
                           else searchVName vName tail
         | _ -> (false, Number.Int 0)
 
-    let parseNeval tList (symList:List<string*Number>) =
+    let parseNeval tList (symList:List<string*Number>) : (bool * (terminal list * (string * Number))) =
         let rec E tList = (T >> Eopt) tList
         and Eopt (tList, (vID, value)) =
             match tList with
@@ -311,14 +306,9 @@ module LexerParser =
                                                     (tLst, (vName, tval))
                                    | _ -> E tList
             | _ -> E tList
-        let Plot tList =
+        let Plot tList = // Adds a boolean for if this is a plot function and returns the token list
             match tList with
-                | Plt :: tail -> match tail with 
-                                 | Lpar :: tail -> let (tLst, (vID, tval)) = VA tail
-                                                   match tLst with
-                                                   | Rpar :: tail -> (true, (tail, ("", tval)))
-                                                   | _ -> raise parseError
-                                 | _ -> raise parseError
+                | Plt :: tail -> (true, (tail, ("", Number.Int 0)))
                 | _ -> (false, VA tList)
         Plot tList
 
@@ -352,6 +342,119 @@ module LexerParser =
                           printSymTList tail
         | [] -> Console.WriteLine("]")
 
+
+    let rec evalPoly (tlist:list<terminal>) (x:double) =
+        let rec E tList = (T >> Eopt) tList
+        and Eopt (tList, (vID, value)) =
+            match tList with
+            | Add :: tail -> 
+                let (tLst, (vID, tval)) = T tail
+                Eopt (tLst, (vID,
+                    match value, tval with
+                    | Number.Int a, Number.Int b -> Number.Float (float a + float b)
+                    | Number.Float a, Number.Float b -> Number.Float (a + b)
+                    | Number.Int a, Number.Float b -> Number.Float (float a + b)
+                    | Number.Float a, Number.Int b -> Number.Float (a + float b)
+                ))
+            | Sub :: tail -> 
+                let (tLst, (vID, tval)) = T tail
+                Eopt (tLst, (vID,
+                    match value, tval with
+                    | Number.Int a, Number.Int b -> Number.Float (float a - float b)
+                    | Number.Float a, Number.Float b -> Number.Float (a - b)
+                    | Number.Int a, Number.Float b -> Number.Float (float a - b)
+                    | Number.Float a, Number.Int b -> Number.Float (a - float b)
+                ))
+            | _ -> (tList, ("", value))
+        and T tList = (P >> Topt) tList
+        and Topt (tList, (vID, value)) =
+            match tList with
+            | Mul :: tail -> 
+                let (tLst, (vID, tval)) = P tail
+                Topt (tLst, (vID,
+                    match value, tval with
+                    | Number.Int a, Number.Int b -> Number.Float (float a * float b)
+                    | Number.Float a, Number.Float b -> Number.Float (a * b)
+                    | Number.Int a, Number.Float b -> Number.Float (float a * b)
+                    | Number.Float a, Number.Int b -> Number.Float (a * float b)
+                ))
+            | Div :: tail -> 
+                let (tLst, (vID, tval)) = P tail
+                Topt (tLst, (vID, 
+                    match value, tval with
+                    | Number.Int a, Number.Int b -> Number.Float (float a / float b)
+                    | Number.Float a, Number.Float b -> Number.Float (a / b)
+                    | Number.Int a, Number.Float b -> Number.Float (float a / b)
+                    | Number.Float a, Number.Int b -> Number.Float (a / float b)
+                ))
+            | Rem :: tail -> 
+                let (tLst, (vID, tval)) = P tail
+                Topt (tLst, (vID, 
+                    match value, tval with
+                    | Number.Int a, Number.Int b -> Number.Float (float a % float b)
+                    | Number.Float a, Number.Float b -> Number.Float (a % b)
+                    | Number.Int a, Number.Float b -> Number.Float (float a % b)
+                    | Number.Float a, Number.Int b -> Number.Float (a % float b)
+                ))
+            | _ -> (tList, ("", value))
+        and P tList = (NR >> Popt) tList
+        and Popt (tList, (vID, value)) = 
+            match tList with
+            | Pow :: tail -> 
+                let (tLst, (vID, tval)) = NR tail
+                Popt (tLst, (vID, 
+                    match value, tval with
+                    | Number.Int a, Number.Int b ->
+                        if isNeg tval then
+                            Number.Float (float a ** float b)
+                        else
+                            Number.Float (pown a (int b))
+                    | Number.Float a, Number.Float b ->
+                        if isNeg tval then
+                            Number.Float (float a ** float b)
+                        else
+                            Number.Float (pown a (int b))
+                    | Number.Float a, Number.Int b ->
+                        if isNeg tval then
+                            Number.Float (float a ** float b)
+                        else
+                            Number.Float (float(pown (int a) b))
+                    | Number.Int a, Number.Float b ->
+                        if isNeg tval then
+                            Number.Float (float a ** float b)
+                        else
+                            Number.Float (pown a (int b))
+                ))
+            | _ -> (tList, ("", value))
+        and NR tList =
+            match tList with 
+            | Neg :: Num value :: tail -> 
+                (tail, ("",
+                    match value with
+                    | Int a -> Float (-a)
+                    | Float a -> Float (-a)))
+            |Neg :: Lpar :: tail ->
+                let (tLst, (vID, tval)) = E tail
+                match tLst with 
+                | Rpar :: tail ->
+                    (tail, ("",
+                        match tval with
+                        | Int a -> Float (-a)
+                        | Float a -> Float (-a)))
+                | _ -> raise parseError
+            | Plus :: Num value :: tail -> (tail, ("", value))
+            | Vid vname :: tail -> (tail, ("", Number.Float x))
+            | Num value :: tail -> (tail, ("", value))
+            | Lpar :: tail ->  let (tLst, (vID, tval)) = E tail
+                               match tLst with 
+                               | Rpar :: tail -> (tail, ("", tval))
+                               | _ -> raise parseError
+            | _ -> raise parseError
+        snd (snd (E tlist))
+
+    let initPlotTokens =
+        [Num (Number.Float 0)]
+
     let rec inpLoop (symTList:List<string*Number>) = 
         Console.Write("Symbol Table = [")
         let outSym = printSymTList symTList
@@ -362,8 +465,8 @@ module LexerParser =
             //let pList = parser oList  // pList is the remaining token list and should be empty
             //if not pList.IsEmpty then raise parseError // NOTE this update to avoid expressions like 3(2+3) that would return a value of 3 and have a nonempty token list ([Lpar Num 2 Add Num 3 Rpar], 3)
             let Out = parseNeval oList symTList
-            let tempID = fst (snd Out)
-            let tempVal = snd (snd Out)
+            let tempID = fst (snd (snd Out))
+            let tempVal = snd (snd (snd Out))
             Console.WriteLine("Variable name = {0}", tempID)    // UPDATE
             Console.WriteLine("Result = {0}", tempVal)          // UPDATED
             // Check whether variable name was already in symTList and if so replace with new value

@@ -12,13 +12,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Shapes;    
 using InterpreterFSharp;
 using Microsoft.FSharp.Collections;
 using System.Diagnostics;
 using stringValPair = System.Tuple<string, InterpreterFSharp.LexerParser.Number>;
 using terminalList = Microsoft.FSharp.Collections.FSharpList<InterpreterFSharp.LexerParser.terminal>;
-using pNeReturnVal = System.Tuple<InterpreterFSharp.LexerParser.terminal, System.Tuple<Microsoft.FSharp.Collections.FSharpList<InterpreterFSharp.LexerParser.terminal>, System.Tuple<string, InterpreterFSharp.LexerParser.Number>>>;
+using pNeReturnVal = System.Tuple<bool, System.Tuple<Microsoft.FSharp.Collections.FSharpList<InterpreterFSharp.LexerParser.terminal>, System.Tuple<string, InterpreterFSharp.LexerParser.Number>>>;
 
 namespace InterpreterWPF
 {
@@ -26,11 +26,13 @@ namespace InterpreterWPF
     public partial class MainWindow : Window
     {
         FSharpList<stringValPair> symList;
+        FSharpList<LexerParser.terminal> plotTokens;
 
         public MainWindow()
         {
             InitializeComponent();
             symList = FSharpList<stringValPair>.Empty;
+            plotTokens = LexerParser.initPlotTokens;
         }
 
         private void enterBtn_Click(object sender, RoutedEventArgs e)
@@ -63,10 +65,19 @@ namespace InterpreterWPF
                 cmdWindow.AppendText("> Tokens: " + string.Join(", ", lexed) + "\n");
                 Tuple<pNeReturnVal, FSharpList<stringValPair>> result =
                     LexerParser.parseNevalNsym(lexed, symList);
-                LexerParser.Number answer = result.Item1.Item2.Item2;
+                LexerParser.Number answer = result.Item1.Item2.Item2.Item2;
                 symList = result.Item2;
-                cmdWindow.AppendText("> Result: " + answer + "\n");
-                cmdWindow.AppendText("> Sym: " + symList + "\n");
+
+                if (result.Item1.Item1)
+                {
+                    plotTokens = result.Item1.Item2.Item1;
+
+                }
+                else
+                {
+                    cmdWindow.AppendText("> Result: " + answer + "\n");
+                    cmdWindow.AppendText("> Sym: " + symList + "\n");
+                }
                 cmdWindow.ScrollToEnd();
             }
             string vars = "\n";
@@ -106,7 +117,7 @@ namespace InterpreterWPF
             (double increment, List<double> minLabels) = DrawLabels(); // Draws the labels and returns the value of each black line and the last label
 
             // Generate Polynomial data
-            List<double> coefficients = new List<double> {1, 1}; // Represents x^2 - 3x + 2
+            List<double> coefficients = new List<double> { 1, 1}; // Represents x^2 + x
 
 
             // calculate minX and maxX
@@ -116,7 +127,8 @@ namespace InterpreterWPF
             double step = 1;
             double scaleFactor = Math.Abs(baseInterval * zoomLevel);
 
-            List<Point> points  = GeneratePoly(coefficients, minX, maxX, step);
+            List<Point> points  = GeneratePoly(minX, maxX, step);
+
 
             points = MapPointsToCanvas(points, scaleFactor);
 
@@ -421,13 +433,18 @@ namespace InterpreterWPF
             graphCanvas.Children.Add(yAxis);
         }
 
-        private List<Point> GeneratePoly(List<double> coefficients, double minX, double maxX, double step)
+        private List<Point> GeneratePoly(double minX, double maxX, double step)
         {
             List<Point> points = new List<Point>();
 
             for (double x = minX; x <= maxX; x += step)
             {
-                double y = EvaluatePolynomial(coefficients, x);
+                String res = LexerParser.evalPoly(plotTokens, x).ToString();
+                res = res.Substring(6);
+                cmdWindow.AppendText(res.ToString());
+
+                double y = Convert.ToDouble(res);
+                //double y = x + 1;
 
                 points.Add(new Point(x,y));
             }
