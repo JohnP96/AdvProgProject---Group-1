@@ -107,6 +107,12 @@ module LexerParser =
     let getInputString() : string = 
         Console.Write("Enter an expression: ")
         Console.ReadLine()
+
+    let rec searchVName vName (symList:List<string*Number>) =
+        match symList with
+        | head :: tail -> if (fst head) = vName then (true, (snd head))
+                          else searchVName vName tail
+        | _ -> (false, Number.Int 0)
     
     // Grammar in (E)BNF:
     //<Plot> ::= <Plt> "(" <VA> ")"
@@ -123,72 +129,70 @@ module LexerParser =
     //<Plt> ::= "plot"
 
     ////============================= Parser ======================================
-    let parser tList = 
-        let rec E (tList: result<terminal list>) = 
-            match (T >> Eopt) tList with
-            | Success res -> Success res
-            | Failure error -> Failure (error)
-        and Eopt (tList: result<terminal list>) =             
+    let parser tList symList = 
+        let rec E ((tList: result<terminal list>), plot:bool) = 
+            match fst ((T >> Eopt) (tList, plot)) with
+            | Success res -> (Success res, plot)
+            | Failure error -> (Failure (error), plot)
+        and Eopt ((tList: result<terminal list>), plot:bool) =             
             match tList with
-            | Success (Add :: tail) -> (T >> Eopt) (Success tail)
-            | Success (Sub :: tail) -> (T >> Eopt) (Success tail)
-            | Failure error -> Failure error
-            | _ -> tList
-        and T (tList: result<terminal list>) = 
-            match (P >> Topt) tList with
-            | Success res -> Success res
-            | Failure error -> Failure (error)
-        and Topt (tList: result<terminal list>) =
+            | Success (Add :: tail) -> (T >> Eopt) ((Success tail), plot)
+            | Success (Sub :: tail) -> (T >> Eopt) ((Success tail), plot)
+            | Failure error -> (Failure (error), plot)
+            | _ -> (tList, plot)
+        and T ((tList: result<terminal list>), plot:bool) = 
+            match fst ((P >> Topt) (tList, plot)) with
+            | Success res -> (Success res, plot)
+            | Failure error -> (Failure (error), plot)
+        and Topt ((tList: result<terminal list>), plot:bool) =
             match tList with
-            | Success (Mul :: tail) -> (P >> Topt) (Success tail)
-            | Success (Div :: tail) -> (P >> Topt) (Success tail)
-            | Success (Rem :: tail) -> (P >> Topt) (Success tail)
-            | Failure error -> Failure error
-            | _ -> tList
-        and P (tList: result<terminal list>) =   
-            match (NR >> Popt) tList with
-            | Success res -> Success res
-            | Failure error -> Failure (error)
-        and Popt (tList: result<terminal list>) =
+            | Success (Mul :: tail) -> (P >> Topt) ((Success tail), plot)
+            | Success (Div :: tail) -> (P >> Topt) ((Success tail), plot)
+            | Success (Rem :: tail) -> (P >> Topt) ((Success tail), plot)
+            | Failure error -> (Failure error, plot)
+            | _ -> (tList, plot)
+        and P ((tList: result<terminal list>), plot:bool) =   
+            match fst ((NR >> Popt) (tList, plot)) with
+            | Success res -> (Success res, plot)
+            | Failure error -> (Failure (error), plot)
+        and Popt ((tList: result<terminal list>), plot:bool) =
             match tList with
-            | Success (Pow :: tail) -> (NR >> Popt) (Success tail)
-            | Failure error -> Failure error
-            | _ -> tList
-        and NR (tList: result<terminal list>) =
+            | Success (Pow :: tail) -> (NR >> Popt) ((Success tail), plot)
+            | Failure error -> ((Failure error), plot)
+            | _ -> (tList, plot)
+        and NR ((tList: result<terminal list>), plot:bool) =
             match tList with 
-            | Success (Neg :: Num value :: tail) -> Success tail
-            | Success (Neg :: Lpar :: tail) -> match E (Success tail) with
-                                               | Success (Rpar :: tail) -> Success tail
-                                               | Success _ -> Failure "Missing right parenthesis"
-                                               | Failure error -> Failure error
-            | Success (Plus :: Num value :: tail) -> Success tail
-            | Success (Num value :: tail) -> Success tail
-            | Success (Vid vName :: tail) -> Success tail
-            | Success (Lpar :: tail) -> match E (Success tail) with 
-                                        | Success (Rpar :: tail) -> Success tail
-                                        | Success _ -> Failure "Missing right parenthesis"
-                                        | Failure error -> Failure error
-            | Failure error -> Failure error
-            | c -> Failure ("Unexpected token \"" + c.ToString() + "\"")
-        let VA (tList: result<terminal list>) =  
+            | Success (Neg :: Num value :: tail) -> (Success tail, plot)
+            | Success (Neg :: Lpar :: tail) -> match fst (E ((Success tail), plot)) with
+                                               | Success (Rpar :: tail) -> (Success tail, plot)
+                                               | Success _ -> (Failure "Missing right parenthesis", plot)
+                                               | Failure error -> (Failure error, plot)
+            | Success (Plus :: Num value :: tail) -> (Success tail, plot)
+            | Success (Num value :: tail) -> (Success tail, plot)
+            | Success (Vid vName :: tail) -> if plot then (Success tail, plot)
+                                             else
+                                                 let res = searchVName vName symList
+                                                 if (fst res) then ((Success tail), plot)
+                                                 else (Failure ("The variable \"" + vName + "\" is not assigned."), plot)
+            | Success (Lpar :: tail) -> match fst (E ((Success tail), plot)) with 
+                                        | Success (Rpar :: tail) -> (Success tail, plot)
+                                        | Success _ -> (Failure "Missing right parenthesis", plot)
+                                        | Failure error -> (Failure error, plot)
+            | Failure error -> (Failure error, plot)
+            | c -> (Failure ("Unexpected token \"" + c.ToString() + "\""), plot)
+        let VA ((tList: result<terminal list>), plot:bool) =  
             match tList with
             | Success (Vid vName :: tail) -> match tail with
-                                             | Equ :: tail -> E (Success tail)
-                                             | Num value :: tail -> Failure "Missing equal sign after variable name"
-                                             | _ -> E tList
-            | _ -> E tList
+                                             | Equ :: tail -> E ((Success tail), plot)
+                                             | Num value :: tail -> (Failure "Missing equal sign after variable name", plot)
+                                             | _ -> E (tList, plot)
+            | _ -> E (tList, plot)
         let Plot tList = 
             match tList with 
-            | Plt :: tail -> E (Success tail)
-            | _ -> VA (Success tList)
+            | Plt :: tail -> E ((Success tail), true)
+            | _ -> VA ((Success tList), false)
 
         Plot tList 
-
-    let rec searchVName vName (symList:List<string*Number>) =
-        match symList with
-        | head :: tail -> if (fst head) = vName then (true, (snd head))
-                          else searchVName vName tail
-        | _ -> (false, Number.Int 0)
 
     let parseNeval tList (symList:List<string*Number>) : (bool * (terminal list * (string * Number))) =
         let rec E tList = (T >> Eopt) tList
@@ -309,12 +313,14 @@ module LexerParser =
         let pNe = parseNeval tList symList
         let vID = fst (snd (snd pNe))
         let tval = snd (snd (snd pNe))
+        let symCopy = symList
         match vID with
           | "" -> (pNe, symList) // if there is no vID just return the symList
           | _ -> match symList with
                  | [] -> (pNe, symList @ [vID, tval])
                  | _ -> let res = check4vid symList vID tval // if the vID is already in symbol table replace its value
-                        (pNe, res)
+                        if res.Equals(symList) then (pNe, symList @ [vID, tval])
+                        else (pNe, res)
                  
 
     ////============================= Parser ======================================

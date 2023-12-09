@@ -26,7 +26,7 @@ namespace InterpreterWPF
     public partial class MainWindow : Window
     {
         FSharpList<stringValPair> symList;
-        FSharpList<LexerParser.terminal> plotTokens;
+        terminalList plotTokens;
 
         public MainWindow()
         {
@@ -48,14 +48,15 @@ namespace InterpreterWPF
                     cmdWindow.AppendText("> Error: " + lexed[i] + " is not a valid lexeme\n");
                 }
             }
-            string  parseRes = LexerParser.parser(lexed).ToString();
+            string  parseRes = LexerParser.parser(lexed, symList).Item1.ToString();
             //cmdWindow.AppendText("> Parser result: " + parseRes + "\n // Testing
             if (parseRes.StartsWith("F"))
             {
                 success = false;
-                cmdWindow.AppendText(string.Concat("> ", parseRes.AsSpan(8), "\n"));
+                // Print error message
+                cmdWindow.AppendText(string.Concat("> ", parseRes.AsSpan(9,(parseRes.Length-10)), "\n")); // The span gets rid of the success/failure notation and the quotation marks
             }
-            else if (parseRes.Substring(9) != "]")
+            else if (parseRes.Substring(9) != "]") // If the return
             {
                 success = false;
                 cmdWindow.AppendText("> Invalid expression.\n");
@@ -76,7 +77,7 @@ namespace InterpreterWPF
                 else
                 {
                     cmdWindow.AppendText("> Result: " + answer + "\n");
-                    cmdWindow.AppendText("> Sym: " + symList + "\n");
+                    //cmdWindow.AppendText("> Sym: " + symList + "\n"); // Testing
                 }
                 cmdWindow.ScrollToEnd();
             }
@@ -124,7 +125,7 @@ namespace InterpreterWPF
             List<double> resi = CalculateMinAndMax(remainder, increment, minLabels);
             //double minX = resi[1];
             //int maxX = resi[0]+1;
-            double step = 1;
+            double step = 0.1;
             double scaleFactor = Math.Abs(baseInterval * zoomLevel);
 
             List<Point> points  = GeneratePoly(resi[1], resi[0], step);
