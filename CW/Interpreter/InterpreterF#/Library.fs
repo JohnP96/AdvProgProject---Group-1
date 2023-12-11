@@ -139,13 +139,15 @@ module LexerParser =
             | Success (Add :: tail) -> (T >> Eopt) ((Success tail), plot)
             | Success (Sub :: tail) -> (T >> Eopt) ((Success tail), plot)
             | Failure error -> (Failure (error), plot)
-            | _ -> (tList, plot)
+            | _ -> (tList, plot)    
         and T ((tList: result<terminal list>), plot:bool) = 
             match fst ((P >> Topt) (tList, plot)) with
             | Success res -> (Success res, plot)
             | Failure error -> (Failure (error), plot)
         and Topt ((tList: result<terminal list>), plot:bool) =
             match tList with
+            | Success (Div :: (Num (Number.Int 0)) :: tail) -> ((Failure "Cannot divide by zero."), plot)
+            | Success (Div :: (Num (Number.Float 0.0)) :: tail) -> ((Failure "Cannot divide by zero."), plot)
             | Success (Mul :: tail) -> (P >> Topt) ((Success tail), plot)
             | Success (Div :: tail) -> (P >> Topt) ((Success tail), plot)
             | Success (Rem :: tail) -> (P >> Topt) ((Success tail), plot)

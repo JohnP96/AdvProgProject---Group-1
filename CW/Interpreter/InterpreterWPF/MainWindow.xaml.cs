@@ -56,7 +56,7 @@ namespace InterpreterWPF
                 // Print error message
                 cmdWindow.AppendText(string.Concat("> ", parseRes.AsSpan(9,(parseRes.Length-10)), "\n")); // The span gets rid of the success/failure notation and the quotation marks
             }
-            else if (parseRes.Substring(9) != "]") // If the return
+            else if (parseRes.Substring(9) != "]")
             {
                 success = false;
                 cmdWindow.AppendText("> Invalid expression.\n");
