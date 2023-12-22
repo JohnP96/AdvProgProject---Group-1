@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using InterpreterFSharp;
 using Microsoft.FSharp.Collections;
 using System.Diagnostics;
+
 using stringValPair = System.Tuple<string, InterpreterFSharp.LexerParser.Number>;
 using terminalList = Microsoft.FSharp.Collections.FSharpList<InterpreterFSharp.LexerParser.terminal>;
 using pNeReturnVal = System.Tuple<bool, System.Tuple<Microsoft.FSharp.Collections.FSharpList<InterpreterFSharp.LexerParser.terminal>, System.Tuple<string, InterpreterFSharp.LexerParser.Number>>>;
@@ -91,14 +92,14 @@ namespace InterpreterWPF
         }
 
          // Graph Variables
-        private double zoomLevel = 1;
-        private double x_Offset = 0;
-        private double y_Offset = 0;
+        private double zoomLevel = 1;   // The zoom of the graph; resets when a limit is reached 
+        private double x_Offset = 0;    // The offset of the graph in the x direcrtion 
+        private double y_Offset = 0;    // The offset of the graph in the y direcrtion 
 
         private double baseInterval = 10; // Initial interval between grey grid lines
         private double baseDarkInterval = 50; // Initial interval between dark grid lines
 
-        private double zoomNum = 2;
+        private double zoomNum = 2;     // Number of times the graph has been reset due to zooming;
 
 
         private void DrawGraph(object sender, RoutedEventArgs e)
@@ -558,9 +559,9 @@ namespace InterpreterWPF
 
             // Adjust zoom level based on mouse wheel delta
             if (e.Delta > 0)
-                zoomLevel *= 1.01; // Zoom in
+                zoomLevel *= 1.03; // Zoom in
             else
-                zoomLevel /= 1.01; // Zoom out
+                zoomLevel /= 1.03; // Zoom out
 
             // Calculate the new pan offsets to keep the cursor at the same position after zooming
             //x_Offset = cursorPosition.X - (cursorPosition.X - x_Offset) * (zoomLevel);
