@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
-        Loaded="DrawGraph"
-		SizeChanged="DrawGraph"
+        Loaded="DrawGraph2"
+		SizeChanged="DrawGraph2"
 		>
     <Grid>
         <Grid.RowDefinitions>
