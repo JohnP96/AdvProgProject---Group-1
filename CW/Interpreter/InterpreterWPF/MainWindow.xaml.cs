@@ -23,9 +23,21 @@ using pNeReturnVal = System.Tuple<bool, System.Tuple<Microsoft.FSharp.Collection
 
 namespace InterpreterWPF
 {
-    
+
     public partial class MainWindow : Window
     {
+        // Graph Variables
+        private double zoomLevel = 1;   // The zoom of the graph; resets when a limit is reached 
+        private double x_Offset = 0;    // The offset of the graph in the x direcrtion 
+        private double y_Offset = 0;    // The offset of the graph in the y direcrtion 
+
+        private double baseInterval = 10; // Initial interval between grey grid lines
+        private double baseDarkInterval = 50; // Initial interval between dark grid lines
+
+        private double zoomNum = 2;     // Number of times the graph has been reset due to zooming;
+
+        private Graph testGraph;
+
         FSharpList<stringValPair> symList;
         terminalList plotTokens;
 
@@ -34,6 +46,8 @@ namespace InterpreterWPF
             InitializeComponent();
             symList = FSharpList<stringValPair>.Empty;
             plotTokens = LexerParser.initPlotTokens;
+            testGraph = new Graph(graphCanvas, zoomLevel, x_Offset, y_Offset, baseInterval, baseDarkInterval, zoomNum);
+
         }
 
         private void enterBtn_Click(object sender, RoutedEventArgs e)
@@ -73,12 +87,12 @@ namespace InterpreterWPF
                 if (result.Item1.Item1)
                 {
                     plotTokens = result.Item1.Item2.Item1;
-                    DrawGraph(sender, e);
+                    DrawGraph2(sender, e);
                 }
                 else
                 {
                     cmdWindow.AppendText("> Result: " + answer + "\n");
-                    //cmdWindow.AppendText("> Sym: " + symList + "\n"); // Testing
+                    cmdWindow.AppendText("> Sym: " + symList + "\n"); // Testing
                 }
                 cmdWindow.ScrollToEnd();
             }
@@ -91,201 +105,78 @@ namespace InterpreterWPF
             Input.Clear();
         }
 
-         // Graph Variables
-        private double zoomLevel = 1;   // The zoom of the graph; resets when a limit is reached 
-        private double x_Offset = 0;    // The offset of the graph in the x direcrtion 
-        private double y_Offset = 0;    // The offset of the graph in the y direcrtion 
-
-        private double baseInterval = 10; // Initial interval between grey grid lines
-        private double baseDarkInterval = 50; // Initial interval between dark grid lines
-
-        private double zoomNum = 2;     // Number of times the graph has been reset due to zooming;
 
 
-        private void DrawGraph(object sender, RoutedEventArgs e)
+        private void DrawGraph2(object sender, RoutedEventArgs e)
         {
-            // Clear the Grid lines 
-            graphCanvas.Children.Clear();
+            // Clear everything on the canvas
+            testGraph.clear(graphCanvas);
 
-            // Draw grid lines
             double darkInterval = baseDarkInterval * zoomLevel;
             double interval = baseInterval * zoomLevel;
-            List<double> remainder = DrawGridLines(interval, darkInterval); //  Draws the grid and Calculates how many grey lines after the last black line
-            
-            // Draw axes
-            DrawAxis();
 
+            // Draw Axis
+            testGraph.drawAxis(graphCanvas, x_Offset, y_Offset, zoomLevel);
+
+            // Draw grid lines
+            List<double> remainder = testGraph.drawGridLines(graphCanvas, ref interval, baseInterval,darkInterval, x_Offset, y_Offset, ref zoomLevel, ref zoomNum);
+            
             // Draw Labels
-            (double increment, List<double> minLabels) = DrawLabels(); // Draws the labels and returns the value of each black line and the last label
+            (double increment, List<double> minLabels) = testGraph.drawLabels(graphCanvas, x_Offset,y_Offset,zoomLevel, zoomNum); // Draws the labels and returns the value of each black line and the last label
+
+            // calculate minX and maxX of Graph 
+            List<double> resi = CalculateMinAndMax(remainder, increment, minLabels);
+
+            double step = 0.1;
+            double scaleFactor = Math.Abs(baseInterval * zoomLevel);
 
             // Generate Polynomial data
             //List<double> coefficients = new List<double> { 1, 1}; // Represents x^2 + x
 
-
-            // calculate minX and maxX
-            List<double> resi = CalculateMinAndMax(remainder, increment, minLabels);
-            //double minX = resi[1];
-            //int maxX = resi[0]+1;
-            double step = 0.1;
-            double scaleFactor = Math.Abs(baseInterval * zoomLevel);
-
-            List<Point> points  = GeneratePoly(resi[1], resi[0], step);
+            List<Point> points = GeneratePoly(resi[1], resi[0], step);
 
 
             points = MapPointsToCanvas(points, scaleFactor);
 
-            DrawPoints(points);
+            testGraph.DrawPoints(graphCanvas, points);
         }
 
-        /*  
-            Func:-      DrawGridLines()
+        //private void DrawGraph(object sender, RoutedEventArgs e)
+        //{
+        //    // Clear the Grid lines 
+        //    graphCanvas.Children.Clear();
 
-            Params:-    interval(double): pixel value between each grey line
-                        darkinterval(double): pixel value between each black line
+        //    // Draw grid lines
+        //    double darkInterval = baseDarkInterval * zoomLevel;
+        //    double interval = baseInterval * zoomLevel;
+        //    List<double> remainder = DrawGridLines(interval, darkInterval); //  Draws the grid and Calculates how many grey lines after the last black line
 
-            Return:-    x(list):    List to keep track of how many grey lines have been made after a black line;
-                                    this is to find the minimum and maximum number the grid displays. If there
-                                    is 2 grey lines after the last black line, find the value of 1 grey line and multiply
-                                    it by x(2) + black line label to find the min/max number displayed.
-                                    [+x, -x, +y,-y]
-         */
+        //    // Draw axes
+        //    DrawAxis();
 
-        private List<double> DrawGridLines(double interval, double darkInterval)
-        {
-            List<double> greyLines = new List<double> { 0, 0, 0, 0 }; // Keep track of how many grey lines after a black line
-            List<double> blackLines = new List<double> { 0, 0, 0, 0 }; // Keep track of the number of black lines
+        //    // Draw Labels
+        //    (double increment, List<double> minLabels) = DrawLabels(); // Draws the labels and returns the value of each black line and the last label
 
-            double halfWidth = ((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel;
-            double halfHeight = ((graphCanvas.ActualHeight / 2) + y_Offset) * zoomLevel;
+        //    // Generate Polynomial data
+        //    //List<double> coefficients = new List<double> { 1, 1}; // Represents x^2 + x
 
-            // Check if the Grid needs to be reset
-            CheckZoomReset(interval);
 
-            // Draw light gray grid lines
-            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += interval) // +ve X-axis
-            {
-                Line line = new Line
-                {
-                    X1 = x,
-                    Y1 = 0,
-                    X2 = x,
-                    Y2 = graphCanvas.ActualHeight,
-                    Stroke = Brushes.LightGray
-                };
-                graphCanvas.Children.Add(line);
-                greyLines[0]++;
-            }
+        //    // calculate minX and maxX
+        //    List<double> resi = CalculateMinAndMax(remainder, increment, minLabels);
+        //    //double minX = resi[1];
+        //    //int maxX = resi[0]+1;
+        //    double step = 0.1;
+        //    double scaleFactor = Math.Abs(baseInterval * zoomLevel);
 
-            for (double x = halfWidth; x >= 0; x -= interval)
-            {
-                Line line = new Line
-                {
-                    X1 = x,
-                    Y1 = 0,
-                    X2 = x,
-                    Y2 = graphCanvas.ActualHeight,
-                    Stroke = Brushes.LightGray
-                };
-                graphCanvas.Children.Add(line);
-                greyLines[1]++;
-            }
+        //    List<Point> points = GeneratePoly(resi[1], resi[0], step);
 
-            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += interval)
-            {
-                Line line = new Line
-                {
-                    X1 = 0,
-                    Y1 = y,
-                    X2 = graphCanvas.ActualWidth,
-                    Y2 = y,
-                    Stroke = Brushes.LightGray
-                };
-                graphCanvas.Children.Add(line);
-                greyLines[2]++;
-            }
 
-            for (double y = halfHeight; y >= 0; y -= interval)
-            {
-                Line line = new Line
-                {
-                    X1 = 0,
-                    Y1 = y,
-                    X2 = graphCanvas.ActualWidth,
-                    Y2 = y,
-                    Stroke = Brushes.LightGray
-                };
-                graphCanvas.Children.Add(line);
-                greyLines[3]++;
-            }
+        //    points = MapPointsToCanvas(points, scaleFactor);
 
-            // Draw dark gray grid lines with a larger interval
-            for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += darkInterval)
-            {
-                Line line = new Line
-                {
-                    X1 = x,
-                    Y1 = 0,
-                    X2 = x,
-                    Y2 = graphCanvas.ActualHeight,
-                    Stroke = Brushes.Black
-                };
-                graphCanvas.Children.Add(line);
-                blackLines[0]++;
-            }
+        //    DrawPoints(points);
+        //}
 
-            for (double x = halfWidth; x >= 0; x -= darkInterval)
-            {
-                Line line = new Line
-                {
-                    X1 = x,
-                    Y1 = 0,
-                    X2 = x,
-                    Y2 = graphCanvas.ActualHeight,
-                    Stroke = Brushes.Black
-                };
-                graphCanvas.Children.Add(line);
-                blackLines[1]++;
-            }
-
-            for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += darkInterval)
-            {
-                Line line = new Line
-                {
-                    X1 = 0,
-                    Y1 = y,
-                    X2 = graphCanvas.ActualWidth,
-                    Y2 = y,
-                    Stroke = Brushes.Black
-                };
-                graphCanvas.Children.Add(line);
-                blackLines[2]++;
-            }
-
-            for (double y = halfHeight; y >= 0; y -= darkInterval)
-            {
-                Line line = new Line
-                {
-                    X1 = 0,
-                    Y1 = y,
-                    X2 = graphCanvas.ActualWidth,
-                    Y2 = y,
-                    Stroke = Brushes.Black
-                };
-                graphCanvas.Children.Add(line);
-                blackLines[3]++;
-            }
-
-            // Return the result
-            List<double> result = new List<double> {
-                greyLines[0] % blackLines[0],
-                greyLines[1] % blackLines[1],
-                greyLines[2] % blackLines[2],
-                greyLines[3] % blackLines[3]
-            };
-
-            return result;
-        }
-
+        
         private List<double> CalculateMinAndMax(List<double> remainder, double increment, List<double> minLabels)
         {
             for (int i = 0; i < minLabels.Count; i++)
@@ -294,145 +185,6 @@ namespace InterpreterWPF
             }
 
             return minLabels;
-        }
-
-
-        /*
-            Func:-      DrawLabels()
-
-            Return:-    result(Tuple):  [0] - The value of each black line
-                                        [1] - List of The last label drawn in each sector [+x,-x,+y,-y]
-         */
-        private (double, List<double>) DrawLabels()
-        {
-            double halfWidth = (graphCanvas.ActualWidth / 2 + x_Offset)* zoomLevel;
-            double halfHeight = (graphCanvas.ActualHeight / 2 + y_Offset)*zoomLevel;
-            double val = 0;
-            double increment = 0.5 * Math.Pow(2, zoomNum - 1);
-            var result = (increment, new List<double> { 0, 0, 0, 0 });
-
-
-
-            // Label the +ve X-axis
-            for (double i = halfWidth ; i < graphCanvas.ActualWidth; i += 50 * zoomLevel)
-            {
-                TextBlock label = new TextBlock
-                {
-                    Text = (val).ToString(),
-                    Foreground = Brushes.Black
-                };
-
-                Canvas.SetLeft(label, i);
-                Canvas.SetTop(label, halfHeight + 5); // Adjust the vertical position as needed
-
-                graphCanvas.Children.Add(label);
-                val += increment;
-                result.Item2[0] = val;
-            }
-            
-            // Label the -ve X-axis
-            val = 0;
-            for (double i = halfWidth; i >= 0; i -= 50 * zoomLevel)
-            {
-                TextBlock label = new TextBlock
-                {
-                    Text = (val).ToString(),
-                    Foreground = Brushes.Black
-                };
-
-                Canvas.SetLeft(label, i);
-                Canvas.SetTop(label, halfHeight + 5); // Adjust the vertical position as needed
-
-                graphCanvas.Children.Add(label);
-                val -= increment;
-                result.Item2[1] = val;
-            }
-
-            // Label the +ve Y-axis
-            val = 0;
-            for (double i = halfHeight; i > 0 ; i -= 50 * zoomLevel)
-            {
-                if (val != 0){
-                    TextBlock label = new TextBlock
-                    {
-                        Text = (val).ToString(),
-                        Foreground = Brushes.Black
-                    };
-
-                    Canvas.SetLeft(label, halfWidth + 5); // Adjust the horizontal position as needed
-                    Canvas.SetTop(label, i);
-
-                    graphCanvas.Children.Add(label);
-                }
-                val += increment;
-                result.Item2[2] = val;
-            }
-
-            // Label the -ve Y-axis
-            val = 0;
-            for (double i = halfHeight; i < graphCanvas.ActualHeight; i += 50 * zoomLevel)
-            {
-                if (val != 0)
-                {
-
-                    TextBlock label = new TextBlock
-                    {
-                        Text = (val).ToString(),
-                        Foreground = Brushes.Black
-                    };
-
-                    Canvas.SetLeft(label, halfWidth + 5); // Adjust the horizontal position as needed
-                    Canvas.SetTop(label, i);
-
-                    graphCanvas.Children.Add(label);
-                }
-                val -= increment;
-                result.Item2[3] = val;
-            }
-
-            return result;
-        }
-
-        private void CheckZoomReset(double interval)
-        {
-            // Reset interval when it exceeds the maximum
-            if (interval > baseInterval * 2)
-            {
-                zoomLevel = 1.0;  // Reset zoom level
-                interval = baseInterval;  // Reset interval
-                zoomNum -= 1;
-            }
-            else if (interval < baseInterval / 2)
-            {
-                zoomLevel = 1.0;  // Reset zoom level
-                interval = baseInterval;  // Reset interval
-                zoomNum += 1;
-            }
-        }
-
-        private void DrawAxis()
-        {
-            Line xAxis = new Line
-            {
-                X1 = 0,
-                Y1 = ((graphCanvas.ActualHeight / 2) + y_Offset)*zoomLevel,
-                X2 = graphCanvas.ActualWidth,
-                Y2 = ((graphCanvas.ActualHeight / 2) + y_Offset)*zoomLevel,
-                Stroke = Brushes.Black,
-                StrokeThickness = 2
-            };
-            graphCanvas.Children.Add(xAxis);
-
-            Line yAxis = new Line
-            {
-                X1 = ((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel,
-                Y1 = 0,
-                X2 = ((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel,
-                Y2 = graphCanvas.ActualHeight,
-                Stroke = Brushes.Black,
-                StrokeThickness = 2
-            };
-            graphCanvas.Children.Add(yAxis);
         }
 
         private List<Point> GeneratePoly(double minX, double maxX, double step)
@@ -497,21 +249,7 @@ namespace InterpreterWPF
             return  res*zoomLevel; 
         }
         
-        private void DrawPoints(List<Point> points)
-        {
-            Polyline polyline = new Polyline
-            {
-                Stroke = Brushes.Blue,
-                StrokeThickness = 2
-            };
 
-            foreach (Point point in points)
-            {
-                polyline.Points.Add(new Point(point.X , point.Y));
-            }
-
-            graphCanvas.Children.Add(polyline);
-        }
 
         // Panning
         private Point panStartPoint;
@@ -543,7 +281,7 @@ namespace InterpreterWPF
                 if (plotTokens != null)
                 {
                     // Redraw the graph with the new pan offset
-                    DrawGraph(sender, e);
+                    DrawGraph2(sender, e);
                 }
 
                 // Update the last point for the next movement
@@ -570,7 +308,7 @@ namespace InterpreterWPF
             if (plotTokens != null)
             {
                 // Redraw the graph with the new zoom level and pan offsets
-                DrawGraph(sender, e);
+                DrawGraph2(sender, e);
             }
         }
     }
