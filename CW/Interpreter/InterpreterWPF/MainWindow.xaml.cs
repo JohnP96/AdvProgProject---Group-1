@@ -92,7 +92,7 @@ namespace InterpreterWPF
                 else
                 {
                     cmdWindow.AppendText("> Result: " + answer + "\n");
-                    cmdWindow.AppendText("> Sym: " + symList + "\n"); // Testing
+                    //cmdWindow.AppendText("> Sym: " + symList + "\n"); // Testing
                 }
                 cmdWindow.ScrollToEnd();
             }
