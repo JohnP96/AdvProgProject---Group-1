@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     "net6.0": {
-      "FSharp.Core/7.0.400": {
+      "FSharp.Core/7.0.200": {
         "type": "package",
         "compile": {
           "lib/netstandard2.1/FSharp.Core.dll": {
@@ -59,15 +59,15 @@
     }
   },
   "libraries": {
-    "FSharp.Core/7.0.400": {
-      "sha512": "SZR1jcjcrdhjRObN/U16nI+RyvKBgg0zq8Pt2KAorDkvW0cXSjX4qKDNX+LpZaKZRA5QR9StHZ2mhT5VI/QSxw==",
+    "FSharp.Core/7.0.200": {
+      "sha512": "NmgUnpNH6Zu9B0SPIhojyo38gnPdkdYFYQfbd6zosEH32kbGY/g/Klk7PfOWe1NAe/O1YOMmK9KhwQ2OWsWEbg==",
       "type": "package",
-      "path": "fsharp.core/7.0.400",
+      "path": "fsharp.core/7.0.200",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "Icon.png",
-        "fsharp.core.7.0.400.nupkg.sha512",
+        "fsharp.core.7.0.200.nupkg.sha512",
         "fsharp.core.nuspec",
         "lib/netstandard2.0/FSharp.Core.dll",
         "lib/netstandard2.0/FSharp.Core.xml",
@@ -104,23 +104,28 @@
   },
   "projectFileDependencyGroups": {
     "net6.0": [
-      "FSharp.Core >= 7.0.400"
+      "FSharp.Core >= 7.0.200"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\JOHNP\\.nuget\\packages\\": {}
+    "C:\\Users\\ygb19mzu\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj",
+      "projectUniqueName": "C:\\Users\\ygb19mzu\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj",
       "projectName": "InterpreterFSharp",
-      "projectPath": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj",
-      "packagesPath": "C:\\Users\\JOHNP\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\JOHNP\\Documents\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\obj\\",
+      "projectPath": "C:\\Users\\ygb19mzu\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\InterpreterFSharp.fsproj",
+      "packagesPath": "C:\\Users\\ygb19mzu\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ygb19mzu\\Source\\Repos\\JohnP96\\AdvProgProject\\CW\\Interpreter\\InterpreterF#\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\JOHNP\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\ygb19mzu\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -128,7 +133,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\sdk\\7.0.402\\FSharp\\library-packs": {},
+        "C:\\Program Files\\dotnet\\sdk\\7.0.202\\FSharp\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -145,7 +150,7 @@
           "FSharp.Core": {
             "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
             "target": "Package",
-            "version": "[7.0.400, )",
+            "version": "[7.0.200, )",
             "generatePathProperty": true
           }
         },
@@ -165,7 +170,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.402\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.202\\RuntimeIdentifierGraph.json"
       }
     }
   }

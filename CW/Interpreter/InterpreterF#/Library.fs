@@ -1,4 +1,4 @@
-﻿namespace InterpreterFSharp
+namespace InterpreterFSharp
 
 module LexerParser =
     open System
@@ -55,7 +55,7 @@ module LexerParser =
 
 
     //============================= lexer ========================================
-    let lexer input = 
+    let lexer input =
         let rec isUnary prevChar =
             match prevChar with
             | [] -> true  // Previous character is empty, indicating the start of the input.
@@ -66,39 +66,49 @@ module LexerParser =
             | '-' :: _ -> true
             | _ -> false
 
-        let rec scan prevChar input =
-         
+        let rec scan prevChar negCount input =
             match input with
             | [] -> []
             | '+'::tail ->
                 if isUnary prevChar then
-                    Plus :: scan ['+'] tail
+                    Plus :: scan ['+'] 0 tail
                 else
-                    Add :: scan ['+'] tail
+                    Add :: scan ['+'] 0 tail
             | '-'::tail ->
                 if isUnary prevChar then
-                    Neg :: scan ['-'] tail
+                    scanNegs (negCount + 1) tail
                 else
-                    Sub :: scan ['-'] tail
-            | '*'::tail -> Mul :: scan ['*'] tail
-            | '/'::tail -> Div :: scan ['/'] tail
-            | '%'::tail -> Rem :: scan ['%'] tail
-            | '^'::tail -> Pow :: scan ['^'] tail
-            | '('::tail -> Lpar:: scan ['('] tail
-            | ')'::tail -> Rpar:: scan [')'] tail
-            | '='::tail -> Equ :: scan ['=']tail
-            | c :: tail when isblank c -> scan [c] tail
+                    Sub :: scan ['-'] 0 tail
+            | '*'::tail -> Mul :: scan ['*'] 0 tail
+            | '/'::tail -> Div :: scan ['/'] 0 tail
+            | '%'::tail -> Rem :: scan ['%'] 0 tail
+            | '^'::tail -> Pow :: scan ['^'] 0 tail
+            | '('::tail -> Lpar:: scan ['('] 0 tail
+            | ')'::tail -> Rpar:: scan [')'] 0 tail
+            | '='::tail -> Equ :: scan ['='] 0 tail
+            | c :: tail when isblank c -> scan [c] 0 tail
             | c :: tail when isdigit c -> 
                 let (iStr, iVal) = scInt(tail, intVal c) 
-                Num iVal :: scan [c] iStr
-            | c :: tail when ischar c -> let (iStr, vName) = scChar(tail, c.ToString())
-                                         match vName with
-                                         | "plot" -> Plt :: scan [c] iStr
-                                         | _ -> Vid vName :: scan [c] iStr
-            | c :: tail -> Err c :: scan [c] tail
-            
-        
-        scan [] (str2lst input)
+                Num iVal :: scan [c] 0 iStr
+            | c :: tail when ischar c -> 
+                let (iStr, vName) = scChar(tail, c.ToString())
+                match vName with
+                | "plot" -> Plt :: scan ['+'] 0 iStr
+                | _ -> Vid vName :: scan [c] 0 iStr
+            | c :: tail -> Err c :: scan [c] 0 tail
+
+        and scanNegs negCount input =
+            match input with
+            | '-'::tail -> scanNegs (negCount + 1) tail
+            | _ -> 
+                if negCount % 2 = 0 then
+                    Plus :: scan [] 0 input
+                else
+                    Neg :: scan [] 0 input
+
+        scan [] 0 (str2lst input)
+
+
 
 
 
