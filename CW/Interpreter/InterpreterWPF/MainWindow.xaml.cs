@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -40,6 +41,7 @@ namespace InterpreterWPF
 
         FSharpList<stringValPair> symList;
         terminalList plotTokens;
+        terminalList derivative;
 
         public MainWindow()
         {
@@ -54,7 +56,7 @@ namespace InterpreterWPF
         {
             bool success = true;
             cmdWindow.AppendText("> " + Input.Text + "\n");
-            string input = Input.Text;
+            string input = Input.Text.Replace(" ", string.Empty);
             terminalList lexed = LexerParser.lexer(input);
             for (int i = 0; i < lexed.Length; i++){
                 if (lexed[i] is LexerParser.terminal.Err)
@@ -87,6 +89,9 @@ namespace InterpreterWPF
                 if (result.Item1.Item1)
                 {
                     plotTokens = result.Item1.Item2.Item1;
+                    derivative = LexerParser.findDerivative(plotTokens);
+                    cmdWindow.AppendText("> Derivative: " + derivative + "\n");
+
                     DrawGraph2(sender, e);
                 }
                 else
@@ -133,7 +138,7 @@ namespace InterpreterWPF
             // Generate Polynomial data
             //List<double> coefficients = new List<double> { 1, 1}; // Represents x^2 + x
 
-            List<Point> points = GeneratePoly(resi[1], resi[0], step);
+            List<Point> points = GeneratePoints(resi[1], resi[0], step);
 
 
             points = MapPointsToCanvas(points, scaleFactor);
@@ -168,7 +173,7 @@ namespace InterpreterWPF
         //    double step = 0.1;
         //    double scaleFactor = Math.Abs(baseInterval * zoomLevel);
 
-        //    List<Point> points = GeneratePoly(resi[1], resi[0], step);
+        //    List<Point> points = GeneratePoints(resi[1], resi[0], step);
 
 
         //    points = MapPointsToCanvas(points, scaleFactor);
@@ -187,14 +192,20 @@ namespace InterpreterWPF
             return minLabels;
         }
 
-        private List<Point> GeneratePoly(double minX, double maxX, double step)
+        private List<Point> GeneratePoints(double minX, double maxX, double step)
         {
             List<Point> points = new List<Point>();
 
             for (double x = minX; x <= maxX; x += step)
             {
                 String res = LexerParser.evalPoly(plotTokens, x).ToString();
-                res = res.Substring(6);
+
+                // Remove the string "Float" or "Int" using regular expression
+                res = Regex.Replace(res, @"\b(Float|Int)\b", "");
+
+                // Use regular expression to extract numeric part
+                //res = Regex.Match(res, @"[-+]?\d+(\.\d+)?").Value;
+                //res = res.Substring(6);
                 //cmdWindow.AppendText(res.ToString());// Testing
 
                 double y = Convert.ToDouble(res);
