@@ -93,7 +93,7 @@ module LexerParser =
             | c :: tail when ischar c -> 
                 let (iStr, vName) = scChar(tail, c.ToString())
                 match vName with
-                | "plot" -> Plt :: scan ['+'] 0 iStr
+                | "plot" -> Plt :: scan [] 0 iStr
                 | _ -> Vid vName :: scan [c] 0 iStr
             | c :: tail -> Err c :: scan [c] 0 tail
 
@@ -458,6 +458,45 @@ module LexerParser =
 
     let initPlotTokens =
         [Num (Number.Float 0)]
+
+
+    //================================== DERIVATIVE OF FUNCITONS /==================================
+    let rec findDerivative(tokens:list<terminal>): list<terminal> =
+        let rec derivativeOfTerm term =
+            match term with
+            | Num n :: tail -> [Num (Number.Int 0) ]
+            | Vid c :: tail -> [Num (Number.Int 1)]
+            | Add :: tail -> [Add]
+            | Sub :: tail -> [Sub]
+            | Neg:: tail -> [Neg]
+
+
+        match tokens with
+        | [] -> []
+        | Lpar::tail -> 
+            // If the expression is enclosed in "()" then find the derivative of the enclosed expression 
+            let innerExpression, rest = findInnerExpression tail 1
+            derivativeOfTerm innerExpression @ findDerivative rest
+        | head :: tail -> 
+            // Find the derivative of the first term and continue with the rest of the expression
+            derivativeOfTerm [head] @ findDerivative tail
+
+    and findInnerExpression (tokens: list<terminal>) (parenCount: int) =
+        match tokens with
+        | Rpar :: tail when parenCount = 1 -> [], tail // End of all inner expressions 
+        | Lpar :: tail -> 
+            // There is more nested expressions; increment how deep we are by +1
+            let inner, rest = findInnerExpression tail (parenCount + 1)
+            Lpar :: inner, rest // Include Lpar in the inner expression
+        | Rpar :: tail -> 
+            // We've completed one inner exression but thers is more; decrement by -1
+            let inner, rest = findInnerExpression tail (parenCount - 1)
+            Rpar :: inner, rest // Include Rpar in the inner expression
+        | head :: tail -> 
+            let inner, rest = findInnerExpression tail parenCount
+            head :: inner, rest
+        | [] -> [], []
+    //================================== DERIVATIVE OF FUNCITONS /==================================
 
     let rec inpLoop (symTList:List<string*Number>) = 
         Console.Write("Symbol Table = [")
