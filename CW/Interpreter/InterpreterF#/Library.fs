@@ -171,7 +171,12 @@ module LexerParser =
             match tList with
             | Success (Pow :: tail) -> (NR >> Popt) ((Success tail), plot)
             | Failure error -> ((Failure error), plot)
-            | _ -> (tList, plot)
+            | _ -> // Handle consecutive NR elements by checking the next token
+                 match tList with
+                 | Success (Vid _ :: _) -> (NR >> Popt) (tList, plot)
+                 | _ -> (tList, plot)
+                
+
         and NR ((tList: result<terminal list>), plot:bool) =
             match tList with 
             | Success (Neg :: Num value :: tail) -> (Success tail, plot)
@@ -180,7 +185,9 @@ module LexerParser =
                                                | Success _ -> (Failure "Missing right parenthesis", plot)
                                                | Failure error -> (Failure error, plot)
             | Success (Plus :: Num value :: tail) -> (Success tail, plot)
+
             | Success (Num value :: tail) -> (Success tail, plot)
+
             | Success (Vid vName :: tail) -> if plot then (Success tail, plot)
                                              else
                                                  let res = searchVName vName symList
@@ -429,7 +436,10 @@ module LexerParser =
                     | Number.Float a, Number.Int b -> Number.Float (float a ** float b)
                     | Number.Int a, Number.Float b -> Number.Float (float a ** float b)
                 ))
-            | _ -> (tList, ("", value))
+            | _ -> 
+                match tList with
+                | Vid _ :: _ -> (NR >> Popt) tList
+                | _ -> (tList, ("", value))
         and NR tList =
             match tList with 
             | Neg :: Num value :: tail -> 
@@ -469,6 +479,7 @@ module LexerParser =
             | Add :: tail -> [Add]
             | Sub :: tail -> [Sub]
             | Neg:: tail -> [Neg]
+            | Plus::tail -> [Plus]
 
 
         match tokens with
