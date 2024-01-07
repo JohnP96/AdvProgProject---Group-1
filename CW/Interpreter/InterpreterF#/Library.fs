@@ -53,6 +53,15 @@ module LexerParser =
                           else [head]@(check4vid tail vName value) // copy original value
         | _ -> []
 
+    let insertMulBetweenNumAndVid tokens =
+        let rec insertMul acc = function
+            | Num n :: Vid v :: rest ->
+                insertMul (acc @ [Num n; Mul; Vid v]) rest
+            | token :: rest ->
+                insertMul (acc @ [token]) rest
+            | [] -> acc
+
+        insertMul [] tokens
 
     //============================= lexer ========================================
     let lexer input =
