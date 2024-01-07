@@ -58,6 +58,7 @@ namespace InterpreterWPF
             cmdWindow.AppendText("> " + Input.Text + "\n");
             string input = Input.Text.Replace(" ", string.Empty);
             terminalList lexed = LexerParser.lexer(input);
+            lexed = LexerParser.insertMulBetweenNumAndVid(lexed);
             for (int i = 0; i < lexed.Length; i++){
                 if (lexed[i] is LexerParser.terminal.Err)
                 {
