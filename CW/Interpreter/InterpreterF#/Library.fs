@@ -552,7 +552,7 @@ module LexerParser =
                 else 
                     upper*10.0
 
-        bisection lower upper 5
+        bisection lower upper 1000
 
     let newtonMethod (tList:list<terminal>) (dList:list<terminal>) (startValue:double) (maxIteration:double) =
         let rec iterate currentGuess iterations =
