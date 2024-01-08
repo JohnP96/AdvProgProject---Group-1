@@ -42,6 +42,7 @@ namespace InterpreterWPF
         FSharpList<stringValPair> symList;
         terminalList plotTokens;
         terminalList derivative;
+        terminalList derivativeSym;
 
         public MainWindow()
         {
@@ -91,6 +92,7 @@ namespace InterpreterWPF
                 {
                     plotTokens = result.Item1.Item2.Item1;
                     derivative = LexerParser.findDerivative(plotTokens);
+                    //Tuple<pNeReturnVal, FSharpList<stringValPair>> derivativeSym2 = LexerParser.parseNevalNsym(derivative, symList);
                     cmdWindow.AppendText("> Derivative: " + derivative + "\n");
 
                     DrawGraph2(sender, e);
