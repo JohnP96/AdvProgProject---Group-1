@@ -48,7 +48,7 @@ namespace InterpreterWPF
         {
             InitializeComponent();
             symList = FSharpList<stringValPair>.Empty;
-            plotTokens = LexerParser.initPlotTokens;
+            //plotTokens = LexerParser.initPlotTokens;
             testGraph = new Graph(graphCanvas, zoomLevel, x_Offset, y_Offset, baseInterval, baseDarkInterval, zoomNum);
 
         }
@@ -141,18 +141,26 @@ namespace InterpreterWPF
             // Generate Polynomial data
             //List<double> coefficients = new List<double> { 1, 1}; // Represents x^2 + x
 
-            List<Point> points = GeneratePoints(resi[1], resi[0], step);
 
             // Find roots of Polynomial
             double maxIteration = 1000;
-            if (derivative != null) {
+            if (plotTokens != null) {
+                List<Point> points = GeneratePoints(resi[1], resi[0], step);
+                points = MapPointsToCanvas(points, scaleFactor);
+                testGraph.DrawPoints(graphCanvas, points);
+
+
                 double staringGuess = LexerParser.bisectionMethod(plotTokens, resi[1], resi[0]);
                 double root = LexerParser.newtonMethod(plotTokens, derivative, staringGuess, maxIteration);
+                Point p = new Point(root, 0);
+                List<Point> dots = new List<Point>();
+                dots.Add(p);
+                var dot = MapPointsToCanvas(dots, scaleFactor);
+                testGraph.DrawDot(graphCanvas, dot);
             }
 
-            points = MapPointsToCanvas(points, scaleFactor);
 
-            testGraph.DrawPoints(graphCanvas, points);
+
         }
 
         //private void DrawGraph(object sender, RoutedEventArgs e)
