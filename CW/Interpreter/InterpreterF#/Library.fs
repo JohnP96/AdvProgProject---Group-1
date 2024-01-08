@@ -63,6 +63,11 @@ module LexerParser =
 
         insertMul [] tokens
 
+    let getNumeric number = 
+        match number with
+        | Float value -> float value
+        | Int value -> float value
+
     //============================= lexer ========================================
     let lexer input =
         let rec isUnary prevChar =
@@ -522,6 +527,53 @@ module LexerParser =
             head :: inner, rest
         | [] -> [], []
     //================================== DERIVATIVE OF FUNCITONS /==================================
+
+
+    //================================== FINDING ROOTS OF FUNCTIONS /==================================
+    let bisectionMethod (tokens:list<terminal>) (lower:double) (upper:double) = 
+        let rec bisection x0 x1 count =
+            if count = 0 then
+                ((x0+x1)/2.0)
+            else
+                let midpoint = (x0 + x1) / 2.0
+
+                let result_x0 = evalPoly tokens x0
+                let result_mid = evalPoly tokens midpoint
+                let result_x1 = evalPoly tokens x1
+
+                let x0_d = getNumeric result_x0
+                let mid_d = getNumeric result_mid
+                let x1_d = getNumeric result_x1
+
+                if x0_d * mid_d < 0.0 then
+                    bisection x0_d midpoint (count - 1)
+                elif mid_d * x1_d < 0.0 then
+                    bisection midpoint x1 (count - 1) 
+                else 
+                    upper*10.0
+
+        bisection lower upper 5
+
+    let newtonMethod (tList:list<terminal>) (dList:list<terminal>) (startValue:double) (maxIteration:double) =
+        let rec iterate currentGuess iterations =
+            let tGuess = evalPoly tList currentGuess
+            let dGuess = evalPoly dList currentGuess
+
+            let tGuess_d = getNumeric tGuess
+            let dGuess_d = getNumeric dGuess
+
+            let nextGuess = currentGuess - (tGuess_d / dGuess_d)
+
+            //let nextGuess_d = getNumeric nextGuess
+
+            if iterations >= maxIteration then
+                nextGuess
+            else
+                iterate nextGuess (iterations + 1.0)
+
+        iterate startValue 0.0
+    //================================== FINDING ROOTS OF FUNCTIONS /==================================
+
 
     let rec inpLoop (symTList:List<string*Number>) = 
         Console.Write("Symbol Table = [")
