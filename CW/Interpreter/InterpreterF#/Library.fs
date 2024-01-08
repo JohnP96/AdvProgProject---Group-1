@@ -483,10 +483,11 @@ module LexerParser =
     let rec findDerivative(tokens:list<terminal>): list<terminal> =
         let rec derivativeOfTerm term =
             match term with
+            | Num (Int n) :: Mul :: Vid v :: Pow :: Num (Int p) :: tail -> [Num(Number.Int n); Mul; Num(Number.Int p); Mul; Vid v; Pow; Num (Number.Int p); Sub; Num(Number.Int 1)] @ derivativeOfTerm tail // dy/dx 2x^3 = 6x^2
+            | Num (Int n) :: Mul :: Vid v :: tail -> Num (Number.Int n) :: derivativeOfTerm tail// dy/dx of 2x = 2
+            | Vid v :: Pow :: Num(Int p):: tail -> [Num (Number.Int p) ; Mul; Vid v; Pow; Num (Number.Int p); Sub; Num(Number.Int 1)] @ derivativeOfTerm tail //x^2 = 2x
             | Num n :: tail -> Num (Number.Int 0) :: derivativeOfTerm tail  // Constant numbers e.g dy/dx of 5 = 0
             | Vid c :: tail -> Num (Number.Int 1) :: derivativeOfTerm tail // stand alone Variables e.g dy/dx of x = 1
-            | Num n :: Mul :: Vid v :: tail -> Num n :: derivativeOfTerm tail// dy/dx of 2x = 2
-            //| Num n :: Vid v :: Pow p :: tail -> [Num(Number.Int n); Mul; Num(Number.Int p); Vid v; Pow p - 1] // dy/dx 2x^3 = x^1
             | Add :: tail -> Add:: derivativeOfTerm tail
             | Sub :: tail -> Sub :: derivativeOfTerm tail
             | Neg:: tail -> Neg :: derivativeOfTerm tail
