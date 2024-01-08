@@ -306,11 +306,8 @@ namespace InterpreterWPF
                 x_Offset += deltaX;
                 y_Offset += deltaY;
 
-                if (plotTokens != null)
-                {
-                    // Redraw the graph with the new pan offset
-                    DrawGraph2(sender, e);
-                }
+                // Redraw the graph with the new pan offset
+                DrawGraph2(sender, e);
 
                 // Update the last point for the next movement
                 panLastPoint = currentMousePosition;
@@ -325,19 +322,12 @@ namespace InterpreterWPF
 
             // Adjust zoom level based on mouse wheel delta
             if (e.Delta > 0)
-                zoomLevel *= 1.03; // Zoom in
+                zoomLevel *= 1.04; // Zoom in
             else
-                zoomLevel /= 1.03; // Zoom out
+                zoomLevel /= 1.04; // Zoom out
 
-            // Calculate the new pan offsets to keep the cursor at the same position after zooming
-            //x_Offset = cursorPosition.X - (cursorPosition.X - x_Offset) * (zoomLevel);
-            //y_Offset = cursorPosition.Y - (cursorPosition.Y - y_Offset) * (zoomLevel);
-
-            if (plotTokens != null)
-            {
-                // Redraw the graph with the new zoom level and pan offsets
-                DrawGraph2(sender, e);
-            }
+            // Redraw the graph with the new zoom level and pan offsets
+            DrawGraph2(sender, e);
         }
     }
 
