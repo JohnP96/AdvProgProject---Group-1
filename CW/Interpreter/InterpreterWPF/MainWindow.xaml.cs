@@ -143,6 +143,12 @@ namespace InterpreterWPF
 
             List<Point> points = GeneratePoints(resi[1], resi[0], step);
 
+            // Find roots of Polynomial
+            double maxIteration = 1000;
+            if (derivative != null) {
+                double staringGuess = LexerParser.bisectionMethod(plotTokens, resi[1], resi[0]);
+                double root = LexerParser.newtonMethod(plotTokens, derivative, staringGuess, maxIteration);
+            }
 
             points = MapPointsToCanvas(points, scaleFactor);
 
