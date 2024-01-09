@@ -64,6 +64,8 @@ module LexerParser =
             | '(' :: _ -> true  // Previous character is '(', indicating unary minus.
             | '+' :: _ -> true
             | '-' :: _ -> true
+            | '*' :: _ -> true
+            | '/' :: _ -> true
             | _ -> false
 
         let rec scan prevChar negCount input =
