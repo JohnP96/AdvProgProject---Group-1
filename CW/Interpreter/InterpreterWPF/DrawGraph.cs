@@ -279,11 +279,11 @@ public class Graph
     }
 
     // Draw Poly
-    public void DrawPoints(Canvas graphCanvas, List<Point> points)
+    public void DrawPoints(Canvas graphCanvas, List<Point> points, string color)
     {
         Polyline polyline = new Polyline
         {
-            Stroke = Brushes.Blue,
+            Stroke = (SolidColorBrush)new BrushConverter().ConvertFromString(color),
             StrokeThickness = 2
         };
 
