@@ -156,16 +156,20 @@ namespace InterpreterWPF
 
                 // Find roots of Polynomial
                 double maxIteration = 1000;
-                double staringGuess = LexerParser.bisectionMethod(plotTokens, resi[1], resi[0]);
-                double root = LexerParser.newtonMethod(plotTokens, derivative, staringGuess, maxIteration);
-                if (root != double.NegativeInfinity && root != double.PositiveInfinity)
+
+                (bool foundRoot, double staringGuess) = LexerParser.bisectionMethod(plotTokens, resi[1], resi[0]);
+                if (foundRoot)
                 {
-                    // Mark roots on the graph
-                    Point p = new Point(root, 0);
-                    List<Point> dots = new List<Point>();
-                    dots.Add(p);
-                    var dot = MapPointsToCanvas(dots, scaleFactor);
-                    testGraph.DrawDot(graphCanvas, dot);
+                    double root = LexerParser.newtonMethod(plotTokens, derivative, staringGuess, maxIteration);
+                    if (root != double.NegativeInfinity && root != double.PositiveInfinity)
+                    {
+                        // Mark roots on the graph
+                        Point p = new Point(root, 0);
+                        List<Point> dots = new List<Point>();
+                        dots.Add(p);
+                        var dot = MapPointsToCanvas(dots, scaleFactor);
+                        testGraph.DrawDot(graphCanvas, dot);
+                    }
                 }
                 
             }
@@ -212,6 +216,7 @@ namespace InterpreterWPF
         
         private List<double> CalculateMinAndMax(List<double> remainder, double increment, List<double> minLabels)
         {
+            List<Point> p = new List<Point>();
             for (int i = 0; i < minLabels.Count; i++)
             {
                 minLabels[i] += (increment/(baseDarkInterval/baseInterval)) * remainder[i];
