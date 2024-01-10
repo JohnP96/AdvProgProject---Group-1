@@ -92,8 +92,10 @@ namespace InterpreterWPF
                 {
                     plotTokens = result.Item1.Item2.Item1;
                     derivative = LexerParser.findDerivative(plotTokens);
-                    //Tuple<pNeReturnVal, FSharpList<stringValPair>> derivativeSym2 = LexerParser.parseNevalNsym(derivative, symList);
-                    cmdWindow.AppendText("> Derivative: " + derivative + "\n");
+                    //(terminalList tester, (String gg, LexerParser.Number ff)) = LexerParser.simplifyTokens(derivative);
+                    terminalList gg = LexerParser.simplifyTokens(derivative);
+                    String derivativeString = LexerParser.tokenToString(gg);
+                    Info.Text="Derivative: " + derivativeString + "\n";
 
                     DrawGraph2(sender, e);
                 }
