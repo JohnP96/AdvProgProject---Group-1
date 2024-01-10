@@ -93,9 +93,11 @@ namespace InterpreterWPF
                     plotTokens = result.Item1.Item2.Item1;
                     derivative = LexerParser.findDerivative(plotTokens);
                     //(terminalList tester, (String gg, LexerParser.Number ff)) = LexerParser.simplifyTokens(derivative);
-                    terminalList gg = LexerParser.simplifyTokens(derivative);
-                    String derivativeString = LexerParser.tokenToString(gg);
-                    Info.Text="dy/dx: " + derivativeString + "\n";
+                    String derivativeString = LexerParser.tokenToString(LexerParser.simplifyTokens(derivative));
+                    
+                    // Write the info to the card 
+                    Info_derivative.Text="dy/dx: " + derivativeString + "\n";
+
 
                     DrawGraph2(sender, e);
                 }
@@ -158,20 +160,21 @@ namespace InterpreterWPF
                 double maxIteration = 1000;
 
                 (bool foundRoot, double staringGuess) = LexerParser.bisectionMethod(plotTokens, resi[1], resi[0]);
-                if (foundRoot)
+
+                double root = LexerParser.newtonMethod(plotTokens, derivative, resi[0], maxIteration);
+
+                Info_roots.Text = "Roots: " + root.ToString("F2") + "\n";
+
+                if (root != double.NegativeInfinity && root != double.PositiveInfinity)
                 {
-                    double root = LexerParser.newtonMethod(plotTokens, derivative, staringGuess, maxIteration);
-                    if (root != double.NegativeInfinity && root != double.PositiveInfinity)
-                    {
-                        // Mark roots on the graph
-                        Point p = new Point(root, 0);
-                        List<Point> dots = new List<Point>();
-                        dots.Add(p);
-                        var dot = MapPointsToCanvas(dots, scaleFactor);
-                        testGraph.DrawDot(graphCanvas, dot);
-                    }
+                    // Mark roots on the graph
+                    Point p = new Point(root, 0);
+                    List<Point> dots = new List<Point>();
+                    dots.Add(p);
+                    var dot = MapPointsToCanvas(dots, scaleFactor);
+                    testGraph.DrawDot(graphCanvas, dot);
                 }
-                
+
             }
 
 
