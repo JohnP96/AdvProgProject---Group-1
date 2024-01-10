@@ -559,26 +559,22 @@ module LexerParser =
 
     //================================== FINDING ROOTS OF FUNCTIONS /==================================
     let bisectionMethod (tokens:list<terminal>) (lower:double) (upper:double) = 
-        let rec bisection x0 x1 count =
+        let rec bisection start stop count =
             if count = 0 then
-                ((x0+x1)/2.0)
+                (true, (start+stop)/2.0)
             else
-                let midpoint = (x0 + x1) / 2.0
+                let midpoint = (start + stop) / 2.0
 
-                let result_x0 = evalPoly tokens x0
-                let result_mid = evalPoly tokens midpoint
-                let result_x1 = evalPoly tokens x1
+                let x0 = getNumeric (evalPoly tokens start)
+                let mid = getNumeric (evalPoly tokens midpoint)
+                let x1 = getNumeric (evalPoly tokens stop)
 
-                let x0_d = getNumeric result_x0
-                let mid_d = getNumeric result_mid
-                let x1_d = getNumeric result_x1
-
-                if x0_d * mid_d < 0.0 then
-                    bisection x0_d midpoint (count - 1)
-                elif mid_d * x1_d < 0.0 then
-                    bisection midpoint x1 (count - 1) 
+                if x0 * mid < 0.0 then
+                    bisection start midpoint (count - 1)
+                elif mid * x1 < 0.0 then
+                    bisection midpoint stop (count - 1) 
                 else 
-                    upper*10.0
+                    (false, 0.0)
 
         bisection lower upper 1000
 
