@@ -95,7 +95,7 @@ namespace InterpreterWPF
                     //(terminalList tester, (String gg, LexerParser.Number ff)) = LexerParser.simplifyTokens(derivative);
                     terminalList gg = LexerParser.simplifyTokens(derivative);
                     String derivativeString = LexerParser.tokenToString(gg);
-                    Info.Text="Derivative: " + derivativeString + "\n";
+                    Info.Text="dy/dx: " + derivativeString + "\n";
 
                     DrawGraph2(sender, e);
                 }
@@ -143,22 +143,31 @@ namespace InterpreterWPF
             // Generate Polynomial data
             //List<double> coefficients = new List<double> { 1, 1}; // Represents x^2 + x
 
-
-            // Find roots of Polynomial
-            double maxIteration = 1000;
             if (plotTokens != null) {
-                List<Point> points = GeneratePoints(resi[1], resi[0], step);
+                // Plot Graph
+                List<Point> points = GeneratePoints(resi[1], resi[0], step, plotTokens);
                 points = MapPointsToCanvas(points, scaleFactor);
-                testGraph.DrawPoints(graphCanvas, points);
+                testGraph.DrawPoints(graphCanvas, points, "Blue");
 
+                // Plot Derivative
+                points = GeneratePoints(resi[1], resi[0], step, derivative);
+                points = MapPointsToCanvas(points, scaleFactor);
+                testGraph.DrawPoints(graphCanvas, points, "Red");
 
+                // Find roots of Polynomial
+                double maxIteration = 1000;
                 double staringGuess = LexerParser.bisectionMethod(plotTokens, resi[1], resi[0]);
                 double root = LexerParser.newtonMethod(plotTokens, derivative, staringGuess, maxIteration);
-                Point p = new Point(root, 0);
-                List<Point> dots = new List<Point>();
-                dots.Add(p);
-                var dot = MapPointsToCanvas(dots, scaleFactor);
-                testGraph.DrawDot(graphCanvas, dot);
+                if (root != double.NegativeInfinity && root != double.PositiveInfinity)
+                {
+                    // Mark roots on the graph
+                    Point p = new Point(root, 0);
+                    List<Point> dots = new List<Point>();
+                    dots.Add(p);
+                    var dot = MapPointsToCanvas(dots, scaleFactor);
+                    testGraph.DrawDot(graphCanvas, dot);
+                }
+                
             }
 
 
@@ -211,13 +220,13 @@ namespace InterpreterWPF
             return minLabels;
         }
 
-        private List<Point> GeneratePoints(double minX, double maxX, double step)
+        private List<Point> GeneratePoints(double minX, double maxX, double step, terminalList func)
         {
             List<Point> points = new List<Point>();
 
             for (double x = minX; x <= maxX; x += step)
             {
-                String res = LexerParser.evalPoly(plotTokens, x).ToString();
+                String res = LexerParser.evalPoly(func, x).ToString();
 
                 // Remove the string "Float" or "Int" using regular expression
                 res = Regex.Replace(res, @"\b(Float|Int)\b", "");
