@@ -598,7 +598,7 @@ module LexerParser =
                 nextGuess
             else
                 iterate nextGuess (iterations + 1.0)
-
+        
         iterate startValue 0.0
     //================================== FINDING ROOTS OF FUNCTIONS /==================================
 
