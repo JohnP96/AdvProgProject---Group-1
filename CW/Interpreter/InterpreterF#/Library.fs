@@ -569,12 +569,13 @@ module LexerParser =
                 let mid = getNumeric (evalPoly tokens midpoint)
                 let x1 = getNumeric (evalPoly tokens stop)
 
-                if x0 * mid < 0.0 then
+                if x0 * mid <= 0.0 then
                     bisection start midpoint (count - 1)
-                elif mid * x1 < 0.0 then
+                elif mid * x1 <= 0.0 then
                     bisection midpoint stop (count - 1) 
                 else 
                     (false, 0.0)
+
 
         bisection lower upper 1000
 
