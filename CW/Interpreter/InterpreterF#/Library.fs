@@ -68,6 +68,34 @@ module LexerParser =
         | Float value -> float value
         | Int value -> float value
 
+    let simplifyTokens tList = 
+        let rec simplify token = 
+            match token with
+            | Num(Number.Int n) :: Mul :: Num(Number.Int m) :: tail -> Num(Number.Int(n*m)):: simplify(tail)
+            | Num(Number.Int n) :: Add :: Num(Number.Int m) :: tail -> Num(Number.Int(n+m)):: simplify(tail)
+            | Num(Number.Int n) :: Sub :: Num(Number.Int m) :: tail -> Num(Number.Int(n-m)):: simplify(tail)
+            | Add::Num(Number.Int 0) :: tail -> simplify(tail)
+            | Sub::Num(Number.Int 0) :: tail -> simplify(tail)
+            | head::tail-> head::simplify(tail)
+            | [] -> []
+
+        simplify tList
+
+    let tokenToString tList = 
+        let rec tToString token = 
+            match token with
+            | Num (Int n) -> string n
+            | Vid v -> string v
+            | Add -> "+"
+            | Sub -> "-"
+            | Mul -> "*"
+            | Div -> "/"
+            | Pow -> "^"
+            | Lpar -> "("
+            | Rpar -> ")"
+
+        String.concat "" (List.map tToString tList)
+
     //============================= lexer ========================================
     let lexer input =
         let rec isUnary prevChar =
@@ -488,9 +516,9 @@ module LexerParser =
     let rec findDerivative(tokens:list<terminal>): list<terminal> =
         let rec derivativeOfTerm term =
             match term with
-            | Num (Int n) :: Mul :: Vid v :: Pow :: Num (Int p) :: tail -> [Num(Number.Int n); Mul; Num(Number.Int p); Mul; Vid v; Pow; Num (Number.Int p); Sub; Num(Number.Int 1)] @ derivativeOfTerm tail // dy/dx 2x^3 = 6x^2
+            | Num (Int n) :: Mul :: Vid v :: Pow :: Num (Int p) :: tail -> [Num(Number.Int n); Mul; Num(Number.Int p); Mul; Vid v; Pow; Lpar; Num (Number.Int p); Sub; Num(Number.Int 1); Rpar] @ derivativeOfTerm tail // dy/dx 2x^3 = 6x^2
             | Num (Int n) :: Mul :: Vid v :: tail -> Num (Number.Int n) :: derivativeOfTerm tail// dy/dx of 2x = 2
-            | Vid v :: Pow :: Num(Int p):: tail -> [Num (Number.Int p) ; Mul; Vid v; Pow; Num (Number.Int p); Sub; Num(Number.Int 1)] @ derivativeOfTerm tail //x^2 = 2x
+            | Vid v :: Pow :: Num(Int p):: tail -> [Num (Number.Int p) ; Mul; Vid v; Pow; Lpar; Num (Number.Int p); Sub; Num(Number.Int 1); Rpar] @ derivativeOfTerm tail //x^2 = 2x
             | Num n :: tail -> Num (Number.Int 0) :: derivativeOfTerm tail  // Constant numbers e.g dy/dx of 5 = 0
             | Vid c :: tail -> Num (Number.Int 1) :: derivativeOfTerm tail // stand alone Variables e.g dy/dx of x = 1
             | Add :: tail -> Add:: derivativeOfTerm tail
