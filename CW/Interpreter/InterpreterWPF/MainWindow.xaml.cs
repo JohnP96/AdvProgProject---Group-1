@@ -43,7 +43,8 @@ namespace InterpreterWPF
         terminalList plotTokens;
         terminalList derivative;
         terminalList integral;
-        terminalList derivativeSym;
+        LexerParser.Number start_;
+        LexerParser.Number stop_;
 
         public MainWindow()
         {
@@ -103,8 +104,8 @@ namespace InterpreterWPF
                 var result = LexerParser.parseNevalNsym(lexed, symList);
                 bool plot_ = result.Item1.Item1; 
                 bool integration_ = result.Item1.Item2.Item1;
-                LexerParser.Number start_ = result.Item1.Item2.Item2.Item1;
-                LexerParser.Number stop_ = result.Item1.Item2.Item2.Item2;
+                start_ = result.Item1.Item2.Item2.Item1;
+                stop_ = result.Item1.Item2.Item2.Item2;
                 
 
                 // "answer" -> value
@@ -137,9 +138,6 @@ namespace InterpreterWPF
 
                     // Simplify the Integral
                     String integralString = LexerParser.tokenToString(LexerParser.simplifyTokens(integral));
-
-                    // Stop the DrawGraph2 function from plotting the graph and derivative
-                    plotTokens = null;
 
                     DrawGraph2(sender, e);
 
@@ -177,93 +175,97 @@ namespace InterpreterWPF
             List<double> remainder = testGraph.drawGridLines(graphCanvas, ref interval, baseInterval, darkInterval, x_Offset, y_Offset, ref zoomLevel, ref zoomNum);
 
             // Draw Labels
-            (double increment, List<double> minLabels) = testGraph.drawLabels(graphCanvas, x_Offset, y_Offset, zoomLevel, zoomNum); // Draws the labels and returns the value of each black line and the last label
+            (double increment, List<double> minLabels) = testGraph.drawLabels(graphCanvas, x_Offset, y_Offset, zoomLevel, zoomNum);
 
-            // calculate minX and maxX of Graph 
+            // calculate minX and maxX of Graph
             List<double> resi = CalculateMinAndMax(remainder, increment, minLabels);
 
             double step = 0.1;
             double scaleFactor = Math.Abs(baseInterval * zoomLevel);
 
-            if (plotTokens != null)
+            if (integral != null)
             {
-                // Plot Graph
-                List<Point> points = GeneratePoints(resi[1], resi[0], step, plotTokens);
-                points = MapPointsToCanvas(points, scaleFactor);
-                testGraph.DrawPoints(graphCanvas, points, "Blue");
+                PlotGraph(resi, step, scaleFactor);
+                PlotIntegral(resi, step, scaleFactor);
+            }
+            else if (plotTokens != null)
+            {
 
-                // Plot Derivative
-                points = GeneratePoints(resi[1], resi[0], step, derivative);
-                points = MapPointsToCanvas(points, scaleFactor);
-                testGraph.DrawPoints(graphCanvas, points, "Red");
+                PlotGraph(resi, step, scaleFactor);
+                PlotDerivative(resi, step, scaleFactor);
 
                 // Find roots of Polynomial
                 double maxIteration = 1000;
-                //(bool foundRoot, double staringGuess) = LexerParser.bisectionMethod(plotTokens, resi[1], resi[0]);
                 FSharpList<double> roots = LexerParser.newtonMethod(plotTokens, derivative, ListModule.OfSeq(resi), maxIteration, 0.001);
 
-
                 // Mark roots on the graph
-                foreach (var root in roots)
-                {
-                    if (root != double.NegativeInfinity && root != double.PositiveInfinity)
-                    {
-                        // Print roots to Info card
-                        Info_roots.Text = "Roots: " + root.ToString("F2") + "\n";
-
-                        // Add dots to the Canvas
-                        Point p = new Point(root, 0);
-                        List<Point> dots = new List<Point>();
-                        dots.Add(p);
-                        var dot = MapPointsToCanvas(dots, scaleFactor);
-                        testGraph.DrawDot(graphCanvas, dot);
-                    }
-                }
-
+                MarkRoots(roots, scaleFactor);
             }
-            else if (integral != null)
-            {
-                // plot Integral
-                List<Point> points = GeneratePoints(resi[1], resi[0], step, integral);
-                points = MapPointsToCanvas(points, scaleFactor);
-                testGraph.DrawPoints(graphCanvas, points, "Orange");
-            }                   
         }
 
-        //private void DrawGraph(object sender, RoutedEventArgs e)
-        //{
-        //    // Clear the Grid lines 
-        //    graphCanvas.Children.Clear();
+        private void PlotGraph(List<double> resi, double step, double scaleFactor)
+        {
+            List<Point> points = new List<Point>();
 
-        //    // Draw grid lines
-        //    double darkInterval = baseDarkInterval * zoomLevel;
-        //    double interval = baseInterval * zoomLevel;
-        //    List<double> remainder = DrawGridLines(interval, darkInterval); //  Draws the grid and Calculates how many grey lines after the last black line
+            // Plot Graph
+            if (LexerParser.getNumeric(start_) == 0 && LexerParser.getNumeric(stop_) == 0)
+            {
+                points = GeneratePoints(resi[1], resi[0], step, plotTokens);
+            }
+            else
+            {
+                points = GeneratePoints(LexerParser.getNumeric(start_), LexerParser.getNumeric(stop_), step, plotTokens);
+            }
 
-        //    // Draw axes
-        //    DrawAxis();
+            points = MapPointsToCanvas(points, scaleFactor);
+            testGraph.DrawPoints(graphCanvas, points, "Blue");
+        }
 
-        //    // Draw Labels
-        //    (double increment, List<double> minLabels) = DrawLabels(); // Draws the labels and returns the value of each black line and the last label
+        private void PlotDerivative(List<double> resi, double step, double scaleFactor)
+        {
+            // Plot Derivative
+            List<Point> points = GeneratePoints(resi[1], resi[0], step, derivative);
+            points = MapPointsToCanvas(points, scaleFactor);
+            testGraph.DrawPoints(graphCanvas, points, "Red");
+        }
 
-        //    // Generate Polynomial data
-        //    //List<double> coefficients = new List<double> { 1, 1}; // Represents x^2 + x
+        private void MarkRoots(FSharpList<double> roots, double scaleFactor)
+        {
+            // Mark roots on the graph
+            foreach (var root in roots)
+            {
+                if (root != double.NegativeInfinity && root != double.PositiveInfinity)
+                {
+                    // Print roots to Info card
+                    Info_roots.Text = "Roots: " + root.ToString("F2") + "\n";
 
+                    // Add dots to the Canvas
+                    Point p = new Point(root, 0);
+                    List<Point> dots = new List<Point>();
+                    dots.Add(p);
+                    var dot = MapPointsToCanvas(dots, scaleFactor);
+                    testGraph.DrawDot(graphCanvas, dot);
+                }
+            }
+        }
 
-        //    // calculate minX and maxX
-        //    List<double> resi = CalculateMinAndMax(remainder, increment, minLabels);
-        //    //double minX = resi[1];
-        //    //int maxX = resi[0]+1;
-        //    double step = 0.1;
-        //    double scaleFactor = Math.Abs(baseInterval * zoomLevel);
+        private void PlotIntegral(List<double> resi, double step, double scaleFactor)
+        {
+            // Plot Integral
+            List<Point> points = new List<Point>();
 
-        //    List<Point> points = GeneratePoints(resi[1], resi[0], step);
+            if (LexerParser.getNumeric(start_) == 0 && LexerParser.getNumeric(stop_) == 0)
+            {
+                points = GeneratePoints(resi[1], resi[0], step, integral);
+            }
+            else
+            {
+                points = GeneratePoints(LexerParser.getNumeric(start_), LexerParser.getNumeric(stop_), step, integral);
+            }
 
-
-        //    points = MapPointsToCanvas(points, scaleFactor);
-
-        //    DrawPoints(points);
-        //}
+            points = MapPointsToCanvas(points, scaleFactor);
+            testGraph.DrawPoints(graphCanvas, points, "Orange");
+        }
 
 
         private List<double> CalculateMinAndMax(List<double> remainder, double increment, List<double> minLabels)
