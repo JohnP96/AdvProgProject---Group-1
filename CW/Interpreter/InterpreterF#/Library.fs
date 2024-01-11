@@ -7,7 +7,7 @@ module LexerParser =
         Int of int | Float of float
 
     type terminal = 
-        Add | Sub | Mul | Div | Rem | Pow | Lpar | Rpar | Equ | Plt | Vid of string | Num of Number | Neg | Plus | Integrate| Err of char
+        Add | Sub | Mul | Div | Rem | Pow | Lpar | Rpar | Equ | Plt | Vid of string | Num of Number | Neg | Plus | Integrate| Comma | Err of char
 
     type 'a result = 
         Success of 'a | Failure of string
@@ -124,6 +124,7 @@ module LexerParser =
             | '(' :: _ -> true  // Previous character is '(', indicating unary minus.
             | '+' :: _ -> true
             | '-' :: _ -> true
+            | ',' :: _ -> true
             | _ -> false
 
         let rec scan prevChar negCount input =
@@ -146,6 +147,7 @@ module LexerParser =
             | '('::tail -> Lpar:: scan ['('] 0 tail
             | ')'::tail -> Rpar:: scan [')'] 0 tail
             | '='::tail -> Equ :: scan ['='] 0 tail
+            | ','::tail -> Comma:: scan[','] 0 tail
             | c :: tail when isblank c -> scan [c] 0 tail
             | c :: tail when isdigit c -> 
                 let (iStr, iVal) = scInt(tail, intVal c) 
@@ -225,6 +227,7 @@ module LexerParser =
 
         and NR ((tList: result<terminal list>), plot:bool) =
             match tList with 
+            | Success (Num v1:: Comma :: Num v2 :: Comma:: tail) -> (Success tail, plot)
             | Success (Neg :: Num value :: tail) -> (Success tail, plot)
             | Success (Neg :: Lpar :: tail) -> match fst (E ((Success tail), plot)) with
                                                | Success (Rpar :: tail) -> (Success tail, plot)
@@ -255,6 +258,7 @@ module LexerParser =
         let Plot tList = 
             match tList with 
             | Plt :: tail -> E ((Success tail), true)
+            | Integrate :: tail ->  E ((Success tail), true)
             | _ -> VA ((Success tList), false)
 
         Plot tList 
@@ -371,6 +375,7 @@ module LexerParser =
         let Plot tList = // Adds a boolean for if this is a plot function and returns the token list
             match tList with
                 | Plt :: tail -> (true, (tail, ("", Number.Int 0)))
+                | Integrate :: Lpar :: Num v1 tail -> (true, (tail, ("", Number.Int 0)))
                 | _ -> (false, VA tList)
         Plot tList
 
