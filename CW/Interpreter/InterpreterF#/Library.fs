@@ -511,7 +511,6 @@ module LexerParser =
     let initPlotTokens =
         [Num (Number.Float 0)]
 
-
     //================================== DERIVATIVE OF FUNCITONS /==================================
     let rec findDerivative(tokens:list<terminal>): list<terminal> =
         let rec derivativeOfTerm term =
@@ -557,7 +556,7 @@ module LexerParser =
     //================================== DERIVATIVE OF FUNCITONS /==================================
 
 
-    //================================== FINDING ROOTS OF FUNCTIONS /==================================
+    //================================== FINDING ROOTS OF FUNCTIONS /===============================
     let bisectionMethod (tokens:list<terminal>) (lower:double) (upper:double) = 
         let rec bisection start stop count =
             if count = 0 then
@@ -579,26 +578,60 @@ module LexerParser =
 
         bisection lower upper 1000
 
-    let newtonMethod (tList:list<terminal>) (dList:list<terminal>) (startValue:double) (maxIteration:double) =
+    let newtonMethod (tList:list<terminal>) (dList:list<terminal>) (startValue:list<double>) (maxIteration:double) (accuracy:double)=
         let rec iterate currentGuess iterations =
-            let tGuess = evalPoly tList currentGuess
-            let dGuess = evalPoly dList currentGuess
+            let tGuess = getNumeric(evalPoly tList currentGuess)
+            let dGuess = getNumeric(evalPoly dList currentGuess)
 
-            let tGuess_d = getNumeric tGuess
-            let dGuess_d = getNumeric dGuess
+            let nextGuess = currentGuess - (tGuess / dGuess)
 
-            let nextGuess = currentGuess - (tGuess_d / dGuess_d)
+            let difference = abs(nextGuess - currentGuess)
 
-            //let nextGuess_d = getNumeric nextGuess
-
-            if iterations >= maxIteration then
+            if difference <= accuracy || iterations >= maxIteration then
                 nextGuess
             else
                 iterate nextGuess (iterations + 1.0)
-        
-        iterate startValue 0.0
-    //================================== FINDING ROOTS OF FUNCTIONS /==================================
 
+        let leftRoot = iterate startValue[1] 0.0
+        let rightRoot = iterate startValue[0] 0.0
+
+        let result = []
+        if abs(leftRoot-rightRoot) <= accuracy then
+           leftRoot::result 
+        else
+            leftRoot::rightRoot::result
+
+    //================================== FINDING ROOTS OF FUNCTIONS /=============================
+
+    //================================== INTEGRAL OF FUNCITONS /==================================
+    let rec findIntegral(tokens: list<terminal>): list<terminal> =
+        let rec integralOfTerm term =
+            match term with
+            | Num (Int n) :: Mul :: Vid v :: Pow :: Num (Int p) :: tail -> // e.g 2x^2 = (2/2+1)*x^2+1
+                [Lpar; Num(Number.Int n); Div; Lpar; Num(Number.Int p); Add; Num(Number.Int 1); Rpar; Rpar; Mul; Vid v; Pow; Num(Number.Int p); Add; Num(Number.Int 1)] @ integralOfTerm tail
+            | Num (Int n) :: Mul :: Vid v :: tail -> // e.g 2x = (2/2)*x^2
+                [Lpar; Num(Number.Int n); Div; Num(Number.Int 2); Rpar; Mul; Vid v; Pow; Num(Number.Int 2)] @ integralOfTerm tail
+            | Vid v :: Pow :: Num(Int p):: tail -> // e.g x^2 = (1/2+1)*x^2+1
+                [Lpar; Num(Number.Int 1); Div; Lpar; Num(Number.Int p); Add; Num(Number.Int 1); Rpar; Rpar; Mul; Vid v; Pow; Num(Number.Int p); Add; Num(Number.Int 1)] @ integralOfTerm tail
+            | Num (Int n) :: tail -> // e.g 3 = (3/2)*x
+                [Lpar; Num(Number.Int n); Div; Num(Number.Int 2); Rpar; Mul; Vid "x"] @ integralOfTerm tail // Integration of constant term
+            | Vid c :: tail -> // e.g x = (1/2)*x^2
+                [Lpar; Num(Number.Int 1); Div; Num(Number.Int 2); Rpar; Mul; Vid c; Pow; Num(Number.Int 2)] @ integralOfTerm tail // Integration of a variable term
+            | Add :: tail -> Add :: integralOfTerm tail
+            | Sub :: tail -> Sub :: integralOfTerm tail
+            | Neg:: tail -> Neg :: integralOfTerm tail
+            | Plus::tail -> Plus :: integralOfTerm tail
+            | Mul::tail -> Mul :: integralOfTerm tail
+            |_ -> []
+
+        match tokens with
+        | [] -> []
+        | Lpar::tail -> 
+            let innerExpression, rest = findInnerExpression tail 1
+            integralOfTerm innerExpression @ findIntegral rest
+        | head :: tail -> 
+            integralOfTerm [head] @ findIntegral tail
+    //================================== iNTEGRAL OF FUNCITONS /==================================
 
     let rec inpLoop (symTList:List<string*Number>) = 
         Console.Write("Symbol Table = [")
