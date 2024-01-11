@@ -8,66 +8,66 @@
         Loaded="DrawGraph2"
 		SizeChanged="DrawGraph2"
 		>
-    <Grid>
-        <Grid.RowDefinitions>
-            <!--RowDefinition Height="30"/-->
-            <RowDefinition/>
-        </Grid.RowDefinitions>
+	<Grid>
+		<Grid.RowDefinitions>
+			<!--RowDefinition Height="30"/-->
+			<RowDefinition/>
+		</Grid.RowDefinitions>
 
-        <!--userControls:MenuBar/-->
+		<!--userControls:MenuBar/-->
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="40*"/>
-                <ColumnDefinition Width="60*"/>
-            </Grid.ColumnDefinitions>
+		<Grid Grid.Row="1">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="40*"/>
+				<ColumnDefinition Width="60*"/>
+			</Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="0" Panel.ZIndex="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="55*"/>
-                    <RowDefinition Height="5*"/>
-                    <RowDefinition Height="40*"/>
-                </Grid.RowDefinitions>
+			<Grid Grid.Column="0" Panel.ZIndex="2">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="55*"/>
+					<RowDefinition Height="5*"/>
+					<RowDefinition Height="40*"/>
+				</Grid.RowDefinitions>
 
-                <TextBox Name="cmdWindow" TextWrapping="Wrap" 
+				<TextBox Name="cmdWindow" TextWrapping="Wrap"
                          IsReadOnly="True" AcceptsReturn="True"/>
 
-                <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80*"/>
-                        <ColumnDefinition Width="20*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Name="Input" AcceptsReturn="False"/>
-                    <Button Click="enterBtn_Click" Name="enterBtn" Grid.Column="1" IsDefault="True" >Enter</Button>
-                </Grid>
+				<Grid Grid.Row="1">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="80*"/>
+						<ColumnDefinition Width="20*"/>
+					</Grid.ColumnDefinitions>
+					<TextBox Name="Input" AcceptsReturn="False"/>
+					<Button Click="enterBtn_Click" Name="enterBtn" Grid.Column="1" IsDefault="True" >Enter</Button>
+				</Grid>
 
-                <TextBox Grid.Row="2" TextWrapping="Wrap" AcceptsReturn="True"
+				<TextBox Grid.Row="2" TextWrapping="Wrap" AcceptsReturn="True"
                          VerticalScrollBarVisibility="Auto" IsReadOnly="True"
                          Name ="VariableTracker">Variables:</TextBox>
-            </Grid>
+			</Grid>
 
-            <Grid Grid.Column="1" Panel.ZIndex="1">
-				      <Canvas Background="White" VerticalAlignment="Top" HorizontalAlignment="Left" Width="120"
-						      Panel.ZIndex="2" Height="30">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <TextBlock Name="Info_fun" Foreground="Blue"/>
-                    <TextBlock Name="Info_derivative" Foreground="Red" Grid.Row="1"/>
-                    <TextBlock Name="Info_roots" Foreground="Green" Grid.Row="2"/>
-                </Grid>
-				      </Canvas>
-              <Canvas Name="graphCanvas" Background="White"
-                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                      MouseWheel="zoom"
-						          MouseDown="mouseDown"
-                      MouseMove="graphCanvas_MouseMove"
+			<Grid Grid.Column="1" Panel.ZIndex="1">
+				<Canvas Background="White" VerticalAlignment="Top" HorizontalAlignment="Left" Width="120"
+						Panel.ZIndex="2" Height="30">
+					<Grid>
+						<Grid.RowDefinitions>
+							<RowDefinition />
+							<RowDefinition />
+							<RowDefinition />
+						</Grid.RowDefinitions>
+						<TextBlock Name="Info_fun" Foreground="Blue"/>
+						<TextBlock Name="Info_derivative" Foreground="Red" Grid.Row="1"/>
+						<TextBlock Name="Info_roots" Foreground="Green" Grid.Row="2"/>
+					</Grid>
+				</Canvas>
+				<Canvas Name="graphCanvas" Background="White"
+						VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+						MouseWheel="zoom"
+									MouseDown="mouseDown"
+						MouseMove="graphCanvas_MouseMove"
                       >
-              </Canvas>
-              </Grid>
-          </Grid>
-    </Grid>
+				</Canvas>
+			</Grid>
+		</Grid>
+	</Grid>
 </Window>
