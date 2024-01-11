@@ -96,7 +96,8 @@ namespace InterpreterWPF
                     integral = LexerParser.findIntegral(plotTokens);
                     //(terminalList tester, (String gg, LexerParser.Number ff)) = LexerParser.simplifyTokens(derivative);
                     String derivativeString = LexerParser.tokenToString(LexerParser.simplifyTokens(derivative));
-                    
+                    String integralString = LexerParser.tokenToString(LexerParser.simplifyTokens(integral));
+
                     // Write the info to the card 
                     Info_derivative.Text="dy/dx: " + derivativeString + "\n";
 
@@ -157,6 +158,11 @@ namespace InterpreterWPF
                 points = GeneratePoints(resi[1], resi[0], step, derivative);
                 points = MapPointsToCanvas(points, scaleFactor);
                 testGraph.DrawPoints(graphCanvas, points, "Red");
+
+                //// plot Integral
+                //points = GeneratePoints(resi[1], resi[0], step, integral);
+                //points = MapPointsToCanvas(points, scaleFactor);
+                //testGraph.DrawPoints(graphCanvas, points, "Pink");
 
                 // Find roots of Polynomial
                 double maxIteration = 1000;
