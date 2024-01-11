@@ -53,6 +53,17 @@ module LexerParser =
                           else [head]@(check4vid tail vName value) // copy original value
         | _ -> []
 
+    let getInputString() : string = 
+        Console.Write("Enter an expression: ")
+        Console.ReadLine()
+
+    let rec searchVName vName (symList:List<string*Number>) =
+        match symList with
+        | head :: tail -> if (fst head) = vName then (true, (snd head))
+                          else searchVName vName tail
+        | _ -> (false, Number.Int 0)
+
+    //===================== Insert token Mul btw a Num and a Vid ================
     let insertMulBetweenNumAndVid tokens =
         let rec insertMul acc = function
             | Num n :: Vid v :: rest ->
@@ -62,12 +73,16 @@ module LexerParser =
             | [] -> acc
 
         insertMul [] tokens
+    //===================== Insert token Mul btw a Num and a Vid ================
 
+    //============================= Turn a Number to type float =================
     let getNumeric number = 
         match number with
         | Float value -> float value
         | Int value -> float value
+    //============================= Turn a Number to type float =================
 
+    //============================= Simplify Token List =========================
     let simplifyTokens tList = 
         let rec simplify token = 
             match token with
@@ -80,7 +95,9 @@ module LexerParser =
             | [] -> []
 
         simplify tList
+    //============================= Simplify Token List =========================
 
+    //============================= Token List to String ========================
     let tokenToString tList = 
         let rec tToString token = 
             match token with
@@ -95,6 +112,7 @@ module LexerParser =
             | Rpar -> ")"
 
         String.concat "" (List.map tToString tList)
+    //============================= Token List to String =========================
 
     //============================= lexer ========================================
     let lexer input =
@@ -150,22 +168,7 @@ module LexerParser =
                     Neg :: scan [] 0 input
 
         scan [] 0 (str2lst input)
-
-
-
-
-
     //============================ Lexer =========================================  
-
-    let getInputString() : string = 
-        Console.Write("Enter an expression: ")
-        Console.ReadLine()
-
-    let rec searchVName vName (symList:List<string*Number>) =
-        match symList with
-        | head :: tail -> if (fst head) = vName then (true, (snd head))
-                          else searchVName vName tail
-        | _ -> (false, Number.Int 0)
     
     // Grammar in (E)BNF:
     //<Plot> ::= <Plt> "(" <VA> ")"
