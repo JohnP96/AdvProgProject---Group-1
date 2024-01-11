@@ -272,7 +272,15 @@ namespace InterpreterWPF
 
         private void ShadeAreaUnderGraph(terminalList func, List<double> resi, double scaleFactor)
         {
-            List<Point> points = GeneratePoints(resi[1], resi[0], 0.1, func);
+            List<Point> points = new List<Point>();
+            if (LexerParser.getNumeric(start_) == 0 && LexerParser.getNumeric(stop_) == 0)
+            {
+                points = GeneratePoints(resi[1], resi[0], 0.1, func);
+            }
+            else
+            {
+                points = GeneratePoints(LexerParser.getNumeric(start_), LexerParser.getNumeric(stop_), 0.1, func);
+            }
             points = MapPointsToCanvas(points, scaleFactor);
 
             PathFigure pathFigure = new PathFigure();
