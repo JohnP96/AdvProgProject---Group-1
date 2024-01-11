@@ -77,7 +77,7 @@ public class Graph
             zoomNum += 1;
         }
     }
-   
+
     // METHODS
     public void clear(Canvas graphCanvas)
     {
@@ -314,4 +314,3 @@ public class Graph
         }
     }
 }
-
