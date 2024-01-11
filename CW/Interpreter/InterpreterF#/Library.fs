@@ -263,7 +263,7 @@ module LexerParser =
 
         Plot tList 
 
-    let parseNeval tList (symList:List<string*Number>) : (bool * (terminal list * (string * Number))) =
+    let parseNeval tList (symList:List<string*Number>) : (bool * (bool * (Number * Number)) * (terminal list * (string * Number))) =
         let rec E tList = (T >> Eopt) tList
         and Eopt (tList, (vID, value)) =
             match tList with
@@ -374,23 +374,28 @@ module LexerParser =
             | _ -> E tList
         let Plot tList = // Adds a boolean for if this is a plot function and returns the token list
             match tList with
-                | Plt :: tail -> (true, (tail, ("", Number.Int 0)))
-                | Integrate :: Lpar :: Num v1 tail -> (true, (tail, ("", Number.Int 0)))
-                | _ -> (false, VA tList)
+                | Plt :: Lpar :: Num v1 :: Comma :: Num v2 :: Comma :: tail -> (true, (false, (v1, v2)), (tail, ("", Number.Int 0)))
+                | Plt :: tail -> (true, (false, (Number.Int 0, Number.Int 0)), (tail, ("", Number.Int 0)))
+                | Integrate :: Lpar :: Num v1 :: Comma :: Num v2 :: Comma :: tail -> (false, (true, (v1, v2)), (tail, ("", Number.Int 0)))
+                | Integrate :: tail -> (false, (true, (Number.Int 0, Number.Int 0)), (tail, ("", Number.Int 0)))
+                | _ -> (false, (false, (Number.Int 0, Number.Int 0)), VA tList)
         Plot tList
 
-    let parseNevalNsym tList (symList:List<string*Number>) =
+    let parseNevalNsym tList (symList: List<string*Number>) =
         let pNe = parseNeval tList symList
-        let vID = fst (snd (snd pNe))
-        let tval = snd (snd (snd pNe))
         let symCopy = symList
-        match vID with
-          | "" -> (pNe, symList) // if there is no vID just return the symList
-          | _ -> match symList with
-                 | [] -> (pNe, symList @ [vID, tval])
-                 | _ -> let res = check4vid symList vID tval // if the vID is already in symbol table replace its value
-                        if res.Equals(symList) then (pNe, symList @ [vID, tval])
-                        else (pNe, res)
+        match pNe with 
+        | (plot_, (inegral_, (v1_, v2_)), (rr, (vID, tval))) -> 
+            match vID with 
+            | "" -> (pNe, symList) // if there is no vID just return the symList
+            | _ -> 
+                match symList with
+                | [] -> (pNe, symList @ [(vID, tval)])
+                | _ -> 
+                    let res = check4vid symList vID tval // if the vID is already in the symbol table, replace its value
+                    if res.Equals(symList) then (pNe, symList @ [(vID, tval)])
+                    else (pNe, res)
+
                  
 
     ////============================= Parser ======================================
@@ -617,11 +622,11 @@ module LexerParser =
         let rec integralOfTerm term =
             match term with
             | Num (Int n) :: Mul :: Vid v :: Pow :: Num (Int p) :: tail -> // e.g 2x^2 = (2/2+1)*x^2+1
-                [Lpar; Num(Number.Int n); Div; Lpar; Num(Number.Int p); Add; Num(Number.Int 1); Rpar; Rpar; Mul; Vid v; Pow; Num(Number.Int p); Add; Num(Number.Int 1)] @ integralOfTerm tail
+                [Lpar; Num(Number.Int n); Div; Lpar; Num(Number.Int p); Add; Num(Number.Int 1); Rpar; Rpar; Mul; Vid v; Pow;Lpar; Num(Number.Int p); Add; Num(Number.Int 1); Rpar] @ integralOfTerm tail
             | Num (Int n) :: Mul :: Vid v :: tail -> // e.g 2x = (2/2)*x^2
                 [Lpar; Num(Number.Int n); Div; Num(Number.Int 2); Rpar; Mul; Vid v; Pow; Num(Number.Int 2)] @ integralOfTerm tail
             | Vid v :: Pow :: Num(Int p):: tail -> // e.g x^2 = (1/2+1)*x^2+1
-                [Lpar; Num(Number.Int 1); Div; Lpar; Num(Number.Int p); Add; Num(Number.Int 1); Rpar; Rpar; Mul; Vid v; Pow; Num(Number.Int p); Add; Num(Number.Int 1)] @ integralOfTerm tail
+                [Lpar; Num(Number.Int 1); Div; Lpar; Num(Number.Int p); Add; Num(Number.Int 1); Rpar; Rpar; Mul; Vid v; Pow; Lpar; Num(Number.Int p); Add; Num(Number.Int 1); Rpar] @ integralOfTerm tail
             | Num (Int n) :: tail -> // e.g 3 = (3/2)*x
                 [Lpar; Num(Number.Int n); Div; Num(Number.Int 2); Rpar; Mul; Vid "x"] @ integralOfTerm tail // Integration of constant term
             | Vid c :: tail -> // e.g x = (1/2)*x^2
@@ -651,9 +656,7 @@ module LexerParser =
             let sList = printTList oList
             //let pList = parser oList  // pList is the remaining token list and should be empty
             //if not pList.IsEmpty then raise parseError // NOTE this update to avoid expressions like 3(2+3) that would return a value of 3 and have a nonempty token list ([Lpar Num 2 Add Num 3 Rpar], 3)
-            let Out = parseNeval oList symTList
-            let tempID = fst (snd (snd Out))
-            let tempVal = snd (snd (snd Out))
+            let (plot_, (inegral_, (v1_, v2_)), (rr, (tempID, tempVal))) = parseNeval oList symTList
             Console.WriteLine("Variable name = {0}", tempID)    // UPDATE
             Console.WriteLine("Result = {0}", tempVal)          // UPDATED
             // Check whether variable name was already in symTList and if so replace with new value
