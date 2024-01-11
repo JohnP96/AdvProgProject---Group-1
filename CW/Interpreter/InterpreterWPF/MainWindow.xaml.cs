@@ -187,6 +187,9 @@ namespace InterpreterWPF
             {
                 PlotGraph(resi, step, scaleFactor);
                 PlotIntegral(resi, step, scaleFactor);
+
+                // Shade the area under the integral curve
+                ShadeAreaUnderGraph(plotTokens, resi, scaleFactor);
             }
             else if (plotTokens != null)
             {
@@ -265,6 +268,38 @@ namespace InterpreterWPF
 
             points = MapPointsToCanvas(points, scaleFactor);
             testGraph.DrawPoints(graphCanvas, points, "Orange");
+        }
+
+        private void ShadeAreaUnderGraph(terminalList func, List<double> resi, double scaleFactor)
+        {
+            List<Point> points = GeneratePoints(resi[1], resi[0], 0.1, func);
+            points = MapPointsToCanvas(points, scaleFactor);
+
+            PathFigure pathFigure = new PathFigure();
+            pathFigure.StartPoint = new Point(points.First().X, ((graphCanvas.ActualHeight / 2) + y_Offset) * zoomLevel);
+
+            foreach (var point in points)
+            {
+                pathFigure.Segments.Add(new LineSegment(point, true));
+            }
+
+            // Close the path with a line to the x-axis
+            pathFigure.Segments.Add(new LineSegment(new Point(points.Last().X, ((graphCanvas.ActualHeight / 2) + y_Offset) * zoomLevel), true));
+
+            PathGeometry pathGeometry = new PathGeometry();
+            pathGeometry.Figures.Add(pathFigure);
+
+            // Create a semi-transparent brush for shading
+            SolidColorBrush shadingBrush = new SolidColorBrush(Colors.Blue);
+            shadingBrush.Opacity = 0.3;
+
+            // Create a filled polygon shape
+            System.Windows.Shapes.Path filledPath = new System.Windows.Shapes.Path();
+            filledPath.Fill = shadingBrush;
+            filledPath.Data = pathGeometry;
+
+            // Add the filled polygon to the canvas
+            graphCanvas.Children.Add(filledPath);
         }
 
 
