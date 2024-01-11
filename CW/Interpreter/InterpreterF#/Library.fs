@@ -102,14 +102,18 @@ module LexerParser =
         let rec tToString token = 
             match token with
             | Num (Int n) -> string n
+            | Num (Float n) -> string n
             | Vid v -> string v
             | Add -> "+"
+            | Plus -> "+"
             | Sub -> "-"
+            | Neg -> "-"
             | Mul -> "*"
             | Div -> "/"
             | Pow -> "^"
             | Lpar -> "("
             | Rpar -> ")"
+            | _ -> ""
 
         String.concat "" (List.map tToString tList)
     //============================= Token List to String =========================
@@ -228,6 +232,10 @@ module LexerParser =
         and NR ((tList: result<terminal list>), plot:bool) =
             match tList with 
             | Success (Num v1:: Comma :: Num v2 :: Comma:: tail) -> (Success tail, plot)
+            | Success (Neg :: Num v1:: Comma :: Num v2 :: Comma:: tail) -> (Success tail, plot)
+            | Success (Num v1:: Comma :: Neg :: Num v2 :: Comma:: tail) -> (Success tail, plot)
+            | Success (Neg :: Num v1:: Comma :: Neg :: Num v2 :: Comma:: tail) -> (Success tail, plot)
+
             | Success (Neg :: Num value :: tail) -> (Success tail, plot)
             | Success (Neg :: Lpar :: tail) -> match fst (E ((Success tail), plot)) with
                                                | Success (Rpar :: tail) -> (Success tail, plot)
@@ -375,8 +383,47 @@ module LexerParser =
         let Plot tList = // Adds a boolean for if this is a plot function and returns the token list
             match tList with
                 | Plt :: Lpar :: Num v1 :: Comma :: Num v2 :: Comma :: tail -> (true, (false, (v1, v2)), (tail, ("", Number.Int 0)))
+                | Plt :: Lpar :: Neg:: Num v1 :: Comma :: Num v2 :: Comma :: tail ->
+                    let v1' = match v1 with
+                              | Int a -> Int (-a)
+                              | Float a -> Float (-a)
+                    (true, (false, (v1', v2)), (tail, ("", Number.Int 0)))
+                | Plt :: Lpar :: Num v1 :: Comma :: Neg :: Num v2 :: Comma :: tail ->
+                    let v2' = match v2 with
+                                | Int a -> Int (-a)
+                                | Float a -> Float (-a)
+                    (true, (false, (v1, v2')), (tail, ("", Number.Int 0)))
+
+                | Plt :: Lpar :: Neg:: Num v1 :: Comma :: Neg :: Num v2 :: Comma :: tail ->
+                    let v1' = match v1 with
+                              | Int a -> Int (-a)
+                              | Float a -> Float (-a)
+                    let v2' = match v2 with
+                              | Int a -> Int (-a)
+                              | Float a -> Float (-a)
+                    (true, (false, (v1', v2')), (tail, ("", Number.Int 0)))
+                
                 | Plt :: tail -> (true, (false, (Number.Int 0, Number.Int 0)), (tail, ("", Number.Int 0)))
                 | Integrate :: Lpar :: Num v1 :: Comma :: Num v2 :: Comma :: tail -> (false, (true, (v1, v2)), (tail, ("", Number.Int 0)))
+                | Integrate :: Lpar :: Neg :: Num v1 :: Comma :: Num v2 :: Comma :: tail -> 
+                    let v1' = match v1 with
+                              | Int a -> Int (-a)
+                              | Float a -> Float (-a)
+                    (false, (true, (v1', v2)), (tail, ("", Number.Int 0)))
+                | Integrate :: Lpar :: Num v1 :: Comma :: Neg:: Num v2 :: Comma :: tail -> 
+                    let v2' = match v2 with
+                                    | Int a -> Int (-a)
+                                    | Float a -> Float (-a)
+                    (false, (true, (v1, v2')), (tail, ("", Number.Int 0)))
+                | Integrate :: Lpar :: Neg:: Num v1 :: Comma :: Neg ::Num v2 :: Comma :: tail ->
+                    let v1' = match v1 with
+                              | Int a -> Int (-a)
+                              | Float a -> Float (-a)
+                    let v2' = match v2 with
+                              | Int a -> Int (-a)
+                              | Float a -> Float (-a)
+                    (false, (true, (v1', v2')), (tail, ("", Number.Int 0)))
+                
                 | Integrate :: tail -> (false, (true, (Number.Int 0, Number.Int 0)), (tail, ("", Number.Int 0)))
                 | _ -> (false, (false, (Number.Int 0, Number.Int 0)), VA tList)
         Plot tList
