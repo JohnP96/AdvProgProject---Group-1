@@ -7,7 +7,7 @@ module LexerParser =
         Int of int | Float of float
 
     type terminal = 
-        Add | Sub | Mul | Div | Rem | Pow | Lpar | Rpar | Equ | Plt | Vid of string | Num of Number | Neg | Plus | Err of char
+        Add | Sub | Mul | Div | Rem | Pow | Lpar | Rpar | Equ | Plt | Vid of string | Num of Number | Neg | Plus | Integrate| Err of char
 
     type 'a result = 
         Success of 'a | Failure of string
@@ -136,6 +136,7 @@ module LexerParser =
                 let (iStr, vName) = scChar(tail, c.ToString())
                 match vName with
                 | "plot" -> Plt :: scan [] 0 iStr
+                | "integrate" -> Integrate:: scan [] 0 iStr
                 | _ -> Vid vName :: scan [c] 0 iStr
             | c :: tail -> Err c :: scan [c] 0 tail
 
