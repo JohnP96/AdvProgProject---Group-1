@@ -6,7 +6,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         Loaded="DrawGraph2"
-		SizeChanged="DrawGraph2"
+				SizeChanged="DrawGraph2"
 		>
 	<Grid>
 		<Grid.RowDefinitions>
@@ -47,20 +47,26 @@
 			</Grid>
 
 			<Grid Grid.Column="1" Panel.ZIndex="1">
-				<Canvas Background="White" VerticalAlignment="Top" HorizontalAlignment="Left" Width="120"
-						Panel.ZIndex="2" Height="30">
-					<Grid>
-						<Grid.RowDefinitions>
-							<RowDefinition />
-							<RowDefinition />
-							<RowDefinition />
-						</Grid.RowDefinitions>
-						<TextBlock Name="Info_fun" Foreground="Blue"/>
-						<TextBlock Name="Info_derivative" Foreground="Red" Grid.Row="1"/>
-						<TextBlock Name="Info_roots" Foreground="Green" Grid.Row="2"/>
-					</Grid>
-				</Canvas>
-				<Canvas Name="graphCanvas" Background="White"
+                <Canvas Background="#2C3E50" VerticalAlignment="Top" HorizontalAlignment="Left"
+                        Width="160" Panel.ZIndex="2" Height="80" Margin="10">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Name="Info_derivative" Foreground="#007BFf" VerticalAlignment="Center" HorizontalAlignment="Stretch" FontSize="16" FontWeight="SemiBold">
+							Derivative:
+                        </TextBlock>
+
+                        <TextBlock Name="Info_roots" Foreground="#28A745" VerticalAlignment="Center" HorizontalAlignment="Stretch" FontSize="16" FontWeight="SemiBold" Grid.Row="1">
+							Roots:
+                        </TextBlock>
+                    </Grid>
+                </Canvas>
+
+
+                <Canvas Name="graphCanvas" Background="White"
 						VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
 						MouseWheel="zoom"
 									MouseDown="mouseDown"
