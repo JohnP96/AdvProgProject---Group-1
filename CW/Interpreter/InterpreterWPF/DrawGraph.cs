@@ -170,11 +170,11 @@ public class Graph
 
         // Return the result
         List<double> result = new List<double> {
-                greyLines[0] % blackLines[0],
-                greyLines[1] % blackLines[1],
-                greyLines[2] % blackLines[2],
-                greyLines[3] % blackLines[3]
-            };
+            greyLines[0] % (blackLines[0] == 0 ? 1 : blackLines[0]), // avoiding division by zero
+            greyLines[1] % (blackLines[1] == 0 ? 1 : blackLines[1]),
+            greyLines[2] % (blackLines[2] == 0 ? 1 : blackLines[2]),
+            greyLines[3] % (blackLines[3] == 0 ? 1 : blackLines[3])
+        };
 
         return result;
     }
