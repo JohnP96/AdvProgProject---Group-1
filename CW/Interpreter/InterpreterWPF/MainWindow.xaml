@@ -37,7 +37,7 @@
 						<ColumnDefinition Width="80*"/>
 						<ColumnDefinition Width="20*"/>
 					</Grid.ColumnDefinitions>
-					<TextBox Name="Input" AcceptsReturn="False"/>
+					<TextBox Name="Input" AcceptsReturn="False" VerticalContentAlignment="Center" FontSize="14"/>
 					<Button Click="enterBtn_Click" Name="enterBtn" Grid.Column="1" IsDefault="True" >Enter</Button>
 				</Grid>
 
