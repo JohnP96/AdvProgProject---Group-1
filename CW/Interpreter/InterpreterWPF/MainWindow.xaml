@@ -6,7 +6,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         Loaded="DrawGraph2"
-				SizeChanged="DrawGraph2"
+		SizeChanged="DrawGraph2"
 		>
 	<Grid>
 		<Grid.RowDefinitions>
@@ -66,12 +66,8 @@
                 </Canvas>
 
 
-                <Canvas Name="graphCanvas" Background="White"
-						VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-						MouseWheel="zoom"
-									MouseDown="mouseDown"
-						MouseMove="graphCanvas_MouseMove"
-                      >
+                <Canvas Name="graphCanvas" Background="White" VerticalAlignment="Stretch" 
+						HorizontalAlignment="Stretch">
 				</Canvas>
 			</Grid>
 		</Grid>
