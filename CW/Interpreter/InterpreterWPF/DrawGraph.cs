@@ -21,34 +21,37 @@ using System.Diagnostics;
 public class Graph
 {
     // Graph Variables
-    private double zoomLevel = 1;
-    private double x_Offset = 0;
-    private double y_Offset = 0;
-    private double baseInterval = 10;
-    private double baseDarkInterval = 50;
-    private double zoomNum = 2;
+    public double zoomLevel; // The zoom of the graph; resets when a limit is reached
+    public double x_Offset;  // The offset of the graph in the x direcrtion 
+    public double y_Offset; // The offset of the graph in the y direcrtion
+    public double baseInterval;    // Initial interval between grey grid lines
+    public double baseDarkInterval;    // Initial interval between dark grid lines
+    public double zoomNum;  // Number of times the graph has been reset due to zooming
+
+    private double interval;
+    private double darkInterval;
 
     // Canvas
     private Canvas graphCanvas;
 
     // Constructor
-    public Graph(Canvas canvas, double zoomLevel, double x_Offset, double y_Offset, double baseInterval, double baseDarkInterval, double zoomNum)
+    public Graph(Canvas canvas, double zoomLevel_, double x_Offset_, double y_Offset_, double baseInterval_, double baseDarkInterval_, double zoomNum_)
     {
         // Set values for the variables 
-        this.zoomLevel = zoomLevel;
-        this.x_Offset = x_Offset;
-        this.y_Offset = y_Offset;
-        this.baseInterval = baseInterval;
-        this.baseDarkInterval = baseDarkInterval;
-        this.zoomNum = zoomNum;
-
+        zoomLevel = zoomLevel_;
+        x_Offset = x_Offset_;
+        y_Offset = y_Offset_;
+        baseInterval = baseInterval_;
+        baseDarkInterval = baseDarkInterval_;
+        zoomNum = zoomNum_;
+        
         // Canvas
-        this.graphCanvas = canvas;
+        graphCanvas = canvas;
 
     }
 
     // Fucntions
-    private void DrawLine(Canvas canvas, double x1, double y1, double x2, double y2, Brush strokeColor, double thickness)
+    private void DrawLine(double x1, double y1, double x2, double y2, Brush strokeColor, double thickness)
     {
         Line line = new Line
         {
@@ -59,10 +62,13 @@ public class Graph
             Stroke = strokeColor,
             StrokeThickness = thickness
         };
-        canvas.Children.Add(line);
+        graphCanvas.Children.Add(line);
     }
-    private void CheckZoomReset(ref double interval, double baseInterval, ref double zoomLevel, ref double zoomNum)
+    private void CheckZoomReset()
     {
+        interval = baseInterval * zoomLevel;
+        darkInterval = baseDarkInterval * zoomLevel;
+
         // Reset interval when it exceeds the maximum
         if (interval > baseInterval * 2)
         {
@@ -79,19 +85,19 @@ public class Graph
     }
 
     // METHODS
-    public void clear(Canvas graphCanvas)
+    public void clear()
     {
         graphCanvas.Children.Clear();
     }
 
     // Draw Axis
-    public void drawAxis(Canvas graphCanvas, double x_Offset, double y_Offset, double zoomLevel)
+    public void drawAxis()
     {
         // X-Axis
-        DrawLine(graphCanvas, 0, ((graphCanvas.ActualHeight / 2) + y_Offset) * zoomLevel, graphCanvas.ActualWidth, ((graphCanvas.ActualHeight / 2) + y_Offset) * zoomLevel, Brushes.Black, 2);
+        DrawLine(0, ((graphCanvas.ActualHeight / 2) + y_Offset) * zoomLevel, graphCanvas.ActualWidth, ((graphCanvas.ActualHeight / 2) + y_Offset) * zoomLevel, Brushes.Black, 2);
 
         // Y-Axis
-        DrawLine(graphCanvas, ((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel, 0, ((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel, graphCanvas.ActualHeight, Brushes.Black, 2);
+        DrawLine(((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel, 0, ((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel, graphCanvas.ActualHeight, Brushes.Black, 2);
     }
 
     // Draw Grid lines
@@ -107,7 +113,7 @@ public class Graph
                                     it by x(2) + black line label to find the min/max number displayed.
                                     [+x, -x, +y,-y]
          */
-    public List<double> drawGridLines(Canvas graphCanvas, ref double interval, double baseInterval, double darkInterval, double x_Offset, double y_Offset, ref double zoomLevel, ref double zoomNum)
+    public List<double> drawGridLines()
     {
         List<double> greyLines = new List<double> { 0, 0, 0, 0 }; // Keep track of how many grey lines after a black line
         List<double> blackLines = new List<double> { 0, 0, 0, 0 }; // Keep track of the number of black lines
@@ -116,55 +122,55 @@ public class Graph
         double halfHeight = ((graphCanvas.ActualHeight / 2) + y_Offset) * zoomLevel;
 
         // Check if the Grid needs to be reset
-        CheckZoomReset(ref interval, baseInterval, ref zoomLevel, ref zoomNum);
+        CheckZoomReset();
 
         // Draw light gray grid lines
         for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += interval) // +ve X-axis
         {
-            DrawLine(graphCanvas, x, 0, x, graphCanvas.ActualHeight, Brushes.LightGray, 1);
+            DrawLine( x, 0, x, graphCanvas.ActualHeight, Brushes.LightGray, 1);
             greyLines[0]++;
         }
 
         for (double x = halfWidth; x >= 0; x -= interval)
         {
-            DrawLine(graphCanvas, x, 0, x, graphCanvas.ActualHeight, Brushes.LightGray, 1);
+            DrawLine( x, 0, x, graphCanvas.ActualHeight, Brushes.LightGray, 1);
             greyLines[1]++;
         }
 
         for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += interval)
         {
-            DrawLine(graphCanvas, 0, y, graphCanvas.ActualWidth, y, Brushes.LightGray, 1);
+            DrawLine( 0, y, graphCanvas.ActualWidth, y, Brushes.LightGray, 1);
             greyLines[2]++;
         }
 
         for (double y = halfHeight; y >= 0; y -= interval)
         {
-            DrawLine(graphCanvas, 0, y, graphCanvas.ActualWidth, y, Brushes.LightGray, 1);
+            DrawLine(0, y, graphCanvas.ActualWidth, y, Brushes.LightGray, 1);
             greyLines[3]++;
         }
 
         // Draw dark gray grid lines with a larger interval
         for (double x = halfWidth; x <= graphCanvas.ActualWidth; x += darkInterval)
         {
-            DrawLine(graphCanvas, x, 0, x, graphCanvas.ActualHeight, Brushes.Black, 1);
+            DrawLine(x, 0, x, graphCanvas.ActualHeight, Brushes.Black, 1);
             blackLines[0]++;
         }
 
         for (double x = halfWidth; x >= 0; x -= darkInterval)
         {
-            DrawLine(graphCanvas, x, 0, x, graphCanvas.ActualHeight, Brushes.Black, 1);
+            DrawLine(x, 0, x, graphCanvas.ActualHeight, Brushes.Black, 1);
             blackLines[1]++;
         }
 
         for (double y = halfHeight; y <= graphCanvas.ActualHeight; y += darkInterval)
         {
-            DrawLine(graphCanvas, 0, y, graphCanvas.ActualWidth, y, Brushes.Black, 1);
+            DrawLine(0, y, graphCanvas.ActualWidth, y, Brushes.Black, 1);
             blackLines[2]++;
         }
 
         for (double y = halfHeight; y >= 0; y -= darkInterval)
         {
-            DrawLine(graphCanvas, 0, y, graphCanvas.ActualWidth, y, Brushes.Black, 1);
+            DrawLine(0, y, graphCanvas.ActualWidth, y, Brushes.Black, 1);
             blackLines[3]++;
         }
 
@@ -186,7 +192,7 @@ public class Graph
     Return:-    result(Tuple):  [0] - The value of each black line
                                 [1] - List of The last label drawn in each sector [+x,-x,+y,-y]
     */
-    public (double, List<double>) drawLabels(Canvas graphCanvas, double x_Offset, double y_Offset, double zoomLevel, double zoomNum)
+    public (double, List<double>) drawLabels()
     {
         double halfWidth = (graphCanvas.ActualWidth / 2 + x_Offset) * zoomLevel;
         double halfHeight = (graphCanvas.ActualHeight / 2 + y_Offset) * zoomLevel;
@@ -279,7 +285,7 @@ public class Graph
     }
 
     // Draw Poly
-    public void DrawPoints(Canvas graphCanvas, List<Point> points, string color)
+    public void DrawPoints(List<Point> points, string color)
     {
         Polyline polyline = new Polyline
         {
