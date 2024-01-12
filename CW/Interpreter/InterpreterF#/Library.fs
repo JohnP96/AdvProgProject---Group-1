@@ -226,6 +226,9 @@ module LexerParser =
             | _ -> // Handle consecutive NR elements by checking the next token
                  match tList with
                  | Success (Vid _ :: _) -> (NR >> Popt) (tList, plot)
+                 | Success (Num _ :: _) -> (NR >> Popt) (tList, plot)
+                 | Success (Neg::Num _ :: _) -> (NR >> Popt) (tList, plot)
+                 | Success (Plus::Num _ :: _) -> (NR >> Popt) (tList, plot)
                  | _ -> (tList, plot)
                 
 
