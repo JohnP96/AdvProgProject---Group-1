@@ -109,7 +109,7 @@ namespace InterpreterWPF
                 
 
                 // "answer" -> value
-                LexerParser.Number answer = result.Item1.Item2.Item2.Item2;
+                LexerParser.Number answer = result.Item1.Item3.Item2.Item2;
 
                 // "symList" -> SymList
                 symList = result.Item2;
