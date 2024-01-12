@@ -123,7 +123,7 @@ namespace InterpreterWPF
                     String derivativeString = LexerParser.tokenToString(LexerParser.simplifyTokens(derivative));
 
                     // Write the info to the card 
-                    Info_derivative.Text = "dy/dx: " + derivativeString + "\n";
+                    Info_derivative.Text = "Derivative: " + derivativeString + "\n";
 
                     // Draw the graph
                     DrawGraph2(sender, e);
@@ -190,6 +190,7 @@ namespace InterpreterWPF
 
                 // Shade the area under the integral curve
                 ShadeAreaUnderGraph(plotTokens, resi, scaleFactor);
+                
             }
             else if (plotTokens != null)
             {
@@ -203,6 +204,9 @@ namespace InterpreterWPF
 
                 // Mark roots on the graph
                 MarkRoots(roots, scaleFactor);
+
+                // Print roots to Info card
+                Info_roots.Text = "Roots: " + roots + "\n";
             }
         }
 
@@ -239,9 +243,6 @@ namespace InterpreterWPF
             {
                 if (root != double.NegativeInfinity && root != double.PositiveInfinity)
                 {
-                    // Print roots to Info card
-                    Info_roots.Text = "Roots: " + root.ToString("F2") + "\n";
-
                     // Add dots to the Canvas
                     Point p = new Point(root, 0);
                     List<Point> dots = new List<Point>();
@@ -250,6 +251,7 @@ namespace InterpreterWPF
                     testGraph.DrawDot(graphCanvas, dot);
                 }
             }
+            
         }
 
         private void PlotIntegral(List<double> resi, double step, double scaleFactor)
@@ -260,14 +262,31 @@ namespace InterpreterWPF
             if (LexerParser.getNumeric(start_) == 0 && LexerParser.getNumeric(stop_) == 0)
             {
                 points = GeneratePoints(resi[1], resi[0], step, integral);
+                // Print roots to Info card
+                Info_roots.Text = "Area: " + "\n";
             }
             else
             {
                 points = GeneratePoints(LexerParser.getNumeric(start_), LexerParser.getNumeric(stop_), step, integral);
+                // Print Area to Info card
+                Info_roots.Text = "Area: " + calcArea(integral, LexerParser.getNumeric(start_), LexerParser.getNumeric(stop_)) + "\n";
             }
+            // Print Integral string to the info card 
+            String integralString = LexerParser.tokenToString(LexerParser.simplifyTokens(integral));
+            Info_derivative.Text = "Integral: " + integralString + "\n";
 
             points = MapPointsToCanvas(points, scaleFactor);
-            testGraph.DrawPoints(graphCanvas, points, "Orange");
+            testGraph.DrawPoints(graphCanvas, points, "Purple");
+        }
+
+        private double calcArea(terminalList func, double start, double stop)
+        {
+
+            // Remove the string "Float" or "Int" using regular expression and convert to double; more detailed in func GenPoints
+            double a1= Convert.ToDouble(Regex.Replace(LexerParser.evalPoly(func, start).ToString(), @"\b(Float|Int)\b", ""));
+            double a2= Convert.ToDouble(Regex.Replace(LexerParser.evalPoly(func, stop).ToString(), @"\b(Float|Int)\b", ""));
+
+            return Math.Abs(a2-a1);
         }
 
         private void ShadeAreaUnderGraph(terminalList func, List<double> resi, double scaleFactor)
@@ -333,13 +352,7 @@ namespace InterpreterWPF
                 // Remove the string "Float" or "Int" using regular expression
                 res = Regex.Replace(res, @"\b(Float|Int)\b", "");
 
-                // Use regular expression to extract numeric part
-                //res = Regex.Match(res, @"[-+]?\d+(\.\d+)?").Value;
-                //res = res.Substring(6);
-                //cmdWindow.AppendText(res.ToString());// Testing
-
                 double y = Convert.ToDouble(res);
-                //double y = x + 1;
 
                 points.Add(new Point(x, y));
             }
