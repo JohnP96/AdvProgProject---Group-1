@@ -660,10 +660,14 @@ module LexerParser =
         let rightRoot = iterate startValue[0] 0.0
 
         let result = []
-        if abs(leftRoot-rightRoot) <= accuracy then
-           leftRoot::result 
+        let bb = Math.Round(abs(leftRoot-rightRoot), 2)
+        if bb <= accuracy then
+            let roundedLeftRoot = Math.Round(leftRoot, 1)
+            roundedLeftRoot::result 
         else
-            leftRoot::rightRoot::result
+            let roundedLeftRoot = Math.Round(leftRoot, 1)
+            let roundedRightRoot = Math.Round(rightRoot, 1)
+            roundedLeftRoot::roundedRightRoot::result
 
     //================================== FINDING ROOTS OF FUNCTIONS /=============================
 
