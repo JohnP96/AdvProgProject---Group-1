@@ -61,8 +61,8 @@ namespace InterpreterWPF
             // Print to the screen the thing the user typed
             cmdWindow.AppendText("> " + Input.Text + "\n");
 
-            // Clear the input field for the next command 
-            string input = Input.Text.Replace(" ", string.Empty);
+            // Remove the whitespaces from the input and make it lowercased  
+            string input = Input.Text.Replace(" ", string.Empty).ToLower();
 
             // Call the lexer on the input and return a tokenList of the input
             terminalList lexed = LexerParser.lexer(input);
