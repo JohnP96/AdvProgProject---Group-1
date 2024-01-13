@@ -50,112 +50,160 @@ namespace InterpreterWPF
         {
             InitializeComponent();
             symList = FSharpList<stringValPair>.Empty;
-            //plotTokens = LexerParser.initPlotTokens;
             testGraph = new Graph(graphCanvas, zoomLevel, x_Offset, y_Offset, baseInterval, baseDarkInterval, zoomNum);
-
+            cmdWindow.AppendText("Please enter an equation or type 'help' for more information:\n");
         }
 
         private void enterBtn_Click(object sender, RoutedEventArgs e)
         {
-            bool success = true;
-            // Print to the screen the thing the user typed
-            cmdWindow.AppendText("> " + Input.Text + "\n");
-
-            // Clear the input field for the next command 
-            string input = Input.Text.Replace(" ", string.Empty);
-
-            // Call the lexer on the input and return a tokenList of the input
-            terminalList lexed = LexerParser.lexer(input);
-
-            // Add the token "Mul! btw the token "Num" and "Vid" i.e 2x -> 2*x
-            lexed = LexerParser.insertMulBetweenNumAndVid(lexed);
-
-            // look through the lexed list for the token "Err" and throw err if any is found 
-            for (int i = 0; i < lexed.Length; i++)
+            if (Input.Text == "help" | Input.Text == "Help" | Input.Text == "HELP")
             {
-                if (lexed[i] is LexerParser.terminal.Err)
+                cmdWindow.AppendText(
+                    "\n> HELP:\n" +
+                    "\n> You can enter an equation using the following operators:\n" +
+                    "'+' and '-' for addition and subtraction\n" +
+                    "'*' and '/' for multiplication and division\n" +
+                    "'%' for calculating the remainder\n" +
+                    "'^' for powers/indices\n" +
+                    "then press the 'Enter' button or return key for the result.\n" +
+                    "The result will also state whether it is an integer (Int) or float (Float) value.\n" +
+                    "For example: '2^2*(2+2)' would give the result 'Int 16'\n" +
+                    "\n> You can also assign strings as variables with the '=' operator\n" +
+                    "For example: 'x = 12+1' would assign the value of 13 to the string 'x'.\n" +
+                    "Assigned variables and their values can be seen in the box below.\n" +
+                    "\n> You can use the keyword 'plot' to plot functions on the graph to the right.\n" +
+                    "For example: 'plot(x + 1)' would plot that graph.\n" +
+                    "Remember not to use 'plot(y = x + 1)' as this will not work.\n" +
+                    "You can also use plot(min,max,equation) to plot the equation in between the values of x 'min' and 'max'.\n" +
+                    "\n> There is also an 'integrate()' command which works in the same way as the plot command to finger the integral of the function.\n" +
+                    "\n> A list of tokens will also be returned representing the provided equation. " +
+                    "The tokens represent different elements of the equation and can be help understand how the calculation is being done, " +
+                    "most should be self explanatory, but typing 'helptokens' will return a list of these tokens and their meanings.\n\n"
+                    );
+            }
+            else if (Input.Text == "helptokens")
+            {
+                cmdWindow.AppendText(
+                    "\n> Tokens: \n\n" +
+                    "> Vid = Variable identifier (i.e. for 'x = 1' x is the Vid).\n" +
+                    "> Neg = Unary minus (i.e. the minus in '-2 + 1').\n" +
+                    "> Plus = Unary plus.\n" +
+                    "> Num = A number, which can be an integer (Int) or float (Float) and will contain a specific value.\n" +
+                    "> Plt = The plot keyword.\n" +
+                    "> Equ = The assignment operator.\n" +
+                    "> Lpar and Rpar = Left and right parenthesis." +
+                    "> Pow = Power operator.\n" +
+                    "> Rem = Modulus (remainder) operator.\n" +
+                    "> Mul = Multiplication operator.\n" +
+                    "> Div = Division operator.\n" +
+                    "> Add = Addition operator.\n" +
+                    "> Sub = Subtraction operator.\n" +
+                    "> Integrate = Integration command.\n" +
+                    "> Comma  = Comma for separating plot and integrate function parameters.\n"
+                    );
+            }
+            else if (Input.Text != "")
+            {
+                bool success = true;
+                // Print to the screen the thing the user typed
+                cmdWindow.AppendText("> " + Input.Text + "\n");
+
+                // Clear the input field for the next command 
+                string input = Input.Text.Replace(" ", string.Empty);
+
+                // Call the lexer on the input and return a tokenList of the input
+                terminalList lexed = LexerParser.lexer(input);
+
+                // Add the token "Mul! btw the token "Num" and "Vid" i.e 2x -> 2*x
+                lexed = LexerParser.insertMulBetweenNumAndVid(lexed);
+
+                // look through the lexed list for the token "Err" and throw err if any is found 
+                for (int i = 0; i < lexed.Length; i++)
+                {
+                    if (lexed[i] is LexerParser.terminal.Err)
+                    {
+                        success = false;
+                        cmdWindow.AppendText("> Error: " + lexed[i] + " is not a valid lexeme\n");
+                    }
+                }
+
+                // Call the parser on the Lexed input
+                string parseRes = LexerParser.parser(lexed, symList).Item1.ToString();
+
+                //cmdWindow.AppendText("> Parser result: " + parseRes + "\n // Testing
+                if (parseRes.StartsWith("F"))
                 {
                     success = false;
-                    cmdWindow.AppendText("> Error: " + lexed[i] + " is not a valid lexeme\n");
+                    // Print error message
+                    cmdWindow.AppendText(string.Concat("> ", parseRes.AsSpan(9, (parseRes.Length - 10)), "\n")); // The span gets rid of the success/failure notation and the quotation marks
                 }
-            }
-
-            // Call the parser on the Lexed input
-            string parseRes = LexerParser.parser(lexed, symList).Item1.ToString();
-
-            //cmdWindow.AppendText("> Parser result: " + parseRes + "\n // Testing
-            if (parseRes.StartsWith("F"))
-            {
-                success = false;
-                // Print error message
-                cmdWindow.AppendText(string.Concat("> ", parseRes.AsSpan(9, (parseRes.Length - 10)), "\n")); // The span gets rid of the success/failure notation and the quotation marks
-            }
-            else if (parseRes.Substring(9) != "]")
-            {
-                success = false;
-                cmdWindow.AppendText("> Invalid expression.\n");
-            }
-            if (success)
-            {
-                // Show the lexed tokens on the screen
-                cmdWindow.AppendText("> Tokens: " + string.Join(", ", lexed) + "\n");
-
-                // Result => ((plot, (Integration, (start, stop)), ([tList], (vName, value))), [symList]).... i.e -> ((True,([Lpar; Num (Int 2); Mul; ... ], ("", Int 0)), [])
-                var result = LexerParser.parseNevalNsym(lexed, symList);
-                bool plot_ = result.Item1.Item1; 
-                bool integration_ = result.Item1.Item2.Item1;
-                start_ = result.Item1.Item2.Item2.Item1;
-                stop_ = result.Item1.Item2.Item2.Item2;
-                
-
-                // "answer" -> value
-                LexerParser.Number answer = result.Item1.Item3.Item2.Item2;
-
-                // "symList" -> SymList
-                symList = result.Item2;
-
-                // "result.Item1.Item1" -> plot
-                if (plot_)
+                else if (parseRes.Substring(9) != "]") // If the token list returned by the parser is not empty there is an error with the expression
                 {
-                    plotTokens = result.Item1.Item3.Item1;
-                    derivative = LexerParser.findDerivative(plotTokens);
-                    
-                    String derivativeString = LexerParser.tokenToString(LexerParser.simplifyTokens(derivative));
-
-                    // Write the info to the card 
-                    Info_derivative.Text = "Derivative: " + derivativeString + "\n";
-
-                    // Draw the graph
-                    DrawGraph2(sender, e);
+                    success = false;
+                    cmdWindow.AppendText("> Invalid expression.\n");
                 }
-                else if (integration_)
+                if (success)
                 {
-                    // Get the function f(x)
-                    plotTokens = result.Item1.Item3.Item1;
+                    // Show the lexed tokens on the screen
+                    cmdWindow.AppendText("> Tokens: " + string.Join(", ", lexed) + "\n");
 
-                    // Integrate the function
-                    integral = LexerParser.findIntegral(plotTokens);
+                    // Result => ((plot, (Integration, (start, stop)), ([tList], (vName, value))), [symList]).... i.e -> ((True,([Lpar; Num (Int 2); Mul; ... ], ("", Int 0)), [])
+                    var result = LexerParser.parseNevalNsym(lexed, symList);
+                    bool plot_ = result.Item1.Item1;
+                    bool integration_ = result.Item1.Item2.Item1;
+                    start_ = result.Item1.Item2.Item2.Item1;
+                    stop_ = result.Item1.Item2.Item2.Item2;
 
-                    // Simplify the Integral
-                    String integralString = LexerParser.tokenToString(LexerParser.simplifyTokens(integral));
 
-                    DrawGraph2(sender, e);
+                    // "answer" -> value
+                    LexerParser.Number answer = result.Item1.Item3.Item2.Item2;
 
+                    // "symList" -> SymList
+                    symList = result.Item2;
+
+                    // "result.Item1.Item1" -> plot
+                    if (plot_)
+                    {
+                        plotTokens = result.Item1.Item3.Item1;
+                        derivative = LexerParser.findDerivative(plotTokens);
+
+                        String derivativeString = LexerParser.tokenToString(LexerParser.simplifyTokens(derivative));
+
+                        // Write the info to the card 
+                        Info_derivative.Text = "Derivative: " + derivativeString + "\n";
+
+                        // Draw the graph
+                        DrawGraph2(sender, e);
+                    }
+                    else if (integration_)
+                    {
+                        // Get the function f(x)
+                        plotTokens = result.Item1.Item3.Item1;
+
+                        // Integrate the function
+                        integral = LexerParser.findIntegral(plotTokens);
+
+                        // Simplify the Integral
+                        String integralString = LexerParser.tokenToString(LexerParser.simplifyTokens(integral));
+
+                        DrawGraph2(sender, e);
+
+                    }
+                    else
+                    {
+                        cmdWindow.AppendText("> Result: " + answer + "\n");
+                        //cmdWindow.AppendText("> Sym: " + symList + "\n"); // Testing
+                    }
                 }
-                else
+                string vars = "\n";
+                foreach (stringValPair var in symList)
                 {
-                    cmdWindow.AppendText("> Result: " + answer + "\n");
-                    //cmdWindow.AppendText("> Sym: " + symList + "\n"); // Testing
+                    vars = vars + var.Item1 + " = " + var.Item2 + "\n";
                 }
-                cmdWindow.ScrollToEnd();
+                VariableTracker.Text = "Variables:" + vars;
             }
-            string vars = "\n";
-            foreach (stringValPair var in symList)
-            {
-                vars = vars + var.Item1 + " = " + var.Item2 + "\n";
-            }
-            VariableTracker.Text = "Variables:" + vars;
             Input.Clear();
+            cmdWindow.ScrollToEnd();
         }
 
 
