@@ -129,6 +129,8 @@ module LexerParser =
             | '+' :: _ -> true
             | '-' :: _ -> true
             | ',' :: _ -> true
+            | '*' :: _ -> true
+            | '/' :: _ -> true
             | _ -> false
 
         let rec scan prevChar negCount input =
