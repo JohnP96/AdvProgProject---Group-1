@@ -7,7 +7,7 @@ module LexerParser =
         Int of int | Float of float
 
     type terminal = 
-        Add | Sub | Mul | Div | Rem | Pow | Lpar | Rpar | Equ | Plt | Vid of string | Num of Number | Neg | Plus | Err of char
+        Add | Sub | Mul | Div | Rem | Pow | Lpar | Rpar | Equ | Plt | Vid of string | Num of Number | Neg | Plus | Integrate| Comma | Err of char
 
     type 'a result = 
         Success of 'a | Failure of string
@@ -53,6 +53,70 @@ module LexerParser =
                           else [head]@(check4vid tail vName value) // copy original value
         | _ -> []
 
+    let getInputString() : string = 
+        Console.Write("Enter an expression: ")
+        Console.ReadLine()
+
+    let rec searchVName vName (symList:List<string*Number>) =
+        match symList with
+        | head :: tail -> if (fst head) = vName then (true, (snd head))
+                          else searchVName vName tail
+        | _ -> (false, Number.Int 0)
+
+    //===================== Insert token Mul btw a Num and a Vid ================
+    let insertMulBetweenNumAndVid tokens =
+        let rec insertMul acc = function
+            | Num n :: Vid v :: rest ->
+                insertMul (acc @ [Num n; Mul; Vid v]) rest
+            | token :: rest ->
+                insertMul (acc @ [token]) rest
+            | [] -> acc
+
+        insertMul [] tokens
+    //===================== Insert token Mul btw a Num and a Vid ================
+
+    //============================= Turn a Number to type float =================
+    let getNumeric number = 
+        match number with
+        | Float value -> float value
+        | Int value -> float value
+    //============================= Turn a Number to type float =================
+
+    //============================= Simplify Token List =========================
+    let simplifyTokens tList = 
+        let rec simplify token = 
+            match token with
+            | Num(Number.Int n) :: Mul :: Num(Number.Int m) :: tail -> Num(Number.Int(n*m)):: simplify(tail)
+            | Num(Number.Int n) :: Add :: Num(Number.Int m) :: tail -> Num(Number.Int(n+m)):: simplify(tail)
+            | Num(Number.Int n) :: Sub :: Num(Number.Int m) :: tail -> Num(Number.Int(n-m)):: simplify(tail)
+            | Add::Num(Number.Int 0) :: tail -> simplify(tail)
+            | Sub::Num(Number.Int 0) :: tail -> simplify(tail)
+            | head::tail-> head::simplify(tail)
+            | [] -> []
+
+        simplify tList
+    //============================= Simplify Token List =========================
+
+    //============================= Token List to String ========================
+    let tokenToString tList = 
+        let rec tToString token = 
+            match token with
+            | Num (Int n) -> string n
+            | Num (Float n) -> string n
+            | Vid v -> string v
+            | Add -> "+"
+            | Plus -> "+"
+            | Sub -> "-"
+            | Neg -> "-"
+            | Mul -> "*"
+            | Div -> "/"
+            | Pow -> "^"
+            | Lpar -> "("
+            | Rpar -> ")"
+            | _ -> ""
+
+        String.concat "" (List.map tToString tList)
+    //============================= Token List to String =========================
 
     //============================= lexer ========================================
     let lexer input =
@@ -64,6 +128,7 @@ module LexerParser =
             | '(' :: _ -> true  // Previous character is '(', indicating unary minus.
             | '+' :: _ -> true
             | '-' :: _ -> true
+            | ',' :: _ -> true
             | '*' :: _ -> true
             | '/' :: _ -> true
             | _ -> false
@@ -88,6 +153,7 @@ module LexerParser =
             | '('::tail -> Lpar:: scan ['('] 0 tail
             | ')'::tail -> Rpar:: scan [')'] 0 tail
             | '='::tail -> Equ :: scan ['='] 0 tail
+            | ','::tail -> Comma:: scan[','] 0 tail
             | c :: tail when isblank c -> scan [c] 0 tail
             | c :: tail when isdigit c -> 
                 let (iStr, iVal) = scInt(tail, intVal c) 
@@ -95,7 +161,8 @@ module LexerParser =
             | c :: tail when ischar c -> 
                 let (iStr, vName) = scChar(tail, c.ToString())
                 match vName with
-                | "plot" -> Plt :: scan ['+'] 0 iStr
+                | "plot" -> Plt :: scan [] 0 iStr
+                | "integrate" -> Integrate:: scan [] 0 iStr
                 | _ -> Vid vName :: scan [c] 0 iStr
             | c :: tail -> Err c :: scan [c] 0 tail
 
@@ -109,22 +176,7 @@ module LexerParser =
                     Neg :: scan [] 0 input
 
         scan [] 0 (str2lst input)
-
-
-
-
-
     //============================ Lexer =========================================  
-
-    let getInputString() : string = 
-        Console.Write("Enter an expression: ")
-        Console.ReadLine()
-
-    let rec searchVName vName (symList:List<string*Number>) =
-        match symList with
-        | head :: tail -> if (fst head) = vName then (true, (snd head))
-                          else searchVName vName tail
-        | _ -> (false, Number.Int 0)
     
     // Grammar in (E)BNF:
     //<Plot> ::= <Plt> "(" <VA> ")"
@@ -173,16 +225,31 @@ module LexerParser =
             match tList with
             | Success (Pow :: tail) -> (NR >> Popt) ((Success tail), plot)
             | Failure error -> ((Failure error), plot)
-            | _ -> (tList, plot)
+            | _ -> // Handle consecutive NR elements by checking the next token
+                 match tList with
+                 | Success (Vid _ :: _) -> (NR >> Popt) (tList, plot)
+                 | Success (Num _ :: _) -> (NR >> Popt) (tList, plot)
+                 | Success (Neg::Num _ :: _) -> (NR >> Popt) (tList, plot)
+                 | Success (Plus::Num _ :: _) -> (NR >> Popt) (tList, plot)
+                 | _ -> (tList, plot)
+                
+
         and NR ((tList: result<terminal list>), plot:bool) =
             match tList with 
+            | Success (Num v1:: Comma :: Num v2 :: Comma:: tail) -> (Success tail, plot)
+            | Success (Neg :: Num v1:: Comma :: Num v2 :: Comma:: tail) -> (Success tail, plot)
+            | Success (Num v1:: Comma :: Neg :: Num v2 :: Comma:: tail) -> (Success tail, plot)
+            | Success (Neg :: Num v1:: Comma :: Neg :: Num v2 :: Comma:: tail) -> (Success tail, plot)
+
             | Success (Neg :: Num value :: tail) -> (Success tail, plot)
             | Success (Neg :: Lpar :: tail) -> match fst (E ((Success tail), plot)) with
                                                | Success (Rpar :: tail) -> (Success tail, plot)
                                                | Success _ -> (Failure "Missing right parenthesis", plot)
                                                | Failure error -> (Failure error, plot)
             | Success (Plus :: Num value :: tail) -> (Success tail, plot)
+
             | Success (Num value :: tail) -> (Success tail, plot)
+
             | Success (Vid vName :: tail) -> if plot then (Success tail, plot)
                                              else
                                                  let res = searchVName vName symList
@@ -204,11 +271,12 @@ module LexerParser =
         let Plot tList = 
             match tList with 
             | Plt :: tail -> E ((Success tail), true)
+            | Integrate :: tail ->  E ((Success tail), true)
             | _ -> VA ((Success tList), false)
 
         Plot tList 
 
-    let parseNeval tList (symList:List<string*Number>) : (bool * (terminal list * (string * Number))) =
+    let parseNeval tList (symList:List<string*Number>) : (bool * (bool * (Number * Number)) * (terminal list * (string * Number))) =
         let rec E tList = (T >> Eopt) tList
         and Eopt (tList, (vID, value)) =
             match tList with
@@ -319,22 +387,67 @@ module LexerParser =
             | _ -> E tList
         let Plot tList = // Adds a boolean for if this is a plot function and returns the token list
             match tList with
-                | Plt :: tail -> (true, (tail, ("", Number.Int 0)))
-                | _ -> (false, VA tList)
+                | Plt :: Lpar :: Num v1 :: Comma :: Num v2 :: Comma :: tail -> (true, (false, (v1, v2)), (tail, ("", Number.Int 0)))
+                | Plt :: Lpar :: Neg:: Num v1 :: Comma :: Num v2 :: Comma :: tail ->
+                    let v1' = match v1 with
+                              | Int a -> Int (-a)
+                              | Float a -> Float (-a)
+                    (true, (false, (v1', v2)), (tail, ("", Number.Int 0)))
+                | Plt :: Lpar :: Num v1 :: Comma :: Neg :: Num v2 :: Comma :: tail ->
+                    let v2' = match v2 with
+                                | Int a -> Int (-a)
+                                | Float a -> Float (-a)
+                    (true, (false, (v1, v2')), (tail, ("", Number.Int 0)))
+
+                | Plt :: Lpar :: Neg:: Num v1 :: Comma :: Neg :: Num v2 :: Comma :: tail ->
+                    let v1' = match v1 with
+                              | Int a -> Int (-a)
+                              | Float a -> Float (-a)
+                    let v2' = match v2 with
+                              | Int a -> Int (-a)
+                              | Float a -> Float (-a)
+                    (true, (false, (v1', v2')), (tail, ("", Number.Int 0)))
+                
+                | Plt :: tail -> (true, (false, (Number.Int 0, Number.Int 0)), (tail, ("", Number.Int 0)))
+                | Integrate :: Lpar :: Num v1 :: Comma :: Num v2 :: Comma :: tail -> (false, (true, (v1, v2)), (tail, ("", Number.Int 0)))
+                | Integrate :: Lpar :: Neg :: Num v1 :: Comma :: Num v2 :: Comma :: tail -> 
+                    let v1' = match v1 with
+                              | Int a -> Int (-a)
+                              | Float a -> Float (-a)
+                    (false, (true, (v1', v2)), (tail, ("", Number.Int 0)))
+                | Integrate :: Lpar :: Num v1 :: Comma :: Neg:: Num v2 :: Comma :: tail -> 
+                    let v2' = match v2 with
+                                    | Int a -> Int (-a)
+                                    | Float a -> Float (-a)
+                    (false, (true, (v1, v2')), (tail, ("", Number.Int 0)))
+                | Integrate :: Lpar :: Neg:: Num v1 :: Comma :: Neg ::Num v2 :: Comma :: tail ->
+                    let v1' = match v1 with
+                              | Int a -> Int (-a)
+                              | Float a -> Float (-a)
+                    let v2' = match v2 with
+                              | Int a -> Int (-a)
+                              | Float a -> Float (-a)
+                    (false, (true, (v1', v2')), (tail, ("", Number.Int 0)))
+                
+                | Integrate :: tail -> (false, (true, (Number.Int 0, Number.Int 0)), (tail, ("", Number.Int 0)))
+                | _ -> (false, (false, (Number.Int 0, Number.Int 0)), VA tList)
         Plot tList
 
-    let parseNevalNsym tList (symList:List<string*Number>) =
+    let parseNevalNsym tList (symList: List<string*Number>) =
         let pNe = parseNeval tList symList
-        let vID = fst (snd (snd pNe))
-        let tval = snd (snd (snd pNe))
         let symCopy = symList
-        match vID with
-          | "" -> (pNe, symList) // if there is no vID just return the symList
-          | _ -> match symList with
-                 | [] -> (pNe, symList @ [vID, tval])
-                 | _ -> let res = check4vid symList vID tval // if the vID is already in symbol table replace its value
-                        if res.Equals(symList) then (pNe, symList @ [vID, tval])
-                        else (pNe, res)
+        match pNe with 
+        | (plot_, (inegral_, (v1_, v2_)), (rr, (vID, tval))) -> 
+            match vID with 
+            | "" -> (pNe, symList) // if there is no vID just return the symList
+            | _ -> 
+                match symList with
+                | [] -> (pNe, symList @ [(vID, tval)])
+                | _ -> 
+                    let res = check4vid symList vID tval // if the vID is already in the symbol table, replace its value
+                    if res.Equals(symList) then (pNe, symList @ [(vID, tval)])
+                    else (pNe, res)
+
                  
 
     ////============================= Parser ======================================
@@ -431,7 +544,10 @@ module LexerParser =
                     | Number.Float a, Number.Int b -> Number.Float (float a ** float b)
                     | Number.Int a, Number.Float b -> Number.Float (float a ** float b)
                 ))
-            | _ -> (tList, ("", value))
+            | _ -> 
+                match tList with
+                | Vid _ :: _ -> (NR >> Popt) tList
+                | _ -> (tList, ("", value))
         and NR tList =
             match tList with 
             | Neg :: Num value :: tail -> 
@@ -461,6 +577,132 @@ module LexerParser =
     let initPlotTokens =
         [Num (Number.Float 0)]
 
+    //================================== DERIVATIVE OF FUNCITONS /==================================
+    let rec findDerivative(tokens:list<terminal>): list<terminal> =
+        let rec derivativeOfTerm term =
+            match term with
+            | Num (Int n) :: Mul :: Vid v :: Pow :: Num (Int p) :: tail -> [Num(Number.Int n); Mul; Num(Number.Int p); Mul; Vid v; Pow; Lpar; Num (Number.Int p); Sub; Num(Number.Int 1); Rpar] @ derivativeOfTerm tail // dy/dx 2x^3 = 6x^2
+            | Num (Int n) :: Mul :: Vid v :: tail -> Num (Number.Int n) :: derivativeOfTerm tail// dy/dx of 2x = 2
+            | Vid v :: Pow :: Num(Int p):: tail -> [Num (Number.Int p) ; Mul; Vid v; Pow; Lpar; Num (Number.Int p); Sub; Num(Number.Int 1); Rpar] @ derivativeOfTerm tail //x^2 = 2x
+            | Num n :: tail -> Num (Number.Int 0) :: derivativeOfTerm tail  // Constant numbers e.g dy/dx of 5 = 0
+            | Vid c :: tail -> Num (Number.Int 1) :: derivativeOfTerm tail // stand alone Variables e.g dy/dx of x = 1
+            | Add :: tail -> Add:: derivativeOfTerm tail
+            | Sub :: tail -> Sub :: derivativeOfTerm tail
+            | Neg:: tail -> Neg :: derivativeOfTerm tail
+            | Plus::tail -> Plus :: derivativeOfTerm tail
+            | Mul::tail -> Mul :: derivativeOfTerm tail
+            |_ -> []
+
+
+        match tokens with
+        | [] -> []
+        | Lpar::tail -> 
+            // If the expression is enclosed in "()" then find the derivative of the enclosed expression 
+            let innerExpression, rest = findInnerExpression tail 1
+            derivativeOfTerm innerExpression @ findDerivative rest
+        | head :: tail -> 
+            // Find the derivative of the first term and continue with the rest of the expression
+            derivativeOfTerm [head] @ findDerivative tail
+
+    and findInnerExpression (tokens: list<terminal>) (parenCount: int) =
+        match tokens with
+        | Rpar :: tail when parenCount = 1 -> [], tail // End of all inner expressions 
+        | Lpar :: tail -> 
+            // There is more nested expressions; increment how deep we are by +1
+            let inner, rest = findInnerExpression tail (parenCount + 1)
+            Lpar :: inner, rest // Include Lpar in the inner expression
+        | Rpar :: tail -> 
+            // We've completed one inner exression but thers is more; decrement by -1
+            let inner, rest = findInnerExpression tail (parenCount - 1)
+            Rpar :: inner, rest // Include Rpar in the inner expression
+        | head :: tail -> 
+            let inner, rest = findInnerExpression tail parenCount
+            head :: inner, rest
+        | [] -> [], []
+    //================================== DERIVATIVE OF FUNCITONS /==================================
+
+
+    //================================== FINDING ROOTS OF FUNCTIONS /===============================
+    let bisectionMethod (tokens:list<terminal>) (lower:double) (upper:double) = 
+        let rec bisection start stop count =
+            if count = 0 then
+                (true, (start+stop)/2.0)
+            else
+                let midpoint = (start + stop) / 2.0
+
+                let x0 = getNumeric (evalPoly tokens start)
+                let mid = getNumeric (evalPoly tokens midpoint)
+                let x1 = getNumeric (evalPoly tokens stop)
+
+                if x0 * mid <= 0.0 then
+                    bisection start midpoint (count - 1)
+                elif mid * x1 <= 0.0 then
+                    bisection midpoint stop (count - 1) 
+                else 
+                    (false, 0.0)
+
+
+        bisection lower upper 1000
+
+    let newtonMethod (tList:list<terminal>) (dList:list<terminal>) (startValue:list<double>) (maxIteration:double) (accuracy:double)=
+        let rec iterate currentGuess iterations =
+            let tGuess = getNumeric(evalPoly tList currentGuess)
+            let dGuess = getNumeric(evalPoly dList currentGuess)
+
+            let nextGuess = currentGuess - (tGuess / dGuess)
+
+            let difference = abs(nextGuess - currentGuess)
+
+            if difference <= accuracy || iterations >= maxIteration then
+                nextGuess
+            else
+                iterate nextGuess (iterations + 1.0)
+
+        let leftRoot = iterate startValue[1] 0.0
+        let rightRoot = iterate startValue[0] 0.0
+
+        let result = []
+        let bb = Math.Round(abs(leftRoot-rightRoot), 2)
+        if bb <= accuracy then
+            let roundedLeftRoot = Math.Round(leftRoot, 1)
+            roundedLeftRoot::result 
+        else
+            let roundedLeftRoot = Math.Round(leftRoot, 1)
+            let roundedRightRoot = Math.Round(rightRoot, 1)
+            roundedLeftRoot::roundedRightRoot::result
+
+    //================================== FINDING ROOTS OF FUNCTIONS /=============================
+
+    //================================== INTEGRAL OF FUNCITONS /==================================
+    let rec findIntegral(tokens: list<terminal>): list<terminal> =
+        let rec integralOfTerm term =
+            match term with
+            | Num (Int n) :: Mul :: Vid v :: Pow :: Num (Int p) :: tail -> // e.g 2x^2 = (2/2+1)*x^2+1
+                [Lpar; Num(Number.Int n); Div; Lpar; Num(Number.Int p); Add; Num(Number.Int 1); Rpar; Rpar; Mul; Vid v; Pow;Lpar; Num(Number.Int p); Add; Num(Number.Int 1); Rpar] @ integralOfTerm tail
+            | Num (Int n) :: Mul :: Vid v :: tail -> // e.g 2x = (2/2)*x^2
+                [Lpar; Num(Number.Int n); Div; Num(Number.Int 2); Rpar; Mul; Vid v; Pow; Num(Number.Int 2)] @ integralOfTerm tail
+            | Vid v :: Pow :: Num(Int p):: tail -> // e.g x^2 = (1/2+1)*x^2+1
+                [Lpar; Num(Number.Int 1); Div; Lpar; Num(Number.Int p); Add; Num(Number.Int 1); Rpar; Rpar; Mul; Vid v; Pow; Lpar; Num(Number.Int p); Add; Num(Number.Int 1); Rpar] @ integralOfTerm tail
+            | Num (Int n) :: tail -> // e.g 3 = (3/2)*x
+                [Lpar; Num(Number.Int n); Div; Num(Number.Int 2); Rpar; Mul; Vid "x"] @ integralOfTerm tail // Integration of constant term
+            | Vid c :: tail -> // e.g x = (1/2)*x^2
+                [Lpar; Num(Number.Int 1); Div; Num(Number.Int 2); Rpar; Mul; Vid c; Pow; Num(Number.Int 2)] @ integralOfTerm tail // Integration of a variable term
+            | Add :: tail -> Add :: integralOfTerm tail
+            | Sub :: tail -> Sub :: integralOfTerm tail
+            | Neg:: tail -> Neg :: integralOfTerm tail
+            | Plus::tail -> Plus :: integralOfTerm tail
+            | Mul::tail -> Mul :: integralOfTerm tail
+            |_ -> []
+
+        match tokens with
+        | [] -> []
+        | Lpar::tail -> 
+            let innerExpression, rest = findInnerExpression tail 1
+            integralOfTerm innerExpression @ findIntegral rest
+        | head :: tail -> 
+            integralOfTerm [head] @ findIntegral tail
+    //================================== iNTEGRAL OF FUNCITONS /==================================
+
     let rec inpLoop (symTList:List<string*Number>) = 
         Console.Write("Symbol Table = [")
         let outSym = printSymTList symTList
@@ -470,9 +712,7 @@ module LexerParser =
             let sList = printTList oList
             //let pList = parser oList  // pList is the remaining token list and should be empty
             //if not pList.IsEmpty then raise parseError // NOTE this update to avoid expressions like 3(2+3) that would return a value of 3 and have a nonempty token list ([Lpar Num 2 Add Num 3 Rpar], 3)
-            let Out = parseNeval oList symTList
-            let tempID = fst (snd (snd Out))
-            let tempVal = snd (snd (snd Out))
+            let (plot_, (inegral_, (v1_, v2_)), (rr, (tempID, tempVal))) = parseNeval oList symTList
             Console.WriteLine("Variable name = {0}", tempID)    // UPDATE
             Console.WriteLine("Result = {0}", tempVal)          // UPDATED
             // Check whether variable name was already in symTList and if so replace with new value

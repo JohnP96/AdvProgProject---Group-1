@@ -77,7 +77,7 @@ public class Graph
             zoomNum += 1;
         }
     }
-   
+
     // METHODS
     public void clear(Canvas graphCanvas)
     {
@@ -88,10 +88,10 @@ public class Graph
     public void drawAxis(Canvas graphCanvas, double x_Offset, double y_Offset, double zoomLevel)
     {
         // X-Axis
-        DrawLine(graphCanvas, 0, ((graphCanvas.ActualHeight / 2) + y_Offset) * zoomLevel, graphCanvas.ActualWidth, ((graphCanvas.ActualHeight / 2) + y_Offset) * zoomLevel, Brushes.Red, 2);
+        DrawLine(graphCanvas, 0, ((graphCanvas.ActualHeight / 2) + y_Offset) * zoomLevel, graphCanvas.ActualWidth, ((graphCanvas.ActualHeight / 2) + y_Offset) * zoomLevel, Brushes.Black, 2);
 
         // Y-Axis
-        DrawLine(graphCanvas, ((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel, 0, ((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel, graphCanvas.ActualHeight, Brushes.Red, 2);
+        DrawLine(graphCanvas, ((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel, 0, ((graphCanvas.ActualWidth / 2) + x_Offset) * zoomLevel, graphCanvas.ActualHeight, Brushes.Black, 2);
     }
 
     // Draw Grid lines
@@ -170,11 +170,11 @@ public class Graph
 
         // Return the result
         List<double> result = new List<double> {
-                greyLines[0] % blackLines[0],
-                greyLines[1] % blackLines[1],
-                greyLines[2] % blackLines[2],
-                greyLines[3] % blackLines[3]
-            };
+            greyLines[0] % (blackLines[0] == 0 ? 1 : blackLines[0]), // avoiding division by zero
+            greyLines[1] % (blackLines[1] == 0 ? 1 : blackLines[1]),
+            greyLines[2] % (blackLines[2] == 0 ? 1 : blackLines[2]),
+            greyLines[3] % (blackLines[3] == 0 ? 1 : blackLines[3])
+        };
 
         return result;
     }
@@ -279,11 +279,11 @@ public class Graph
     }
 
     // Draw Poly
-    public void DrawPoints(Canvas graphCanvas, List<Point> points)
+    public void DrawPoints(Canvas graphCanvas, List<Point> points, string color)
     {
         Polyline polyline = new Polyline
         {
-            Stroke = Brushes.Blue,
+            Stroke = (SolidColorBrush)new BrushConverter().ConvertFromString(color),
             StrokeThickness = 2
         };
 
@@ -294,5 +294,23 @@ public class Graph
 
         graphCanvas.Children.Add(polyline);
     }
-}
 
+    public void DrawDot(Canvas graphCanvas, List<Point> points)
+    {
+        foreach (Point point in points)
+        {
+            Ellipse dot = new Ellipse
+            {
+                Width = 10,
+                Height = 10,
+                Fill = Brushes.ForestGreen
+            };
+
+            Canvas.SetLeft(dot, point.X - 5);
+            Canvas.SetTop(dot, point.Y - 5);
+            Canvas.SetZIndex(dot, 100);
+
+            graphCanvas.Children.Add(dot);
+        }
+    }
+}
