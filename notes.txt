@@ -1,6 +1,0 @@
-Bugs to fix:
-add more points to graph?
-
-
-Report:
-background: Maple, matlab
