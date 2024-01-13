@@ -574,9 +574,6 @@ module LexerParser =
             | _ -> raise parseError
         snd (snd (E tlist))
 
-    let initPlotTokens =
-        [Num (Number.Float 0)]
-
     //================================== DERIVATIVE OF FUNCITONS /==================================
     let rec findDerivative(tokens:list<terminal>): list<terminal> =
         let rec derivativeOfTerm term =
