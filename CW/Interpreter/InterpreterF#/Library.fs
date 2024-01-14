@@ -179,7 +179,7 @@ module LexerParser =
     //============================ Lexer =========================================  
     
     // Grammar in (E)BNF:
-    //<Plot> ::= <Plt> "(" <VA> ")"
+    //<Plot> ::= <Plt> "(" <E> ")"
     //<VA> ::= <varID> "=" <E>
     //<E> ::= <T> <Eopt>
     //<Eopt> ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>

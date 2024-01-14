@@ -131,13 +131,14 @@ namespace InterpreterWPF
                 string parseRes = LexerParser.parser(lexed, symList).Item1.ToString();
 
                 //cmdWindow.AppendText("> Parser result: " + parseRes + "\n // Testing
-                if (parseRes.StartsWith("F"))
+                if (success & parseRes.StartsWith("F"))
                 {
                     success = false;
                     // Print error message
                     cmdWindow.AppendText(string.Concat("> ", parseRes.AsSpan(9, (parseRes.Length - 10)), "\n")); // The span gets rid of the success/failure notation and the quotation marks
                 }
-                else if (parseRes.Substring(9) != "]") // If the token list returned by the parser is not empty there is an error with the expression
+                else if (success & parseRes.Substring(9) != "]") // If the token list returned by the parser is not empty there is an error with the expression
+
                 {
                     success = false;
                     cmdWindow.AppendText("> Invalid expression.\n");
