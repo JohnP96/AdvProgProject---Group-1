@@ -179,7 +179,7 @@ module LexerParser =
     //============================ Lexer =========================================  
     
     // Grammar in (E)BNF:
-    //<Plot> ::= <Plt> "(" <E> ")"
+    //<Plot> ::= <Plt> "(" <E> ")" | <Inte> "(" <E> ")"
     //<VA> ::= <varID> "=" <E>
     //<E> ::= <T> <Eopt>
     //<Eopt> ::= "+" <T> <Eopt> | "-" <T> <Eopt> | <empty>
@@ -187,9 +187,10 @@ module LexerParser =
     //<Topt> ::= "*" <P> <Topt> | "/" <P> <Topt> | "%" <P> <Topt> | <empty>
     //<P> ::= <NR> <Popt>
     //<Popt> ::= "^" <NR> <Popt> | <empty>
-    //<NR> ::= <Num> | "varVal" value | "(" <E> ")" | "-" <NR> | "+" <NR>
+    //<NR> ::= "(" <NR> "," <NR> "," <E> ")" | <Num> | "varVal" value | "(" <E> ")" | "-" <NR> | "+" <NR>
     //<Num> ::= ["int" | "float"] value
     //<varID> ::= [a-z,A-Z]+
+    //<Inte> ::= "integrate"
     //<Plt> ::= "plot"
 
     ////============================= Parser ======================================
@@ -236,10 +237,14 @@ module LexerParser =
 
         and NR ((tList: result<terminal list>), plot:bool) =
             match tList with 
-            | Success (Num v1:: Comma :: Num v2 :: Comma:: tail) -> (Success tail, plot)
-            | Success (Neg :: Num v1:: Comma :: Num v2 :: Comma:: tail) -> (Success tail, plot)
-            | Success (Num v1:: Comma :: Neg :: Num v2 :: Comma:: tail) -> (Success tail, plot)
-            | Success (Neg :: Num v1:: Comma :: Neg :: Num v2 :: Comma:: tail) -> (Success tail, plot)
+            //| Success (Num v1:: Comma :: Num v2 :: Comma:: tail) -> if plot then (Success tail, plot)
+            //                                                        else (Failure "Missing function name.", plot)
+            //| Success (Neg :: Num v1:: Comma :: Num v2 :: Comma:: tail) -> if plot then (Success tail, plot)
+            //                                                               else (Failure "Missing function name.", plot)
+            //| Success (Num v1:: Comma :: Neg :: Num v2 :: Comma:: tail) -> if plot then (Success tail, plot)
+            //                                                               else (Failure "Missing function name.", plot)
+            //| Success (Neg :: Num v1:: Comma :: Neg :: Num v2 :: Comma:: tail) -> if plot then (Success tail, plot)
+            //                                                                      else (Failure "Missing function name.", plot)
 
             | Success (Neg :: Num value :: tail) -> (Success tail, plot)
             | Success (Neg :: Lpar :: tail) -> match fst (E ((Success tail), plot)) with
@@ -270,8 +275,24 @@ module LexerParser =
             | _ -> E (tList, plot)
         let Plot tList = 
             match tList with 
-            | Plt :: tail -> E ((Success tail), true)
-            | Integrate :: tail ->  E ((Success tail), true)
+            | Plt :: Lpar :: Num v1:: Comma :: Num v2 :: Comma :: tail -> match fst (E ((Success tail), true)) with
+                                                                          | Success (Rpar :: tail) -> (Success tail, true)
+                                                                          | Success _ -> (Failure "Missing right parenthesis", true)
+                                                                          | Failure error -> (Failure error, true)
+            | Integrate :: Lpar :: Num v1:: Comma :: Num v2 :: Comma :: tail -> match fst (E ((Success tail), true)) with
+                                                                                | Success (Rpar :: tail) -> (Success tail, true)
+                                                                                | Success _ -> (Failure "Missing right parenthesis", true)
+                                                                                | Failure error -> (Failure error, true)
+            | Plt :: Lpar:: tail -> match fst (E ((Success tail), true)) with
+                                    | Success (Rpar :: tail) -> (Success tail, true)
+                                    | Success _ -> (Failure "Missing right parenthesis", true)
+                                    | Failure error -> (Failure error, true)
+            | Integrate :: Lpar :: tail ->  match fst (E ((Success tail), true)) with
+                                            | Success (Rpar :: tail) -> (Success tail, true)
+                                            | Success _ -> (Failure "Missing right parenthesis", true)
+                                            | Failure error -> (Failure error, true)
+            |Plt :: tail -> (Failure "Missing brackets in function call.", true)
+            |Integrate :: tail -> (Failure "Missing brackets in function call.", true)
             | _ -> VA ((Success tList), false)
 
         Plot tList 
@@ -571,6 +592,7 @@ module LexerParser =
                                match tLst with 
                                | Rpar :: tail -> (tail, ("", tval))
                                | _ -> raise parseError
+            | Rpar :: tail -> (tail, ("", Number.Int 0))
             | _ -> raise parseError
         snd (snd (E tlist))
 
@@ -588,6 +610,8 @@ module LexerParser =
             | Neg:: tail -> Neg :: derivativeOfTerm tail
             | Plus::tail -> Plus :: derivativeOfTerm tail
             | Mul::tail -> Mul :: derivativeOfTerm tail
+            | Lpar :: tail -> Lpar :: derivativeOfTerm tail
+            | Rpar :: tail -> Rpar :: derivativeOfTerm tail
             |_ -> []
 
 
@@ -689,6 +713,8 @@ module LexerParser =
             | Neg:: tail -> Neg :: integralOfTerm tail
             | Plus::tail -> Plus :: integralOfTerm tail
             | Mul::tail -> Mul :: integralOfTerm tail
+            | Lpar::tail -> Lpar :: integralOfTerm tail
+            | Rpar::tail -> Rpar :: integralOfTerm tail
             |_ -> []
 
         match tokens with

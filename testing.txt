@@ -15,11 +15,18 @@
 (((3*2--2)) = ERROR
 -((3*5-2*3)) = -9
 5*3) = ERROR
+1_1 = ERROR
+
 
 plot(x - 3)
+plot(0,10,x-3)
 plot((x + 2)^2)
 plot(x^3 + 3x^2 + 4x - 5)
+integrate(x - 3)
+integrate(0,10,x-3)
+integrate(x^3 + 3x^2 + 4x - 5)
 
+X3
 X=3 
 (2*X)-X^2*5 = -39
 (2*X) - X^2*5/2 = -16

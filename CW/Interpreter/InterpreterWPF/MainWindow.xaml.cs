@@ -45,6 +45,7 @@ namespace InterpreterWPF
         terminalList integral;
         LexerParser.Number start_;
         LexerParser.Number stop_;
+        bool inte;
 
         public MainWindow()
         {
@@ -52,6 +53,7 @@ namespace InterpreterWPF
             symList = FSharpList<stringValPair>.Empty;
             testGraph = new Graph(graphCanvas, zoomLevel, x_Offset, y_Offset, baseInterval, baseDarkInterval, zoomNum);
             cmdWindow.AppendText("Please enter an equation or type 'help' for more information:\n");
+            inte = false;
         }
 
         private void enterBtn_Click(object sender, RoutedEventArgs e)
@@ -154,7 +156,7 @@ namespace InterpreterWPF
                     bool integration_ = result.Item1.Item2.Item1;
                     start_ = result.Item1.Item2.Item2.Item1;
                     stop_ = result.Item1.Item2.Item2.Item2;
-
+                    inte = false;
 
                     // "answer" -> value
                     LexerParser.Number answer = result.Item1.Item3.Item2.Item2;
@@ -167,7 +169,6 @@ namespace InterpreterWPF
                     {
                         plotTokens = result.Item1.Item3.Item1;
                         derivative = LexerParser.findDerivative(plotTokens);
-
                         String derivativeString = LexerParser.tokenToString(LexerParser.simplifyTokens(derivative));
 
                         // Write the info to the card 
@@ -178,9 +179,9 @@ namespace InterpreterWPF
                     }
                     else if (integration_)
                     {
+                        inte = true;
                         // Get the function f(x)
                         plotTokens = result.Item1.Item3.Item1;
-
                         // Integrate the function
                         integral = LexerParser.findIntegral(plotTokens);
 
@@ -232,7 +233,7 @@ namespace InterpreterWPF
             double step = 0.1;
             double scaleFactor = Math.Abs(baseInterval * zoomLevel);
 
-            if (integral != null)
+            if (inte & integral != null)
             {
                 PlotGraph(resi, step, scaleFactor);
                 PlotIntegral(resi, step, scaleFactor);
@@ -246,7 +247,7 @@ namespace InterpreterWPF
 
                 PlotGraph(resi, step, scaleFactor);
                 PlotDerivative(resi, step, scaleFactor);
-
+                
                 // Find roots of Polynomial
                 double maxIteration = 1000;
                 FSharpList<double> roots = LexerParser.newtonMethod(plotTokens, derivative, ListModule.OfSeq(resi), maxIteration, 0.001);
